@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectionBackground } from "@/components/ui/section-background";
+import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
 import WasteInsights from "@/components/WasteInsights";
 
 type WasteInsightsData = {
@@ -40,16 +41,17 @@ export default function Insights() {
     queryKey: ['/api/waste-insights'],
   });
   
-  const { data: foodItems } = useQuery({
+  const { data: foodItems } = useQuery<any[]>({
     queryKey: ['/api/food-items'],
   });
   
   // Prepare data for the category distribution chart
-  const categoryData = foodItems ? getCategoryDistribution(foodItems) : [];
+  const categoryData = Array.isArray(foodItems) ? getCategoryDistribution(foodItems) : [];
   
   return (
     <div className="mb-8">
       <SectionBackground pattern="insights" className="p-6">
+        <GlassLogoBackground className="rounded-xl p-4">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">Insights</h1>
         
         <Tabs defaultValue="waste" className="mb-6">
@@ -282,7 +284,7 @@ export default function Insights() {
                 <div className="h-80">
                   {!foodItems ? (
                     <Skeleton className="h-full w-full" />
-                  ) : foodItems.length > 0 ? (
+                  ) : Array.isArray(foodItems) && foodItems.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={getStorageDistribution(foodItems)}
@@ -334,7 +336,7 @@ export default function Insights() {
                 <div className="h-80">
                   {!foodItems ? (
                     <Skeleton className="h-full w-full" />
-                  ) : foodItems.length > 0 ? (
+                  ) : Array.isArray(foodItems) && foodItems.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={getExpirationTimeline(foodItems)}
@@ -367,6 +369,7 @@ export default function Insights() {
           </div>
         </TabsContent>
       </Tabs>
+      </GlassLogoBackground>
       </SectionBackground>
     </div>
   );

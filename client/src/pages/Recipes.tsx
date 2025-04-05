@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { Clock } from "lucide-react";
 import { SectionBackground } from "@/components/ui/section-background";
+import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
 
 type Recipe = {
   id: number;
@@ -33,18 +34,19 @@ export default function Recipes() {
   return (
     <div className="mb-8">
       <SectionBackground pattern="recipes" className="p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Recipes</h1>
-          <div className="mt-4 sm:mt-0 w-full sm:w-64">
-            <Input
-              type="text"
-              placeholder="Search recipes or ingredients..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white/80"
-            />
+        <GlassLogoBackground opacity={0.06}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <h1 className="text-2xl font-semibold text-gray-900 pt-2">Recipes</h1>
+            <div className="mt-4 sm:mt-0 w-full sm:w-64">
+              <Input
+                type="text"
+                placeholder="Search recipes or ingredients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-white/80"
+              />
+            </div>
           </div>
-        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -119,6 +121,7 @@ export default function Recipes() {
             )}
           </div>
         )}
+        </GlassLogoBackground>
       </SectionBackground>
     </div>
   );
