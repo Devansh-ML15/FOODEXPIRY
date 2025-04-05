@@ -1,6 +1,5 @@
 import DashboardStats from "@/components/DashboardStats";
 import ExpirationAlerts from "@/components/ExpirationAlerts";
-import WasteInsights from "@/components/WasteInsights";
 import RecipeSuggestions from "@/components/RecipeSuggestions";
 import { SectionBackground } from "@/components/ui/section-background";
 import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
@@ -22,19 +21,11 @@ export default function Dashboard() {
         </GlassLogoBackground>
       </SectionBackground>
       
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <SectionBackground pattern="insights" className="p-6">
-          <GlassLogoBackground opacity={0.06}>
-            <WasteInsights />
-          </GlassLogoBackground>
-        </SectionBackground>
-        
-        <SectionBackground pattern="recipes" className="p-6">
-          <GlassLogoBackground opacity={0.06}>
-            <RecipeSuggestions />
-          </GlassLogoBackground>
-        </SectionBackground>
-      </div>
+      <SectionBackground pattern="recipes" className="p-6">
+        <GlassLogoBackground opacity={0.06}>
+          <RecipeSuggestions />
+        </GlassLogoBackground>
+      </SectionBackground>
     </div>
   );
 }

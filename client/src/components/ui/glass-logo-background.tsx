@@ -19,7 +19,7 @@ export function GlassLogoBackground({
         className="absolute inset-0 overflow-hidden rounded-lg z-0"
         style={{
           backgroundImage: `url(${logoPath})`,
-          backgroundSize: 'contain',
+          backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           opacity: opacity,
