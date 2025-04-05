@@ -1,17 +1,27 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Bell, Cog, Menu } from "lucide-react";
+import { Bell, Cog, Menu, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { FoodItemWithStatus } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logoImage from "@/assets/logo.png";
 
 export default function Navbar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user, logoutMutation } = useAuth();
   
   // Query for food items to get expired and about-to-expire items
   const { data: foodItems = [] } = useQuery<FoodItemWithStatus[]>({
@@ -98,14 +108,18 @@ export default function Navbar() {
           <div className="flex items-center">
             <Button
               onClick={handleNotificationClick}
-              variant="ghost"
-              className="p-2 mr-3 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all duration-300"
+              variant={notificationCount > 0 ? "destructive" : "ghost"}
+              className={`p-2 mr-3 rounded-full transition-all duration-300 ${
+                notificationCount > 0 
+                  ? "bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white shadow-md" 
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
             >
               <span className="sr-only">View notifications</span>
               <div className="relative">
-                <Bell className="h-5 w-5 icon-animated" />
+                <Bell className={`h-5 w-5 ${notificationCount > 0 ? "text-white animate-bounce" : "icon-animated"}`} />
                 {notificationCount > 0 && (
-                  <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full pulse-animation">
+                  <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 border-2 border-white rounded-full pulse-animation">
                     {notificationCount}
                   </span>
                 )}
@@ -121,16 +135,61 @@ export default function Navbar() {
               </Button>
             </Link>
             <div className="ml-3 relative">
-              <div>
-                <Button variant="ghost" className="rounded-full p-1 hover:bg-gray-100 transition-all duration-300">
-                  <span className="sr-only">Open user menu</span>
-                  <Avatar className="h-8 w-8 bg-gradient-to-br from-green-600 to-green-400 shadow-md transform transition-all duration-300 hover:scale-110">
-                    <AvatarFallback className="text-white font-bold">
-                      JS
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </div>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="rounded-full p-1 hover:bg-gray-100 transition-all duration-300">
+                      <span className="sr-only">Open user menu</span>
+                      <Avatar className="h-8 w-8 bg-gradient-to-br from-green-600 to-green-400 shadow-md transform transition-all duration-300 hover:scale-110">
+                        <AvatarFallback className="text-white font-bold">
+                          {user.username.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.username}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <Link href="/settings">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => logoutMutation.mutate()}
+                      disabled={logoutMutation.isPending}
+                      className="cursor-pointer"
+                    >
+                      {logoutMutation.isPending ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin">⏳</span>
+                          <span>Logging out...</span>
+                        </>
+                      ) : (
+                        <>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link href="/auth">
+                  <Button variant="default" size="sm" className="font-semibold">
+                    Log in
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <div className="-mr-2 flex items-center sm:hidden">

@@ -110,8 +110,10 @@ export const foodItemsRelations = relations(foodItems, ({ many }) => ({
 // User profiles
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  name: text("name").notNull(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  email: text("email").unique(),
+  name: text("name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

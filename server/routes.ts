@@ -1,4 +1,4 @@
-import express, { type Express, Request, Response } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -9,8 +9,12 @@ import {
   FoodItemWithStatus 
 } from "@shared/schema";
 import { differenceInDays, isAfter } from "date-fns";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+  
   const apiRouter = express.Router();
   
   // Barcode Service

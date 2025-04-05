@@ -69,7 +69,7 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
 
           {/* Scanner View */}
           <video 
-            ref={ref} 
+            ref={ref}
             className="absolute inset-0 w-full h-full object-cover"
           />
 

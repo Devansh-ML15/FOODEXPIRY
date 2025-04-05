@@ -43,7 +43,7 @@ export default function BarcodeScannerPage() {
         });
       } else {
         // If no product data, go to manual entry with barcode pre-filled
-        setLocation(`/inventory/add?barcode=${scannedBarcode}`);
+        setLocation(`/add-food-item?barcode=${scannedBarcode}`);
       }
     },
     onError: (error) => {
@@ -53,7 +53,7 @@ export default function BarcodeScannerPage() {
         variant: 'destructive',
       });
       // Go to manual entry with barcode pre-filled
-      setLocation(`/inventory/add?barcode=${scannedBarcode}`);
+      setLocation(`/add-food-item?barcode=${scannedBarcode}`);
     },
   });
 
@@ -202,7 +202,7 @@ export default function BarcodeScannerPage() {
               
               <Button 
                 variant="outline" 
-                onClick={() => setLocation('/inventory/add')}
+                onClick={() => setLocation('/add-food-item')}
                 className="w-full"
               >
                 Manual Entry

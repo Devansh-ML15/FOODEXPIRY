@@ -21,6 +21,9 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, between, and, desc, sql } from "drizzle-orm";
+import connectPg from "connect-pg-simple";
+import session from "express-session";
+import { pool } from "./db";
 
 export interface IStorage {
   // Food Items
@@ -42,6 +45,7 @@ export interface IStorage {
   // User Management
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   
@@ -51,9 +55,23 @@ export interface IStorage {
   updateNotificationSettings(id: number, settings: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined>;
   getExpiringFoodItemsForNotification(daysThreshold: number): Promise<FoodItem[]>;
   updateLastNotified(id: number, timestamp: Date): Promise<void>;
+  
+  // Session Management
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+  
+  constructor() {
+    // Create postgres session store
+    const PostgresStore = connectPg(session);
+    this.sessionStore = new PostgresStore({
+      pool,
+      createTableIfMissing: true,
+      // Table name defaults to 'session'
+    });
+  }
   // Food Items
   async getAllFoodItems(): Promise<FoodItem[]> {
     return await db.select().from(foodItems).orderBy(desc(foodItems.expirationDate));
@@ -144,6 +162,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const result = await db.select().from(users).where(eq(users.email, email));
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username));
     return result.length > 0 ? result[0] : undefined;
   }
 
@@ -300,6 +323,8 @@ export class DatabaseStorage implements IStorage {
     if (existingUsers.length === 0) {
       // Add a default user
       const defaultUser: InsertUser = {
+        username: "demo",
+        password: "password123", // This will be hashed in a real scenario
         name: "Demo User",
         email: "demo@freshtrack.app",
       };
