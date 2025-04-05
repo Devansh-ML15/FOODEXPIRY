@@ -4,21 +4,46 @@ import { Bell, Cog, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { FoodItemWithStatus } from "@shared/schema";
 import logoImage from "@/assets/logo.png";
 
 export default function Navbar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-
+  
+  // Query for food items to get expired and about-to-expire items
+  const { data: foodItems = [] } = useQuery<FoodItemWithStatus[]>({
+    queryKey: ["/api/food-items"],
+    staleTime: 60 * 1000, // 1 minute
+  });
+  
+  // Filter for expired and about-to-expire items
+  const alertItems = foodItems.filter(
+    item => item.status === 'expired' || item.status === 'expiring-soon'
+  );
+  
+  const notificationCount = alertItems.length;
+  
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const handleNotificationClick = () => {
+    const expiredItems = alertItems.filter(item => item.status === 'expired').length;
+    const expiringItems = alertItems.filter(item => item.status === 'expiring-soon').length;
+    
+    let description = "No items need attention.";
+    
+    if (notificationCount > 0) {
+      description = `${expiredItems > 0 ? `${expiredItems} expired` : ''} ${expiredItems > 0 && expiringItems > 0 ? 'and ' : ''}${expiringItems > 0 ? `${expiringItems} expiring soon` : ''}`;
+    }
+    
     toast({
-      title: "Notifications",
-      description: "You have 3 items expiring soon",
+      title: "Food Status Alert",
+      description,
+      variant: notificationCount > 0 ? "destructive" : "default",
     });
   };
 
@@ -43,8 +68,8 @@ export default function Navbar() {
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
                 <a className="flex items-center">
-                  <img src={logoImage} alt="Food Expiry Logo" className="h-10 w-10 mr-2" />
-                  <span className="font-bold text-xl text-primary">Food Expiry</span>
+                  <img src={logoImage} alt="FreshTrack Logo" className="h-10 w-10 mr-2" />
+                  <span className="font-bold text-xl text-primary">FreshTrack</span>
                 </a>
               </Link>
             </div>
@@ -73,9 +98,11 @@ export default function Navbar() {
               <span className="sr-only">View notifications</span>
               <div className="relative">
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                  3
-                </span>
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                    {notificationCount}
+                  </span>
+                )}
               </div>
             </Button>
             <Link href="/settings">
