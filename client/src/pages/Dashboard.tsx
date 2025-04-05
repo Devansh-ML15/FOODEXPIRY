@@ -8,7 +8,7 @@ export default function Dashboard() {
     <div className="mb-8">
       <SectionBackground pattern="dashboard" className="p-6 mb-6">
         <GlassLogoBackground>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-6 pt-2">Dashboard</h1>
+          <h1 className="page-header">Dashboard</h1>
           
           <DashboardStats />
         </GlassLogoBackground>

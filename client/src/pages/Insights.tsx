@@ -52,7 +52,7 @@ export default function Insights() {
     <div className="mb-8">
       <SectionBackground pattern="insights" className="p-6">
         <GlassLogoBackground className="rounded-xl p-4">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Insights</h1>
+        <h1 className="page-header">Insights</h1>
         
         <Tabs defaultValue="waste" className="mb-6">
           <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">

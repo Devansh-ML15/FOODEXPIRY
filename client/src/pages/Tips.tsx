@@ -29,10 +29,7 @@ export default function Tips() {
   return (
     <div className="mb-8">
       <SectionBackground pattern="tips" className="p-6">
-        <div className="flex items-center mb-6">
-          <img src={logoImage} alt="Food Expiry Logo" className="h-8 w-8 mr-2" />
-          <h1 className="text-2xl font-semibold text-gray-900">Sustainability Tips</h1>
-        </div>
+        <h1 className="page-header">Sustainability Tips</h1>
 
       <Card className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100">
         <CardContent className="pt-6">

@@ -71,10 +71,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFoodItem(id: number, updates: Partial<InsertFoodItem>): Promise<FoodItem | undefined> {
-    // @ts-ignore - Type issues with drizzle-orm
+    // Handle type-safe category updates
+    const typeCheckedUpdates: any = { ...updates };
+    
+    // For proper type checking, ensure category is one of the allowed values
+    if (updates.category && typeof updates.category === 'string') {
+      if (FOOD_CATEGORIES.includes(updates.category as any)) {
+        typeCheckedUpdates.category = updates.category;
+      } else {
+        throw new Error(`Invalid category: ${updates.category}`);
+      }
+    }
+    
     const [updatedItem] = await db
       .update(foodItems)
-      .set(updates)
+      .set(typeCheckedUpdates)
       .where(eq(foodItems.id, id))
       .returning();
     
@@ -169,11 +180,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateNotificationSettings(id: number, updates: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined> {
-    // @ts-ignore - Type issues with drizzle-orm
+    // Handle type-safe expirationFrequency updates
+    const typeCheckedUpdates: any = { ...updates };
+    
+    // For proper type checking, ensure expirationFrequency is one of the allowed values
+    if (updates.expirationFrequency && typeof updates.expirationFrequency === 'string') {
+      if (NOTIFICATION_FREQUENCIES.includes(updates.expirationFrequency as any)) {
+        typeCheckedUpdates.expirationFrequency = updates.expirationFrequency;
+      } else {
+        throw new Error(`Invalid frequency: ${updates.expirationFrequency}`);
+      }
+    }
+    
     const [updatedSettings] = await db
       .update(notificationSettings)
       .set({
-        ...updates,
+        ...typeCheckedUpdates,
         updatedAt: new Date()
       })
       .where(eq(notificationSettings.id, id))
@@ -286,16 +308,18 @@ export class DatabaseStorage implements IStorage {
       const [newUser] = await db.insert(users).values(defaultUser).returning();
       
       // Create default notification settings for the user
-      const defaultSettings: InsertNotificationSetting = {
+      const defaultSettings = {
         userId: newUser.id,
         expirationAlerts: true,
-        expirationFrequency: "daily",
+        expirationFrequency: "daily" as const, // Type-safe frequency
         weeklyReport: true,
         emailEnabled: true,
         emailAddress: "demo@freshtrack.app",
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
-      await db.insert(notificationSettings).values(defaultSettings);
+      await db.insert(notificationSettings).values([defaultSettings]);
       
       console.log("Initialized default user and notification settings");
     }
