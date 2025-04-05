@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, date, timestamp, doublePrecision } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, timestamp, doublePrecision, foreignKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // Food categories
 export const FOOD_CATEGORIES = [
@@ -59,7 +60,7 @@ export const recipes = pgTable("recipes", {
 // Waste tracking
 export const wasteEntries = pgTable("waste_entries", {
   id: serial("id").primaryKey(),
-  foodItemId: integer("food_item_id").notNull(),
+  foodItemId: integer("food_item_id").notNull().references(() => foodItems.id),
   quantity: integer("quantity").notNull(),
   unit: text("unit").$type<typeof QUANTITY_UNITS[number]>().notNull(),
   wasteWeight: doublePrecision("waste_weight"), // in kg
@@ -93,3 +94,15 @@ export type FoodItemWithStatus = FoodItem & {
   status: 'expired' | 'expiring-soon' | 'fresh';
   daysUntilExpiration: number;
 };
+
+// Define relationships between tables
+export const foodItemsRelations = relations(foodItems, ({ many }) => ({
+  wasteEntries: many(wasteEntries),
+}));
+
+export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
+  foodItem: one(foodItems, {
+    fields: [wasteEntries.foodItemId],
+    references: [foodItems.id],
+  }),
+}));
