@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Archive, AlertTriangle, Utensils, Leaf } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import logoImage from "@/assets/logo.png";
 
 type DashboardStats = {
   totalItems: number;
@@ -42,7 +43,7 @@ export default function DashboardStats() {
       
       <StatCard
         isLoading={isLoading}
-        icon={<Leaf className="text-emerald-600" />}
+        icon={<img src={logoImage} alt="Food Expiry Logo" className="h-6 w-6" />}
         iconBgColor="bg-emerald-100"
         label="Waste Saved (kg)"
         value={data?.wasteSavedKg || 0}

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Leaf, Bell, Cog, Menu } from "lucide-react";
+import { Bell, Cog, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import logoImage from "@/assets/logo.png";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -42,8 +43,12 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Leaf className="text-primary h-6 w-6 mr-2" />
-              <span className="font-bold text-xl text-primary">FreshTrack</span>
+              <Link href="/">
+                <a className="flex items-center">
+                  <img src={logoImage} alt="Food Expiry Logo" className="h-10 w-10 mr-2" />
+                  <span className="font-bold text-xl text-primary">Food Expiry</span>
+                </a>
+              </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navLinks.map((link) => (

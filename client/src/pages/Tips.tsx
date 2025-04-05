@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Leaf, Info, RefreshCw, Calendar, Trash, FolderPlus } from "lucide-react";
+import { Info, RefreshCw, Calendar, Trash, FolderPlus, Leaf } from "lucide-react";
+import logoImage from "@/assets/logo.png";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +28,7 @@ export default function Tips() {
   return (
     <div className="mb-8">
       <div className="flex items-center mb-6">
-        <Leaf className="text-primary mr-2 h-6 w-6" />
+        <img src={logoImage} alt="Food Expiry Logo" className="h-8 w-8 mr-2" />
         <h1 className="text-2xl font-semibold text-gray-900">Sustainability Tips</h1>
       </div>
 
@@ -36,7 +37,7 @@ export default function Tips() {
           <div className="flex flex-col md:flex-row md:items-center">
             <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
               <div className="rounded-full bg-green-100 p-3 h-16 w-16 flex items-center justify-center">
-                <Leaf className="h-8 w-8 text-primary" />
+                <img src={logoImage} alt="Food Expiry Logo" className="h-10 w-10" />
               </div>
             </div>
             <div>
