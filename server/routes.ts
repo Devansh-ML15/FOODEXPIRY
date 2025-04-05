@@ -13,6 +13,51 @@ import { differenceInDays, isAfter } from "date-fns";
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   
+  // Barcode Service
+  const barcodeService = {
+    async lookupBarcode(barcode: string) {
+      try {
+        // In a real application, this would connect to a product database or external API
+        // For demonstration, we'll use a mock implementation with some sample products
+        
+        // Simulated delay to mimic a real API call
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Sample product database (would be replaced with a real API in production)
+        const sampleProducts: Record<string, {name: string, category: string}> = {
+          '0123456789012': { name: 'Organic Milk', category: 'dairy' },
+          '5901234123457': { name: 'Whole Grain Bread', category: 'bakery' },
+          '4000417025005': { name: 'Bananas', category: 'produce' },
+          '8888888888888': { name: 'Frozen Pizza', category: 'frozen' },
+          '7777777777777': { name: 'Pasta Sauce', category: 'canned' },
+          '6666666666666': { name: 'Chicken Breast', category: 'meat' },
+        };
+        
+        // Return the product if found, otherwise return empty object
+        return sampleProducts[barcode] || { name: '', category: '' };
+      } catch (error) {
+        console.error('Barcode lookup error:', error);
+        throw new Error('Failed to lookup barcode');
+      }
+    }
+  };
+  
+  // Barcode lookup endpoint
+  apiRouter.get("/barcode-lookup", async (req: Request, res: Response) => {
+    const barcode = req.query.code as string;
+    
+    if (!barcode) {
+      return res.status(400).json({ message: "Barcode is required" });
+    }
+    
+    try {
+      const product = await barcodeService.lookupBarcode(barcode);
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to lookup barcode information" });
+    }
+  });
+  
   // Food Items
   apiRouter.get("/food-items", async (req: Request, res: Response) => {
     try {
