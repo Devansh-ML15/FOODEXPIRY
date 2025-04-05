@@ -1,0 +1,9 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="inventoryPattern" patternUnits="userSpaceOnUse" width="60" height="60">
+      <rect x="0" y="0" width="10" height="10" fill="#FB923C15" />
+      <rect x="30" y="30" width="10" height="10" fill="#FB923C15" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#inventoryPattern)" />
+</svg>

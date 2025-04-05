@@ -1,0 +1,10 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="recipesPattern" patternUnits="userSpaceOnUse" width="70" height="70">
+      <circle cx="10" cy="10" r="5" fill="#EC489920" />
+      <circle cx="40" cy="40" r="8" fill="#EC489915" />
+      <circle cx="70" cy="20" r="4" fill="#EC489920" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#recipesPattern)" />
+</svg>

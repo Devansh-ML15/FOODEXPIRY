@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SectionBackground } from "@/components/ui/section-background";
 
 type Tip = {
   id: number;
@@ -27,10 +28,11 @@ export default function Tips() {
 
   return (
     <div className="mb-8">
-      <div className="flex items-center mb-6">
-        <img src={logoImage} alt="Food Expiry Logo" className="h-8 w-8 mr-2" />
-        <h1 className="text-2xl font-semibold text-gray-900">Sustainability Tips</h1>
-      </div>
+      <SectionBackground pattern="tips" className="p-6">
+        <div className="flex items-center mb-6">
+          <img src={logoImage} alt="Food Expiry Logo" className="h-8 w-8 mr-2" />
+          <h1 className="text-2xl font-semibold text-gray-900">Sustainability Tips</h1>
+        </div>
 
       <Card className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100">
         <CardContent className="pt-6">
@@ -137,6 +139,7 @@ export default function Tips() {
           </p>
         </CardFooter>
       </Card>
+      </SectionBackground>
     </div>
   );
 }

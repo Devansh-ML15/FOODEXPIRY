@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SectionBackground } from "@/components/ui/section-background";
 import WasteInsights from "@/components/WasteInsights";
 
 type WasteInsightsData = {
@@ -48,15 +49,16 @@ export default function Insights() {
   
   return (
     <div className="mb-8">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Insights</h1>
-      
-      <Tabs defaultValue="waste" className="mb-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="waste">Waste Trends</TabsTrigger>
-          <TabsTrigger value="categories">Category Distribution</TabsTrigger>
-          <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
-        </TabsList>
+      <SectionBackground pattern="insights" className="p-6">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Insights</h1>
         
+        <Tabs defaultValue="waste" className="mb-6">
+          <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">
+            <TabsTrigger value="waste">Waste Trends</TabsTrigger>
+            <TabsTrigger value="categories">Category Distribution</TabsTrigger>
+            <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
+          </TabsList>
+          
         <TabsContent value="waste">
           <div className="grid grid-cols-1 gap-6">
             <Card>
@@ -365,6 +367,7 @@ export default function Insights() {
           </div>
         </TabsContent>
       </Tabs>
+      </SectionBackground>
     </div>
   );
 }

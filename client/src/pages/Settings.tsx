@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Bell, Mail, ShieldAlert, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { SectionBackground } from "@/components/ui/section-background";
 
 import {
   Card,
@@ -262,19 +263,20 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Manage your account settings and notification preferences.
-        </p>
-      </div>
+    <div className="space-y-6 mb-8">
+      <SectionBackground pattern="settings" className="p-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Manage your account settings and notification preferences.
+          </p>
+        </div>
 
-      <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="profile" className="space-y-4 mt-6">
           <Card>
@@ -459,6 +461,7 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+      </SectionBackground>
     </div>
   );
 }
