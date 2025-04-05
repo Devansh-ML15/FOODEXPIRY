@@ -1,7 +1,13 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertFoodItemSchema, insertWasteEntrySchema, FoodItemWithStatus } from "@shared/schema";
+import { 
+  insertFoodItemSchema, 
+  insertWasteEntrySchema, 
+  insertUserSchema,
+  insertNotificationSettingsSchema,
+  FoodItemWithStatus 
+} from "@shared/schema";
 import { differenceInDays, isAfter } from "date-fns";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -372,6 +378,239 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ];
     
     res.json(tips);
+  });
+
+  // User Management
+  apiRouter.get("/users/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve user" });
+    }
+  });
+
+  apiRouter.post("/users", async (req: Request, res: Response) => {
+    try {
+      const validation = insertUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid user data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Check if email already exists
+      const existingUser = await storage.getUserByEmail(validation.data.email);
+      if (existingUser) {
+        return res.status(409).json({ message: "User with this email already exists" });
+      }
+      
+      const newUser = await storage.createUser(validation.data);
+      res.status(201).json(newUser);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  apiRouter.patch("/users/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Partially validate the update fields
+      const validation = insertUserSchema.partial().safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid user update data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // If email is being updated, check if it already exists
+      if (validation.data.email) {
+        const existingUser = await storage.getUserByEmail(validation.data.email);
+        if (existingUser && existingUser.id !== id) {
+          return res.status(409).json({ message: "User with this email already exists" });
+        }
+      }
+      
+      const updatedUser = await storage.updateUser(id, validation.data);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  // Notification Settings
+  apiRouter.get("/notification-settings/:userId", async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID format" });
+      }
+      
+      const settings = await storage.getNotificationSettings(userId);
+      if (!settings) {
+        return res.status(404).json({ message: "Notification settings not found" });
+      }
+      
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve notification settings" });
+    }
+  });
+
+  apiRouter.post("/notification-settings", async (req: Request, res: Response) => {
+    try {
+      const validation = insertNotificationSettingsSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid notification settings data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUser(validation.data.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Check if settings already exist for this user
+      const existingSettings = await storage.getNotificationSettings(validation.data.userId);
+      if (existingSettings) {
+        return res.status(409).json({ message: "Notification settings already exist for this user" });
+      }
+      
+      const newSettings = await storage.createNotificationSettings(validation.data);
+      res.status(201).json(newSettings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create notification settings" });
+    }
+  });
+
+  apiRouter.patch("/notification-settings/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Partially validate the update fields
+      const validation = insertNotificationSettingsSchema.partial().safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid notification settings update data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      const updatedSettings = await storage.updateNotificationSettings(id, validation.data);
+      if (!updatedSettings) {
+        return res.status(404).json({ message: "Notification settings not found" });
+      }
+      
+      res.json(updatedSettings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update notification settings" });
+    }
+  });
+
+  // Email Notification Endpoints
+  apiRouter.post("/notifications/send-test", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Get user and their notification settings
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const settings = await storage.getNotificationSettings(userId);
+      if (!settings) {
+        return res.status(404).json({ message: "Notification settings not found" });
+      }
+      
+      if (!settings.emailEnabled || !settings.emailAddress) {
+        return res.status(400).json({ message: "Email notifications are not enabled or email address is missing" });
+      }
+      
+      // This would send an actual email in a production environment
+      // For now, we'll just return a success message
+      
+      // Update last notified timestamp
+      await storage.updateLastNotified(settings.id, new Date());
+      
+      res.json({ 
+        success: true, 
+        message: "Test notification sent successfully",
+        emailAddress: settings.emailAddress
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send test notification" });
+    }
+  });
+  
+  apiRouter.post("/notifications/expiring-items", async (req: Request, res: Response) => {
+    try {
+      const { userId, daysThreshold = 3 } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Get user and their notification settings
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const settings = await storage.getNotificationSettings(userId);
+      if (!settings) {
+        return res.status(404).json({ message: "Notification settings not found" });
+      }
+      
+      if (!settings.emailEnabled || !settings.emailAddress || !settings.expirationAlerts) {
+        return res.status(400).json({ message: "Expiration alerts are not enabled" });
+      }
+      
+      // Get expiring items within the threshold
+      const expiringItems = await storage.getExpiringFoodItemsForNotification(daysThreshold);
+      
+      // Update last notified timestamp
+      await storage.updateLastNotified(settings.id, new Date());
+      
+      res.json({ 
+        success: true, 
+        message: "Expiration notification processed successfully",
+        emailAddress: settings.emailAddress,
+        itemCount: expiringItems.length,
+        items: expiringItems
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to process expiration notification" });
+    }
   });
   
   app.use("/api", apiRouter);

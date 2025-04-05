@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, date, timestamp, doublePrecision, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, timestamp, doublePrecision, boolean, foreignKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -31,6 +31,13 @@ export const QUANTITY_UNITS = [
   "oz",
   "g",
   "package"
+] as const;
+
+// Notification frequencies
+export const NOTIFICATION_FREQUENCIES = [
+  "daily",
+  "weekly",
+  "never"
 ] as const;
 
 // Food items table
@@ -100,9 +107,54 @@ export const foodItemsRelations = relations(foodItems, ({ many }) => ({
   wasteEntries: many(wasteEntries),
 }));
 
+// User profiles
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Notification settings
+export const notificationSettings = pgTable("notification_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  expirationAlerts: boolean("expiration_alerts").notNull().default(true),
+  expirationFrequency: text("expiration_frequency").$type<typeof NOTIFICATION_FREQUENCIES[number]>().notNull().default("weekly"),
+  weeklyReport: boolean("weekly_report").notNull().default(true),
+  emailEnabled: boolean("email_enabled").notNull().default(true),
+  emailAddress: text("email_address"),
+  lastNotified: timestamp("last_notified"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users)
+  .omit({ id: true, createdAt: true });
+
+export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings)
+  .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type InsertNotificationSetting = z.infer<typeof insertNotificationSettingsSchema>;
+
 export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
   foodItem: one(foodItems, {
     fields: [wasteEntries.foodItemId],
     references: [foodItems.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ one }) => ({
+  notificationSetting: one(notificationSettings),
+}));
+
+export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [notificationSettings.userId],
+    references: [users.id],
   }),
 }));

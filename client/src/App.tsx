@@ -9,6 +9,7 @@ import Inventory from "@/pages/Inventory";
 import Recipes from "@/pages/Recipes";
 import Insights from "@/pages/Insights";
 import Tips from "@/pages/Tips";
+import Settings from "@/pages/Settings";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/recipes" component={Recipes} />
       <Route path="/insights" component={Insights} />
       <Route path="/tips" component={Tips} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );

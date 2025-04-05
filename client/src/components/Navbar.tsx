@@ -23,10 +23,7 @@ export default function Navbar() {
   };
 
   const handleSettingsClick = () => {
-    toast({
-      title: "Settings",
-      description: "Settings panel will be available soon",
-    });
+    // Navigate to settings page
   };
 
   const navLinks = [
@@ -35,6 +32,7 @@ export default function Navbar() {
     { href: "/recipes", label: "Recipes" },
     { href: "/insights", label: "Insights" },
     { href: "/tips", label: "Tips" },
+    { href: "/settings", label: "Settings" },
   ];
 
   return (
@@ -80,14 +78,15 @@ export default function Navbar() {
                 </span>
               </div>
             </Button>
-            <Button
-              onClick={handleSettingsClick}
-              variant="ghost"
-              className="p-2 rounded-full text-gray-500 hover:text-gray-600"
-            >
-              <span className="sr-only">Settings</span>
-              <Cog className="h-5 w-5" />
-            </Button>
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                className="p-2 rounded-full text-gray-500 hover:text-gray-600"
+              >
+                <span className="sr-only">Settings</span>
+                <Cog className="h-5 w-5" />
+              </Button>
+            </Link>
             <div className="ml-3 relative">
               <div>
                 <Button variant="ghost" className="rounded-full p-1">

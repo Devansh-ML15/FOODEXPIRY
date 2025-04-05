@@ -2,15 +2,22 @@ import {
   foodItems, 
   recipes, 
   wasteEntries,
+  users,
+  notificationSettings,
   FOOD_CATEGORIES,
   STORAGE_LOCATIONS,
   QUANTITY_UNITS,
+  NOTIFICATION_FREQUENCIES,
   type FoodItem, 
   type InsertFoodItem,
   type Recipe,
   type InsertRecipe,
   type WasteEntry,
-  type InsertWasteEntry
+  type InsertWasteEntry,
+  type User,
+  type InsertUser,
+  type NotificationSetting,
+  type InsertNotificationSetting
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, between, and, desc, sql } from "drizzle-orm";
@@ -31,6 +38,19 @@ export interface IStorage {
   // Waste Entries
   createWasteEntry(entry: InsertWasteEntry): Promise<WasteEntry>;
   getWasteEntriesByDateRange(startDate: Date, endDate: Date): Promise<WasteEntry[]>;
+  
+  // User Management
+  getUser(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  
+  // Notification Settings
+  getNotificationSettings(userId: number): Promise<NotificationSetting | undefined>;
+  createNotificationSettings(settings: InsertNotificationSetting): Promise<NotificationSetting>;
+  updateNotificationSettings(id: number, settings: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined>;
+  getExpiringFoodItemsForNotification(daysThreshold: number): Promise<FoodItem[]>;
+  updateLastNotified(id: number, timestamp: Date): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -105,6 +125,93 @@ export class DatabaseStorage implements IStorage {
       );
   }
   
+  // User Management
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
+  }
+
+  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [updatedUser] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    
+    return updatedUser;
+  }
+
+  // Notification Settings
+  async getNotificationSettings(userId: number): Promise<NotificationSetting | undefined> {
+    const result = await db
+      .select()
+      .from(notificationSettings)
+      .where(eq(notificationSettings.userId, userId));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async createNotificationSettings(settings: InsertNotificationSetting): Promise<NotificationSetting> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newSettings] = await db.insert(notificationSettings).values(settings).returning();
+    return newSettings;
+  }
+
+  async updateNotificationSettings(id: number, updates: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [updatedSettings] = await db
+      .update(notificationSettings)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(notificationSettings.id, id))
+      .returning();
+    
+    return updatedSettings;
+  }
+
+  async getExpiringFoodItemsForNotification(daysThreshold: number): Promise<FoodItem[]> {
+    const today = new Date();
+    const threshold = new Date();
+    threshold.setDate(today.getDate() + daysThreshold);
+    
+    const todayStr = today.toISOString().split('T')[0];
+    const thresholdStr = threshold.toISOString().split('T')[0];
+    
+    // Get food items that will expire within the threshold days
+    return await db
+      .select()
+      .from(foodItems)
+      .where(
+        and(
+          // @ts-ignore - Type issues with drizzle-orm
+          between(foodItems.expirationDate, todayStr, thresholdStr)
+        )
+      );
+  }
+
+  async updateLastNotified(id: number, timestamp: Date): Promise<void> {
+    await db
+      .update(notificationSettings)
+      .set({
+        lastNotified: timestamp,
+        updatedAt: new Date()
+      })
+      .where(eq(notificationSettings.id, id));
+  }
+
   // Initialize sample data for a fresh database
   async initSampleData() {
     // Check if we already have recipes
@@ -163,6 +270,34 @@ export class DatabaseStorage implements IStorage {
       }
       
       console.log("Initialized sample recipes");
+    }
+    
+    // Check if we already have a default user
+    const existingUsers = await db.select().from(users);
+    
+    if (existingUsers.length === 0) {
+      // Add a default user
+      const defaultUser: InsertUser = {
+        name: "Demo User",
+        email: "demo@freshtrack.app",
+      };
+      
+      // @ts-ignore - Type issues with drizzle-orm
+      const [newUser] = await db.insert(users).values(defaultUser).returning();
+      
+      // Create default notification settings for the user
+      const defaultSettings: InsertNotificationSetting = {
+        userId: newUser.id,
+        expirationAlerts: true,
+        expirationFrequency: "daily",
+        weeklyReport: true,
+        emailEnabled: true,
+        emailAddress: "demo@freshtrack.app",
+      };
+      
+      await db.insert(notificationSettings).values(defaultSettings);
+      
+      console.log("Initialized default user and notification settings");
     }
   }
 }
