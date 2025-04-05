@@ -97,10 +97,9 @@ export default function InventoryGrid() {
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Inventory</h2>
         <Button
           onClick={() => setIsAddDialogOpen(true)}
-          className="inline-flex items-center bg-primary hover:bg-primary-dark text-white"
+          className="inline-flex items-center bg-primary hover:bg-primary-dark text-white ml-auto"
         >
           <span className="mr-2">+</span> Add Item
         </Button>
