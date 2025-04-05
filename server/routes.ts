@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { differenceInDays, isAfter } from "date-fns";
 import { setupAuth } from "./auth";
+import { emailService } from "./email-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -458,10 +459,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Check if email already exists
-      const existingUser = await storage.getUserByEmail(validation.data.email);
-      if (existingUser) {
-        return res.status(409).json({ message: "User with this email already exists" });
+      // Check if email already exists (if email is provided)
+      if (validation.data.email) {
+        const existingUser = await storage.getUserByEmail(validation.data.email);
+        if (existingUser) {
+          return res.status(409).json({ message: "User with this email already exists" });
+        }
       }
       
       const newUser = await storage.createUser(validation.data);
@@ -605,8 +608,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email notifications are not enabled or email address is missing" });
       }
       
-      // This would send an actual email in a production environment
-      // For now, we'll just return a success message
+      // Send test email via SendGrid
+      const emailSent = await emailService.sendTestNotification(settings.emailAddress);
+      
+      if (!emailSent) {
+        return res.status(500).json({ 
+          success: false,
+          message: "Failed to send test notification email. Check your SendGrid configuration."
+        });
+      }
       
       // Update last notified timestamp
       await storage.updateLastNotified(settings.id, new Date());
@@ -617,6 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emailAddress: settings.emailAddress
       });
     } catch (error) {
+      console.error("Test notification error:", error);
       res.status(500).json({ message: "Failed to send test notification" });
     }
   });
@@ -647,6 +658,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get expiring items within the threshold
       const expiringItems = await storage.getExpiringFoodItemsForNotification(daysThreshold);
       
+      // Convert to FoodItemWithStatus format
+      const today = new Date();
+      const expiringItemsWithStatus = expiringItems.map(item => {
+        const expirationDate = new Date(item.expirationDate);
+        const daysUntilExpiration = differenceInDays(expirationDate, today);
+        
+        let status: 'expired' | 'expiring-soon' | 'fresh';
+        if (!isAfter(expirationDate, today)) {
+          status = 'expired';
+        } else if (daysUntilExpiration <= 3) {
+          status = 'expiring-soon';
+        } else {
+          status = 'fresh';
+        }
+        
+        return {
+          ...item,
+          status,
+          daysUntilExpiration
+        };
+      });
+      
+      // Only send notification if there are expiring items
+      if (expiringItemsWithStatus.length > 0) {
+        // Filter items that are actually expiring soon or expired
+        const relevantItems = expiringItemsWithStatus.filter(
+          item => item.status === 'expired' || item.status === 'expiring-soon'
+        );
+        
+        if (relevantItems.length > 0) {
+          // Send notification via SendGrid
+          const emailSent = await emailService.sendExpirationNotification(
+            settings.emailAddress, 
+            relevantItems
+          );
+          
+          if (!emailSent) {
+            return res.status(500).json({ 
+              success: false,
+              message: "Failed to send expiration notification email. Check your SendGrid configuration."
+            });
+          }
+        }
+      }
+      
       // Update last notified timestamp
       await storage.updateLastNotified(settings.id, new Date());
       
@@ -658,7 +714,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
         items: expiringItems
       });
     } catch (error) {
+      console.error("Expiration notification error:", error);
       res.status(500).json({ message: "Failed to process expiration notification" });
+    }
+  });
+  
+  // Weekly summary email
+  apiRouter.post("/notifications/weekly-summary", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Get user and their notification settings
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const settings = await storage.getNotificationSettings(userId);
+      if (!settings) {
+        return res.status(404).json({ message: "Notification settings not found" });
+      }
+      
+      if (!settings.emailEnabled || !settings.emailAddress || !settings.weeklySummary) {
+        return res.status(400).json({ message: "Weekly summary emails are not enabled" });
+      }
+      
+      // Get all food items for the user
+      const foodItems = await storage.getAllFoodItems();
+      
+      // Convert to FoodItemWithStatus format
+      const today = new Date();
+      const foodItemsWithStatus = foodItems.map(item => {
+        const expirationDate = new Date(item.expirationDate);
+        const daysUntilExpiration = differenceInDays(expirationDate, today);
+        
+        let status: 'expired' | 'expiring-soon' | 'fresh';
+        if (!isAfter(expirationDate, today)) {
+          status = 'expired';
+        } else if (daysUntilExpiration <= 3) {
+          status = 'expiring-soon';
+        } else {
+          status = 'fresh';
+        }
+        
+        return {
+          ...item,
+          status,
+          daysUntilExpiration
+        };
+      });
+      
+      // Send weekly summary via SendGrid
+      const emailSent = await emailService.sendWeeklySummary(
+        settings.emailAddress, 
+        foodItemsWithStatus
+      );
+      
+      if (!emailSent) {
+        return res.status(500).json({ 
+          success: false,
+          message: "Failed to send weekly summary email. Check your SendGrid configuration."
+        });
+      }
+      
+      // Update last notified timestamp
+      await storage.updateLastNotified(settings.id, new Date());
+      
+      res.json({ 
+        success: true, 
+        message: "Weekly summary sent successfully",
+        emailAddress: settings.emailAddress,
+        itemCount: foodItems.length
+      });
+    } catch (error) {
+      console.error("Weekly summary error:", error);
+      res.status(500).json({ message: "Failed to send weekly summary" });
     }
   });
   

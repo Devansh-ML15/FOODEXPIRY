@@ -79,11 +79,11 @@ export default function Navbar() {
                 <div className="flex items-center group cursor-pointer">
                   <img 
                     src={logoImage} 
-                    alt="FreshTrack Logo" 
+                    alt="FoodExpiry Logo" 
                     className="h-10 w-10 mr-2 float-animation" 
                   />
                   <span className="font-bold text-xl bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105">
-                    FreshTrack
+                    FoodExpiry
                   </span>
                 </div>
               </Link>

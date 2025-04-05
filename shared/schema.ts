@@ -123,7 +123,7 @@ export const notificationSettings = pgTable("notification_settings", {
   userId: integer("user_id").notNull().references(() => users.id),
   expirationAlerts: boolean("expiration_alerts").notNull().default(true),
   expirationFrequency: text("expiration_frequency").$type<typeof NOTIFICATION_FREQUENCIES[number]>().notNull().default("weekly"),
-  weeklyReport: boolean("weekly_report").notNull().default(true),
+  weeklySummary: boolean("weekly_report").notNull().default(true), // DB column is weekly_report but we'll refer to it as weeklySummary
   emailEnabled: boolean("email_enabled").notNull().default(true),
   emailAddress: text("email_address"),
   lastNotified: timestamp("last_notified"),

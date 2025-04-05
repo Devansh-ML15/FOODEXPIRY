@@ -36,7 +36,7 @@ type NotificationSettings = {
   userId: number;
   expirationAlerts: boolean;
   expirationFrequency: 'daily' | 'weekly' | 'never';
-  weeklyReport: boolean;
+  weeklySummary: boolean; // Renamed from weeklyReport to match schema
   emailEnabled: boolean;
   emailAddress: string | null;
   lastNotified: string | null;
@@ -99,7 +99,7 @@ export default function Settings() {
   const [notificationForm, setNotificationForm] = useState({
     expirationAlerts: false,
     expirationFrequency: 'weekly' as 'daily' | 'weekly' | 'never',
-    weeklyReport: false,
+    weeklySummary: false, // Renamed from weeklyReport to match schema
     emailEnabled: false,
     emailAddress: '',
   });
@@ -119,7 +119,7 @@ export default function Settings() {
       setNotificationForm({
         expirationAlerts: notificationSettings.expirationAlerts,
         expirationFrequency: notificationSettings.expirationFrequency,
-        weeklyReport: notificationSettings.weeklyReport,
+        weeklySummary: notificationSettings.weeklySummary,
         emailEnabled: notificationSettings.emailEnabled,
         emailAddress: notificationSettings.emailAddress || '',
       });
@@ -162,7 +162,7 @@ export default function Settings() {
     mutationFn: async (data: {
       expirationAlerts: boolean;
       expirationFrequency: string;
-      weeklyReport: boolean;
+      weeklySummary: boolean; // Renamed from weeklyReport to match schema
       emailEnabled: boolean;
       emailAddress: string;
     }) => {
@@ -422,16 +422,16 @@ export default function Settings() {
                   <div className="space-y-0.5">
                     <div className="flex items-center">
                       <Mail className="h-5 w-5 mr-2 text-primary" />
-                      <Label className="text-base">Weekly Report</Label>
+                      <Label className="text-base">Weekly Summary</Label>
                     </div>
                     <p className="text-sm text-gray-500">
                       Receive a weekly summary of your inventory and waste statistics
                     </p>
                   </div>
                   <Switch
-                    checked={notificationForm.weeklyReport}
+                    checked={notificationForm.weeklySummary}
                     onCheckedChange={(checked) =>
-                      setNotificationForm({ ...notificationForm, weeklyReport: checked })
+                      setNotificationForm({ ...notificationForm, weeklySummary: checked })
                     }
                   />
                 </div>
