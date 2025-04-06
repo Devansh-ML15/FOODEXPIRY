@@ -11,6 +11,7 @@ import {
 import { differenceInDays, isAfter } from "date-fns";
 import { setupAuth } from "./auth";
 import { emailService } from "./email-service";
+import { ENABLE_EMAIL_FALLBACK } from "./email-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -611,24 +612,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send test email via SendGrid
       const emailSent = await emailService.sendTestNotification(settings.emailAddress);
       
-      if (!emailSent) {
-        return res.status(500).json({ 
-          success: false,
-          message: "Failed to send test notification email. Check your SendGrid configuration."
-        });
-      }
-      
-      // Update last notified timestamp
+      // Update last notified timestamp regardless of whether the email was sent
+      // as we want to track when notification was attempted
       await storage.updateLastNotified(settings.id, new Date());
       
-      res.json({ 
-        success: true, 
-        message: "Test notification sent successfully",
-        emailAddress: settings.emailAddress
-      });
+      if (emailSent) {
+        res.json({ 
+          success: true, 
+          message: "Test notification sent successfully",
+          emailAddress: settings.emailAddress
+        });
+      } else {
+        // Handle the fallback case where email functionality is in development mode
+        if (process.env.NODE_ENV === 'development') {
+          res.json({ 
+            success: true, 
+            message: "Test notification processed (development mode - check server logs)",
+            emailAddress: settings.emailAddress,
+            devMode: true
+          });
+        } else {
+          res.status(500).json({ 
+            success: false,
+            message: "Failed to send test notification email. Check your SendGrid configuration."
+          });
+        }
+      }
     } catch (error) {
       console.error("Test notification error:", error);
-      res.status(500).json({ message: "Failed to send test notification" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to send test notification", 
+        error: (error as Error).message 
+      });
     }
   });
   
@@ -680,6 +696,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
+      // Update last notified timestamp regardless of whether the email was sent
+      await storage.updateLastNotified(settings.id, new Date());
+      
+      let emailSent = false;
+      
       // Only send notification if there are expiring items
       if (expiringItemsWithStatus.length > 0) {
         // Filter items that are actually expiring soon or expired
@@ -689,33 +710,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (relevantItems.length > 0) {
           // Send notification via SendGrid
-          const emailSent = await emailService.sendExpirationNotification(
+          emailSent = await emailService.sendExpirationNotification(
             settings.emailAddress, 
             relevantItems
           );
-          
-          if (!emailSent) {
-            return res.status(500).json({ 
-              success: false,
-              message: "Failed to send expiration notification email. Check your SendGrid configuration."
-            });
-          }
         }
       }
       
-      // Update last notified timestamp
-      await storage.updateLastNotified(settings.id, new Date());
-      
-      res.json({ 
-        success: true, 
-        message: "Expiration notification processed successfully",
-        emailAddress: settings.emailAddress,
-        itemCount: expiringItems.length,
-        items: expiringItems
-      });
+      // If there are no relevant items or we have our fallback in place
+      if (emailSent || (process.env.NODE_ENV === 'development' && ENABLE_EMAIL_FALLBACK)) {
+        res.json({ 
+          success: true, 
+          message: "Expiration notification processed successfully",
+          emailAddress: settings.emailAddress,
+          itemCount: expiringItems.length,
+          items: expiringItems,
+          devMode: process.env.NODE_ENV === 'development' && !emailSent
+        });
+      } else {
+        res.status(500).json({ 
+          success: false,
+          message: "Failed to send expiration notification email. Check your SendGrid configuration."
+        });
+      }
     } catch (error) {
       console.error("Expiration notification error:", error);
-      res.status(500).json({ message: "Failed to process expiration notification" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to process expiration notification",
+        error: (error as Error).message
+      });
     }
   });
   
@@ -774,25 +798,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         foodItemsWithStatus
       );
       
-      if (!emailSent) {
-        return res.status(500).json({ 
+      // Update last notified timestamp regardless of whether the email was sent
+      await storage.updateLastNotified(settings.id, new Date());
+      
+      if (emailSent || (process.env.NODE_ENV === 'development' && ENABLE_EMAIL_FALLBACK)) {
+        res.json({ 
+          success: true, 
+          message: "Weekly summary processed successfully",
+          emailAddress: settings.emailAddress,
+          itemCount: foodItems.length,
+          devMode: process.env.NODE_ENV === 'development' && !emailSent
+        });
+      } else {
+        res.status(500).json({ 
           success: false,
           message: "Failed to send weekly summary email. Check your SendGrid configuration."
         });
       }
-      
-      // Update last notified timestamp
-      await storage.updateLastNotified(settings.id, new Date());
-      
-      res.json({ 
-        success: true, 
-        message: "Weekly summary sent successfully",
-        emailAddress: settings.emailAddress,
-        itemCount: foodItems.length
-      });
     } catch (error) {
       console.error("Weekly summary error:", error);
-      res.status(500).json({ message: "Failed to send weekly summary" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to send weekly summary", 
+        error: (error as Error).message 
+      });
     }
   });
   

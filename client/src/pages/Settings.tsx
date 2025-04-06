@@ -205,21 +205,31 @@ export default function Settings() {
         body: JSON.stringify({ userId }),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Failed to send test notification');
+        throw new Error(data.message || 'Failed to send test notification');
       }
 
-      return response.json();
+      return data;
     },
     onSuccess: (data) => {
-      toast({
-        title: 'Test notification sent',
-        description: `A test notification was sent to ${data.emailAddress}`,
-      });
+      if (data.success) {
+        toast({
+          title: 'Test notification sent',
+          description: `A test notification was sent to ${data.emailAddress}`,
+        });
+      } else {
+        // This branch handles our development fallback
+        toast({
+          title: 'Test notification processed',
+          description: data.message || 'Email notification was processed but may not have been sent due to configuration.',
+        });
+      }
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: 'Error sending notification',
         description: error.message,
         variant: 'destructive',
       });

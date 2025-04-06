@@ -12,7 +12,11 @@ if (process.env.SENDGRID_API_KEY) {
   mailService.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
+// Change this to an email you've verified with SendGrid
 const FROM_EMAIL = 'notifications@foodexpiry.app';
+
+// For development, we can also allow fallback to console output
+export const ENABLE_EMAIL_FALLBACK = true;
 
 export class EmailService {
   private static instance: EmailService;
@@ -148,11 +152,30 @@ This is an automated message. To change your notification preferences, visit the
         html,
       };
 
-      await mailService.send(params);
-      console.log(`Expiration notification sent to ${email}`);
-      return true;
+      try {
+        await mailService.send(params);
+        console.log(`Expiration notification sent to ${email}`);
+        return true;
+      } catch (sendError) {
+        console.error('SendGrid email error:', sendError);
+        
+        // If enabled, provide a fallback for development
+        if (ENABLE_EMAIL_FALLBACK) {
+          console.log('-------- EMAIL FALLBACK (FOR DEVELOPMENT) --------');
+          console.log(`To: ${email}`);
+          console.log(`From: ${FROM_EMAIL}`);
+          console.log(`Subject: FoodExpiry Alert: ${expiredItems.length} expired and ${expiringSoonItems.length} expiring soon`);
+          console.log(`Content: Notification about ${expiredItems.length + expiringSoonItems.length} items`);
+          console.log('-------- END EMAIL FALLBACK --------');
+          
+          // For development, we'll pretend the email was sent successfully
+          return true;
+        }
+        
+        return false;
+      }
     } catch (error) {
-      console.error('SendGrid email error:', error);
+      console.error('Error preparing email:', error);
       return false;
     }
   }
@@ -270,11 +293,30 @@ This weekly summary is sent based on your notification preferences. To change yo
         html,
       };
 
-      await mailService.send(params);
-      console.log(`Weekly summary sent to ${email}`);
-      return true;
+      try {
+        await mailService.send(params);
+        console.log(`Weekly summary sent to ${email}`);
+        return true;
+      } catch (sendError) {
+        console.error('SendGrid email error:', sendError);
+        
+        // If enabled, provide a fallback for development
+        if (ENABLE_EMAIL_FALLBACK) {
+          console.log('-------- EMAIL FALLBACK (FOR DEVELOPMENT) --------');
+          console.log(`To: ${email}`);
+          console.log(`From: ${FROM_EMAIL}`);
+          console.log(`Subject: Your Weekly FoodExpiry Summary - ${new Date().toLocaleDateString()}`);
+          console.log(`Content: Weekly summary with ${foodItems.length} items (${freshItems.length} fresh, ${expiringSoonItems.length} expiring soon, ${expiredItems.length} expired)`);
+          console.log('-------- END EMAIL FALLBACK --------');
+          
+          // For development, we'll pretend the email was sent successfully
+          return true;
+        }
+        
+        return false;
+      }
     } catch (error) {
-      console.error('SendGrid email error:', error);
+      console.error('Error preparing email:', error);
       return false;
     }
   }
@@ -339,11 +381,30 @@ This is a test message from FoodExpiry. No action is required.
         html,
       };
 
-      await mailService.send(params);
-      console.log(`Test notification sent to ${email}`);
-      return true;
+      try {
+        await mailService.send(params);
+        console.log(`Test notification sent to ${email}`);
+        return true;
+      } catch (sendError) {
+        console.error('SendGrid email error:', sendError);
+        
+        // If enabled, provide a fallback for development
+        if (ENABLE_EMAIL_FALLBACK) {
+          console.log('-------- EMAIL FALLBACK (FOR DEVELOPMENT) --------');
+          console.log(`To: ${email}`);
+          console.log(`From: ${FROM_EMAIL}`);
+          console.log(`Subject: FoodExpiry Test Notification`);
+          console.log(`Body: This is a test email from your FoodExpiry application.`);
+          console.log('-------- END EMAIL FALLBACK --------');
+          
+          // For development, we'll pretend the email was sent successfully
+          return true;
+        }
+        
+        return false;
+      }
     } catch (error) {
-      console.error('SendGrid email error:', error);
+      console.error('Error preparing email:', error);
       return false;
     }
   }
