@@ -2,6 +2,7 @@ import { MailService, MailDataRequired } from '@sendgrid/mail';
 import { FoodItemWithStatus, foodItems, FoodItem } from '@shared/schema';
 import { formatDistance } from 'date-fns';
 import { db } from './db';
+import { eq } from 'drizzle-orm';
 
 // Initialize SendGrid
 if (!process.env.SENDGRID_API_KEY) {
@@ -365,7 +366,7 @@ This weekly summary is sent based on your notification preferences. To change yo
   /**
    * Sends a test notification email
    */
-  public async sendTestNotification(email: string): Promise<boolean> {
+  public async sendTestNotification(email: string, userId?: number): Promise<boolean> {
     if (!this.isConfigured()) {
       console.warn("SendGrid not configured, skipping test email");
       return false;
@@ -376,7 +377,10 @@ This weekly summary is sent based on your notification preferences. To change yo
       let foodItemsWithStatus: FoodItemWithStatus[] = [];
       try {
         // Try to get food items from storage to display in the test notification
-        const items = await db.select().from(foodItems);
+        // Only get items for the current user if userId is provided
+        const items = userId 
+          ? await db.select().from(foodItems).where(eq(foodItems.userId, userId))
+          : await db.select().from(foodItems);
         
         // Add status information for each item
         foodItemsWithStatus = items.map((item: FoodItem) => {

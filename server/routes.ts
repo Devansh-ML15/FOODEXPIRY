@@ -677,8 +677,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email notifications are not enabled or email address is missing" });
       }
       
-      // Send test email via SendGrid
-      const emailSent = await emailService.sendTestNotification(settings.emailAddress);
+      // Send test email via SendGrid with the user's ID to filter food items
+      const emailSent = await emailService.sendTestNotification(settings.emailAddress, userId);
       
       // Update last notified timestamp regardless of whether the email was sent
       // as we want to track when notification was attempted
@@ -750,8 +750,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Expiration alerts are not enabled" });
       }
       
-      // Get expiring items within the threshold
-      const expiringItems = await storage.getExpiringFoodItemsForNotification(daysThreshold);
+      // Get expiring items within the threshold for this specific user
+      const expiringItems = await storage.getExpiringFoodItemsForNotification(daysThreshold, userId);
       
       // Convert to FoodItemWithStatus format
       const today = new Date();
@@ -858,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get all food items for the user
-      const foodItems = await storage.getAllFoodItems();
+      const foodItems = await storage.getFoodItemsByUserId(userId);
       
       // Convert to FoodItemWithStatus format
       const today = new Date();

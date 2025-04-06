@@ -54,7 +54,7 @@ export interface IStorage {
   getNotificationSettings(userId: number): Promise<NotificationSetting | undefined>;
   createNotificationSettings(settings: InsertNotificationSetting): Promise<NotificationSetting>;
   updateNotificationSettings(id: number, settings: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined>;
-  getExpiringFoodItemsForNotification(daysThreshold: number): Promise<FoodItem[]>;
+  getExpiringFoodItemsForNotification(daysThreshold: number, userId?: number): Promise<FoodItem[]>;
   updateLastNotified(id: number, timestamp: Date): Promise<void>;
   
   // Session Management
@@ -235,7 +235,7 @@ export class DatabaseStorage implements IStorage {
     return updatedSettings;
   }
 
-  async getExpiringFoodItemsForNotification(daysThreshold: number): Promise<FoodItem[]> {
+  async getExpiringFoodItemsForNotification(daysThreshold: number, userId?: number): Promise<FoodItem[]> {
     const today = new Date();
     const threshold = new Date();
     threshold.setDate(today.getDate() + daysThreshold);
@@ -244,15 +244,29 @@ export class DatabaseStorage implements IStorage {
     const thresholdStr = threshold.toISOString().split('T')[0];
     
     // Get food items that will expire within the threshold days
-    return await db
-      .select()
-      .from(foodItems)
-      .where(
-        and(
-          // @ts-ignore - Type issues with drizzle-orm
-          between(foodItems.expirationDate, todayStr, thresholdStr)
-        )
-      );
+    // Filter by userId if provided
+    if (userId !== undefined) {
+      return await db
+        .select()
+        .from(foodItems)
+        .where(
+          and(
+            // @ts-ignore - Type issues with drizzle-orm
+            between(foodItems.expirationDate, todayStr, thresholdStr),
+            eq(foodItems.userId, userId)
+          )
+        );
+    } else {
+      return await db
+        .select()
+        .from(foodItems)
+        .where(
+          and(
+            // @ts-ignore - Type issues with drizzle-orm
+            between(foodItems.expirationDate, todayStr, thresholdStr)
+          )
+        );
+    }
   }
 
   async updateLastNotified(id: number, timestamp: Date): Promise<void> {
