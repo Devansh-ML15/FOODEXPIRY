@@ -381,7 +381,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const userId = req.user!.id;
       const foodItems = await storage.getFoodItemsByUserId(userId);
-      const recipes = await storage.getAllRecipes();
       
       const today = new Date();
       
@@ -391,14 +390,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const daysUntilExpiration = differenceInDays(expirationDate, today);
         return daysUntilExpiration <= 3 && isAfter(expirationDate, today);
       });
-      
-      // Get recipe matches count
-      const itemNames = foodItems.map(item => item.name.toLowerCase());
-      const recipeMatches = recipes.filter(recipe => 
-        recipe.ingredients.some(ingredient => 
-          itemNames.some(item => ingredient.toLowerCase().includes(item))
-        )
-      );
       
       // Calculate total waste saved (placeholder logic for MVP)
       const wasteEntries = await storage.getWasteEntriesByDateRange(
@@ -417,7 +408,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         totalItems: foodItems.length,
         expiringCount: expiringItems.length,
-        recipeMatchCount: recipeMatches.length,
         wasteSavedKg: parseFloat(wasteSaved.toFixed(1))
       });
     } catch (error) {

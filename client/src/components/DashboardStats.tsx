@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Archive, AlertTriangle, Utensils, Leaf } from "lucide-react";
+import { Archive, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import logoImage from "@/assets/logo.png";
 
 type DashboardStats = {
   totalItems: number;
   expiringCount: number;
-  recipeMatchCount: number;
   wasteSavedKg: number;
 };
 
@@ -16,7 +15,7 @@ export default function DashboardStats() {
   });
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
       <StatCard
         isLoading={isLoading}
         icon={<Archive className="text-primary-dark icon-animated" />}
@@ -37,20 +36,11 @@ export default function DashboardStats() {
       
       <StatCard
         isLoading={isLoading}
-        icon={<Utensils className="text-amber-600 icon-animated" />}
-        iconBgColor="bg-amber-100"
-        label="Recipe Matches"
-        value={data?.recipeMatchCount || 0}
-        delay={300}
-      />
-      
-      <StatCard
-        isLoading={isLoading}
         icon={<img src={logoImage} alt="Food Expiry Logo" className="h-6 w-6 float-animation" />}
         iconBgColor="bg-emerald-100"
         label="Waste Saved (kg)"
         value={data?.wasteSavedKg || 0}
-        delay={450}
+        delay={300}
       />
     </div>
   );
