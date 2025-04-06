@@ -13,7 +13,7 @@ import Settings from "@/pages/Settings";
 import BarcodeScannerPage from "@/pages/BarcodeScannerPage";
 import AddFoodItemPage from "@/pages/AddFoodItemPage";
 import AuthPage from "@/pages/auth-page";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
@@ -34,9 +34,11 @@ function Router() {
 }
 
 function AppContent() {
+  const { user } = useAuth();
+  // Include proper conditional rendering for Navbar based on authentication state
   return (
     <div className="flex flex-col h-screen">
-      <Navbar />
+      {user && <Navbar />}
       <main className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <Router />

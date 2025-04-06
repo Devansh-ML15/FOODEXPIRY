@@ -43,11 +43,6 @@ export default function AuthPage() {
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
 
-  // Redirect if user is already logged in
-  if (user) {
-    return <Redirect to="/" />;
-  }
-  
   // Switch to login tab after successful registration
   useEffect(() => {
     if (registerMutation.isSuccess) {
@@ -58,6 +53,11 @@ export default function AuthPage() {
       }, 100);
     }
   }, [registerMutation.isSuccess, registerMutation]);
+  
+  // Redirect if user is already logged in - move this after all hooks are called
+  if (user) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-card">
