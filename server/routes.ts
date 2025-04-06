@@ -555,13 +555,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user ID format" });
       }
       
-      const settings = await storage.getNotificationSettings(userId);
+      let settings = await storage.getNotificationSettings(userId);
+      
+      // If settings don't exist, create default settings for this user
       if (!settings) {
-        return res.status(404).json({ message: "Notification settings not found" });
+        // Check if user exists
+        const user = await storage.getUser(userId);
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Create default notification settings
+        const defaultSettings = {
+          userId,
+          expirationAlerts: true,
+          expirationFrequency: 'weekly' as 'daily' | 'weekly' | 'never',
+          weeklySummary: false,
+          emailEnabled: true,
+          emailAddress: user.email
+        };
+        
+        settings = await storage.createNotificationSettings(defaultSettings);
+        console.log(`Created default notification settings for user ${userId}`);
       }
       
       res.json(settings);
     } catch (error) {
+      console.error("Error in notification settings retrieval:", error);
       res.status(500).json({ message: "Failed to retrieve notification settings" });
     }
   });
@@ -637,9 +657,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const settings = await storage.getNotificationSettings(userId);
+      let settings = await storage.getNotificationSettings(userId);
       if (!settings) {
-        return res.status(404).json({ message: "Notification settings not found" });
+        // Create default notification settings if they don't exist
+        const defaultSettings = {
+          userId,
+          expirationAlerts: true,
+          expirationFrequency: 'weekly' as 'daily' | 'weekly' | 'never',
+          weeklySummary: false,
+          emailEnabled: true,
+          emailAddress: user.email
+        };
+        
+        settings = await storage.createNotificationSettings(defaultSettings);
+        console.log(`Created default notification settings for user ${userId} during test notification`);
       }
       
       if (!settings.emailEnabled || !settings.emailAddress) {
@@ -699,9 +730,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const settings = await storage.getNotificationSettings(userId);
+      let settings = await storage.getNotificationSettings(userId);
       if (!settings) {
-        return res.status(404).json({ message: "Notification settings not found" });
+        // Create default notification settings if they don't exist
+        const defaultSettings = {
+          userId,
+          expirationAlerts: true,
+          expirationFrequency: 'weekly' as 'daily' | 'weekly' | 'never',
+          weeklySummary: false,
+          emailEnabled: true,
+          emailAddress: user.email
+        };
+        
+        settings = await storage.createNotificationSettings(defaultSettings);
+        console.log(`Created default notification settings for user ${userId} in expiring-items endpoint`);
       }
       
       if (!settings.emailEnabled || !settings.emailAddress || !settings.expirationAlerts) {
@@ -795,9 +837,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const settings = await storage.getNotificationSettings(userId);
+      let settings = await storage.getNotificationSettings(userId);
       if (!settings) {
-        return res.status(404).json({ message: "Notification settings not found" });
+        // Create default notification settings if they don't exist
+        const defaultSettings = {
+          userId,
+          expirationAlerts: true,
+          expirationFrequency: 'weekly' as 'daily' | 'weekly' | 'never',
+          weeklySummary: false,
+          emailEnabled: true,
+          emailAddress: user.email
+        };
+        
+        settings = await storage.createNotificationSettings(defaultSettings);
+        console.log(`Created default notification settings for user ${userId} in weekly-summary endpoint`);
       }
       
       if (!settings.emailEnabled || !settings.emailAddress || !settings.weeklySummary) {
