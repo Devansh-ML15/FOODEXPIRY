@@ -78,6 +78,7 @@ export const recipes = pgTable("recipes", {
 // Waste tracking
 export const wasteEntries = pgTable("waste_entries", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
   foodItemId: integer("food_item_id").notNull().references(() => foodItems.id),
   quantity: integer("quantity").notNull(),
   unit: text("unit").$type<typeof QUANTITY_UNITS[number]>().notNull(),
@@ -153,11 +154,16 @@ export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
     fields: [wasteEntries.foodItemId],
     references: [foodItems.id],
   }),
+  user: one(users, {
+    fields: [wasteEntries.userId],
+    references: [users.id],
+  }),
 }));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   notificationSetting: one(notificationSettings),
   foodItems: many(foodItems),
+  wasteEntries: many(wasteEntries),
 }));
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({

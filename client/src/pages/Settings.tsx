@@ -1,10 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { Bell, Mail, ShieldAlert, Save } from 'lucide-react';
+import { Bell, Mail, ShieldAlert, Save, Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { SectionBackground } from "@/components/ui/section-background";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import {
   Card,
@@ -54,7 +65,7 @@ type User = {
 
 export default function Settings() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('notifications');
 
   // Get the currently logged in user
   const { user: currentUser } = useAuth();
@@ -259,6 +270,39 @@ export default function Settings() {
   const handleTestNotification = () => {
     sendTestNotificationMutation.mutate();
   };
+  
+  // Delete account mutation
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete account');
+      }
+
+      return true;
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Account deleted',
+        description: 'Your account has been permanently deleted.',
+      });
+      
+      // Log out the user
+      window.location.href = '/auth';
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error deleting account',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
   if (isUserLoading || isSettingsLoading) {
     return (
@@ -290,64 +334,10 @@ export default function Settings() {
           Manage your account settings and notification preferences.
         </p>
 
-        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+        <Tabs defaultValue="notifications" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-1">
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
-
-        <TabsContent value="profile" className="space-y-4 mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>
-                Update your personal information and email address.
-              </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleProfileSubmit}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Your name"
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Your email address"
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  type="submit"
-                  disabled={updateProfileMutation.isPending}
-                  className="w-full md:w-auto"
-                >
-                  {updateProfileMutation.isPending ? (
-                    <span className="flex items-center">
-                      <span className="animate-spin mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></span>
-                      Saving...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Changes
-                    </span>
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4 mt-6">
           <Card>
@@ -485,6 +475,51 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+        {/* Delete Account Section */}
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <h2 className="text-xl font-bold text-red-600 mb-2 flex items-center">
+            <AlertTriangle className="h-5 w-5 mr-2" />
+            Danger Zone
+          </h2>
+          <p className="text-gray-500 mb-4">
+            Permanently delete your account and all associated data.
+          </p>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="flex items-center">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your account
+                  and remove all your data from our servers, including all food items, 
+                  notification settings, and personal information.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => deleteAccountMutation.mutate()}
+                  disabled={deleteAccountMutation.isPending}
+                >
+                  {deleteAccountMutation.isPending ? (
+                    <span className="flex items-center">
+                      <span className="animate-spin mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></span>
+                      Deleting...
+                    </span>
+                  ) : "Delete Account"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </SectionBackground>
     </div>
   );

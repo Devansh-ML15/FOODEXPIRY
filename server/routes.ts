@@ -546,6 +546,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update user" });
     }
   });
+  
+  apiRouter.delete("/users/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Verify the user exists first
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Check if the user is deleting their own account
+      if (req.user && req.user.id !== id) {
+        return res.status(403).json({ message: "Not authorized to delete this account" });
+      }
+
+      const deleted = await storage.deleteUser(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete user" });
+      }
+
+      // Logout the user if they deleted their own account
+      if (req.user && req.user.id === id) {
+        req.logout((err) => {
+          if (err) {
+            console.error("Error logging out after account deletion:", err);
+          }
+        });
+      }
+
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
 
   // Notification Settings
   apiRouter.get("/notification-settings/:userId", async (req: Request, res: Response) => {

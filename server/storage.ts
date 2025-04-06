@@ -49,6 +49,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
   
   // Notification Settings
   getNotificationSettings(userId: number): Promise<NotificationSetting | undefined>;
@@ -193,6 +194,29 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return updatedUser;
+  }
+  
+  async deleteUser(id: number): Promise<boolean> {
+    try {
+      // First, delete all related data
+      
+      // Delete food items
+      await db.delete(foodItems).where(eq(foodItems.userId, id));
+      
+      // Delete notification settings
+      await db.delete(notificationSettings).where(eq(notificationSettings.userId, id));
+      
+      // Delete waste entries associated with the user's food items (if any)
+      await db.delete(wasteEntries).where(eq(wasteEntries.userId, id));
+      
+      // Finally, delete the user
+      const result = await db.delete(users).where(eq(users.id, id)).returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return false;
+    }
   }
 
   // Notification Settings
