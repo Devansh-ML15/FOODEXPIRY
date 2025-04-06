@@ -168,6 +168,24 @@ This is an automated message. To change your notification preferences, visit the
           console.log(`From: ${FROM_EMAIL}`);
           console.log(`Subject: FoodExpiry Alert: ${expiredItems.length} expired and ${expiringSoonItems.length} expiring soon`);
           console.log(`Content: Notification about ${expiredItems.length + expiringSoonItems.length} items`);
+          
+          // Show detailed error information
+          if (sendError instanceof Error && 'response' in sendError) {
+            const responseError = sendError as any;
+            console.log(`\nSendGrid Error Details:`);
+            console.log(`Status Code: ${responseError.code}`);
+            if (responseError.response?.body?.errors) {
+              console.log(`Error Messages:`);
+              responseError.response.body.errors.forEach((err: any, i: number) => {
+                console.log(`  ${i+1}. ${err.message} (${err.field || 'unknown field'})`);
+              });
+            }
+            console.log(`\nTroubleshooting Steps:`);
+            console.log(`1. Verify that your sender email (${FROM_EMAIL}) is verified in SendGrid`);
+            console.log(`2. Check that your API key has 'Mail Send' permissions`);
+            console.log(`3. For new accounts, you may need to complete all verification steps`);
+          }
+          
           console.log('-------- END EMAIL FALLBACK --------');
           
           // For development, we'll pretend the email was sent successfully
@@ -309,6 +327,24 @@ This weekly summary is sent based on your notification preferences. To change yo
           console.log(`From: ${FROM_EMAIL}`);
           console.log(`Subject: Your Weekly FoodExpiry Summary - ${new Date().toLocaleDateString()}`);
           console.log(`Content: Weekly summary with ${foodItems.length} items (${freshItems.length} fresh, ${expiringSoonItems.length} expiring soon, ${expiredItems.length} expired)`);
+          
+          // Show detailed error information
+          if (sendError instanceof Error && 'response' in sendError) {
+            const responseError = sendError as any;
+            console.log(`\nSendGrid Error Details:`);
+            console.log(`Status Code: ${responseError.code}`);
+            if (responseError.response?.body?.errors) {
+              console.log(`Error Messages:`);
+              responseError.response.body.errors.forEach((err: any, i: number) => {
+                console.log(`  ${i+1}. ${err.message} (${err.field || 'unknown field'})`);
+              });
+            }
+            console.log(`\nTroubleshooting Steps:`);
+            console.log(`1. Verify that your sender email (${FROM_EMAIL}) is verified in SendGrid`);
+            console.log(`2. Check that your API key has 'Mail Send' permissions`);
+            console.log(`3. For new accounts, you may need to complete all verification steps`);
+          }
+          
           console.log('-------- END EMAIL FALLBACK --------');
           
           // For development, we'll pretend the email was sent successfully
@@ -397,6 +433,24 @@ This is a test message from FoodExpiry. No action is required.
           console.log(`From: ${FROM_EMAIL}`);
           console.log(`Subject: FoodExpiry Test Notification`);
           console.log(`Body: This is a test email from your FoodExpiry application.`);
+          
+          // Show detailed error information
+          if (sendError instanceof Error && 'response' in sendError) {
+            const responseError = sendError as any;
+            console.log(`\nSendGrid Error Details:`);
+            console.log(`Status Code: ${responseError.code}`);
+            if (responseError.response?.body?.errors) {
+              console.log(`Error Messages:`);
+              responseError.response.body.errors.forEach((err: any, i: number) => {
+                console.log(`  ${i+1}. ${err.message} (${err.field || 'unknown field'})`);
+              });
+            }
+            console.log(`\nTroubleshooting Steps:`);
+            console.log(`1. Verify that your sender email (${FROM_EMAIL}) is verified in SendGrid`);
+            console.log(`2. Check that your API key has 'Mail Send' permissions`);
+            console.log(`3. For new accounts, you may need to complete all verification steps`);
+          }
+          
           console.log('-------- END EMAIL FALLBACK --------');
           
           // For development, we'll pretend the email was sent successfully
