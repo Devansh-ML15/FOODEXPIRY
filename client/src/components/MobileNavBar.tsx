@@ -17,8 +17,8 @@ export default function MobileNavBar() {
     { name: "Dashboard", path: "/", icon: <Home size={20} /> },
     { name: "Inventory", path: "/inventory", icon: <Refrigerator size={20} /> },
     { name: "Scan", path: "/barcode-scanner", icon: <Scan size={24} />, highlight: true },
-    { name: "Recipes", path: "/recipes", icon: <ScrollText size={20} /> },
-    { name: "Insights", path: "/insights", icon: <BarChart2 size={20} /> }
+    { name: "Insights", path: "/insights", icon: <BarChart2 size={20} /> },
+    { name: "Tips", path: "/tips", icon: <Lightbulb size={20} /> }
   ];
 
   return (
