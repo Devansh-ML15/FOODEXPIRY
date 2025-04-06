@@ -215,12 +215,20 @@ export default function Settings() {
     },
     onSuccess: (data) => {
       if (data.success) {
-        toast({
-          title: 'Test notification sent',
-          description: `A test notification was sent to ${data.emailAddress}`,
-        });
+        if (data.devMode) {
+          // This branch handles our development fallback
+          toast({
+            title: 'Test notification processed (Dev Mode)',
+            description: `Email would have been sent to ${data.emailAddress} - check server logs for details`,
+            variant: 'default',
+          });
+        } else {
+          toast({
+            title: 'Test notification sent',
+            description: `A test notification was sent to ${data.emailAddress}`,
+          });
+        }
       } else {
-        // This branch handles our development fallback
         toast({
           title: 'Test notification processed',
           description: data.message || 'Email notification was processed but may not have been sent due to configuration.',
@@ -375,16 +383,22 @@ export default function Settings() {
                           setNotificationForm({ ...notificationForm, emailAddress: e.target.value })
                         }
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={handleTestNotification}
-                        disabled={sendTestNotificationMutation.isPending}
-                      >
-                        {sendTestNotificationMutation.isPending ? 'Sending...' : 'Send Test Notification'}
-                      </Button>
+                      <div className="space-y-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={handleTestNotification}
+                          disabled={sendTestNotificationMutation.isPending}
+                        >
+                          {sendTestNotificationMutation.isPending ? 'Sending...' : 'Send Test Notification'}
+                        </Button>
+                        
+                        <div className="text-xs text-muted-foreground mt-2">
+                          <p>Note: In development mode, emails are logged to the console instead of being sent.</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
