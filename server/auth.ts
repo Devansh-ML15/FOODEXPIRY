@@ -95,12 +95,11 @@ export function setupAuth(app: Express) {
         password: hashedPassword,
       });
 
-      // Log the user in after registration
-      req.login(user, (err) => {
-        if (err) return next(err);
-        // Return user without password
-        const { password, ...userWithoutPassword } = user;
-        res.status(201).json(userWithoutPassword);
+      // Don't log the user in after registration, just return success
+      const { password, ...userWithoutPassword } = user;
+      res.status(201).json({
+        ...userWithoutPassword,
+        message: "Registration successful. Please log in with your credentials."
       });
     } catch (error) {
       console.error("Registration error:", error);

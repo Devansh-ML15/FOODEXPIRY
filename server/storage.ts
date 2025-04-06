@@ -28,6 +28,7 @@ import { pool } from "./db";
 export interface IStorage {
   // Food Items
   getAllFoodItems(): Promise<FoodItem[]>;
+  getFoodItemsByUserId(userId: number): Promise<FoodItem[]>;
   getFoodItem(id: number): Promise<FoodItem | undefined>;
   createFoodItem(item: InsertFoodItem): Promise<FoodItem>;
   updateFoodItem(id: number, item: Partial<InsertFoodItem>): Promise<FoodItem | undefined>;
@@ -75,6 +76,13 @@ export class DatabaseStorage implements IStorage {
   // Food Items
   async getAllFoodItems(): Promise<FoodItem[]> {
     return await db.select().from(foodItems).orderBy(desc(foodItems.expirationDate));
+  }
+  
+  async getFoodItemsByUserId(userId: number): Promise<FoodItem[]> {
+    return await db.select()
+      .from(foodItems)
+      .where(eq(foodItems.userId, userId))
+      .orderBy(desc(foodItems.expirationDate));
   }
 
   async getFoodItem(id: number): Promise<FoodItem | undefined> {

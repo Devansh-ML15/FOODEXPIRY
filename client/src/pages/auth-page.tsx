@@ -47,6 +47,17 @@ export default function AuthPage() {
   if (user) {
     return <Redirect to="/" />;
   }
+  
+  // Switch to login tab after successful registration
+  useEffect(() => {
+    if (registerMutation.isSuccess) {
+      setActiveTab("login");
+      // Reset registration form after switching tabs
+      setTimeout(() => {
+        registerMutation.reset();
+      }, 100);
+    }
+  }, [registerMutation.isSuccess, registerMutation]);
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-card">

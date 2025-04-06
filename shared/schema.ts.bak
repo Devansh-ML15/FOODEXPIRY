@@ -87,20 +87,6 @@ export const wasteEntries = pgTable("waste_entries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Notification settings
-export const notificationSettings = pgTable("notification_settings", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  expirationAlerts: boolean("expiration_alerts").notNull().default(true),
-  expirationFrequency: text("expiration_frequency").$type<typeof NOTIFICATION_FREQUENCIES[number]>().notNull().default("weekly"),
-  weeklySummary: boolean("weekly_report").notNull().default(true), // DB column is weekly_report but we'll refer to it as weeklySummary
-  emailEnabled: boolean("email_enabled").notNull().default(true),
-  emailAddress: text("email_address"),
-  lastNotified: timestamp("last_notified"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 // Zod schemas
 export const insertFoodItemSchema = createInsertSchema(foodItems)
   .omit({ id: true, createdAt: true });
@@ -111,12 +97,6 @@ export const insertRecipeSchema = createInsertSchema(recipes)
 export const insertWasteEntrySchema = createInsertSchema(wasteEntries)
   .omit({ id: true, createdAt: true });
 
-export const insertUserSchema = createInsertSchema(users)
-  .omit({ id: true, createdAt: true });
-
-export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings)
-  .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
-
 // Types
 export type FoodItem = typeof foodItems.$inferSelect;
 export type InsertFoodItem = z.infer<typeof insertFoodItemSchema>;
@@ -126,12 +106,6 @@ export type InsertRecipe = z.infer<typeof insertRecipeSchema>;
 
 export type WasteEntry = typeof wasteEntries.$inferSelect;
 export type InsertWasteEntry = z.infer<typeof insertWasteEntrySchema>;
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type NotificationSetting = typeof notificationSettings.$inferSelect;
-export type InsertNotificationSetting = z.infer<typeof insertNotificationSettingsSchema>;
 
 // Food item with expiration status
 export type FoodItemWithStatus = FoodItem & {
@@ -148,6 +122,32 @@ export const foodItemsRelations = relations(foodItems, ({ many, one }) => ({
   }),
 }));
 
+// Notification settings
+export const notificationSettings = pgTable("notification_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  expirationAlerts: boolean("expiration_alerts").notNull().default(true),
+  expirationFrequency: text("expiration_frequency").$type<typeof NOTIFICATION_FREQUENCIES[number]>().notNull().default("weekly"),
+  weeklySummary: boolean("weekly_report").notNull().default(true), // DB column is weekly_report but we'll refer to it as weeklySummary
+  emailEnabled: boolean("email_enabled").notNull().default(true),
+  emailAddress: text("email_address"),
+  lastNotified: timestamp("last_notified"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users)
+  .omit({ id: true, createdAt: true });
+
+export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings)
+  .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type InsertNotificationSetting = z.infer<typeof insertNotificationSettingsSchema>;
+
 export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
   foodItem: one(foodItems, {
     fields: [wasteEntries.foodItemId],
@@ -155,9 +155,8 @@ export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
   }),
 }));
 
-export const usersRelations = relations(users, ({ one, many }) => ({
+export const usersRelations = relations(users, ({ one }) => ({
   notificationSetting: one(notificationSettings),
-  foodItems: many(foodItems),
 }));
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({

@@ -70,12 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", userData);
       return await res.json();
     },
-    onSuccess: (userData: User) => {
-      queryClient.setQueryData(["/api/user"], userData);
+    onSuccess: (data) => {
+      // Do not set user data, as registration no longer logs the user in
       toast({
         title: "Registration successful",
-        description: `Welcome, ${userData.username}!`,
+        description: data.message || "Account created. Please log in with your credentials.",
       });
+      
+      // Invalidate user query to ensure we don't have stale data
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
       toast({

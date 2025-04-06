@@ -88,11 +88,21 @@ export class NotificationScheduler {
       
       for (const user of users) {
         try {
-          // Get expiring items
-          const expiringItems = await storage.getExpiringFoodItemsForNotification(daysThreshold);
+          // Get expiring items for this user
+          const userId = user.userId;
+          const allItems = await storage.getFoodItemsByUserId(userId);
+          
+          // Filter to items expiring within threshold days
+          const today = new Date();
+          const threshold = new Date();
+          threshold.setDate(today.getDate() + daysThreshold);
+          
+          const expiringItems = allItems.filter(item => {
+            const expirationDate = new Date(item.expirationDate);
+            return expirationDate >= today && expirationDate <= threshold;
+          });
           
           // Convert to FoodItemWithStatus format
-          const today = new Date();
           const expiringItemsWithStatus = expiringItems.map(item => {
             const expirationDate = new Date(item.expirationDate);
             const daysUntilExpiration = differenceInDays(expirationDate, today);
@@ -154,7 +164,8 @@ export class NotificationScheduler {
       for (const user of users) {
         try {
           // Get all food items for this user
-          const foodItems = await storage.getAllFoodItems();
+          const userId = user.userId;
+          const foodItems = await storage.getFoodItemsByUserId(userId);
           
           // Convert to FoodItemWithStatus format
           const today = new Date();

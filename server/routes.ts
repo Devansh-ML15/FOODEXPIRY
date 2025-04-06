@@ -67,7 +67,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Food Items
   apiRouter.get("/food-items", async (req: Request, res: Response) => {
     try {
-      const items = await storage.getAllFoodItems();
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const items = await storage.getFoodItemsByUserId(userId);
       
       // Add expiration status to each item
       const itemsWithStatus: FoodItemWithStatus[] = items.map(item => {
@@ -93,12 +98,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(itemsWithStatus);
     } catch (error) {
+      console.error("Error fetching food items:", error);
       res.status(500).json({ message: "Failed to retrieve food items" });
     }
   });
   
   apiRouter.get("/food-items/:id", async (req: Request, res: Response) => {
     try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
@@ -107,6 +117,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const item = await storage.getFoodItem(id);
       if (!item) {
         return res.status(404).json({ message: "Food item not found" });
+      }
+      
+      // Check if the food item belongs to the authenticated user
+      if (item.userId !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to access this food item" });
       }
       
       // Add expiration status
@@ -131,12 +146,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(itemWithStatus);
     } catch (error) {
+      console.error("Error retrieving food item:", error);
       res.status(500).json({ message: "Failed to retrieve food item" });
     }
   });
   
   apiRouter.post("/food-items", async (req: Request, res: Response) => {
     try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const validation = insertFoodItemSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ 
@@ -145,9 +165,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const newItem = await storage.createFoodItem(validation.data);
+      // Add the user ID from the authenticated session
+      const itemData = {
+        ...validation.data,
+        userId: req.user!.id
+      };
+      
+      const newItem = await storage.createFoodItem(itemData);
       res.status(201).json(newItem);
     } catch (error) {
+      console.error("Error creating food item:", error);
       res.status(500).json({ message: "Failed to create food item" });
     }
   });
@@ -228,7 +255,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Recipe suggestions based on food items
   apiRouter.get("/recipe-suggestions", async (req: Request, res: Response) => {
     try {
-      const foodItems = await storage.getAllFoodItems();
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const foodItems = await storage.getFoodItemsByUserId(userId);
       const recipes = await storage.getAllRecipes();
       
       // Get food item names for matching with recipe ingredients
@@ -343,7 +375,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats
   apiRouter.get("/dashboard-stats", async (req: Request, res: Response) => {
     try {
-      const foodItems = await storage.getAllFoodItems();
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const foodItems = await storage.getFoodItemsByUserId(userId);
       const recipes = await storage.getAllRecipes();
       
       const today = new Date();
