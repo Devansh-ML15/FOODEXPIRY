@@ -114,9 +114,9 @@ export default function Recipes() {
   );
 
   // Check if there's an API quota error
-  const hasQuotaError = aiSuggestionsError && 
-    (aiSuggestionsError as Error).message.includes("quota") || 
-    (aiSuggestionsError as Error).message.includes("insufficient_quota");
+  const hasQuotaError = aiSuggestionsError ? 
+    ((aiSuggestionsError as Error).message?.includes("quota") || 
+    (aiSuggestionsError as Error).message?.includes("insufficient_quota")) : false;
 
   // Handle refresh AI suggestions
   const handleRefreshSuggestions = () => {
