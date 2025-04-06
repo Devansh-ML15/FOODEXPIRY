@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Bell, Mail, ShieldAlert, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import { SectionBackground } from "@/components/ui/section-background";
 
 import {
@@ -55,8 +56,9 @@ export default function Settings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
 
-  // For demo purposes, we'll use the default user with ID 1
-  const userId = 1;
+  // Get the currently logged in user
+  const { user: currentUser } = useAuth();
+  const userId = currentUser?.id;
 
   // Fetch user profile
   const {

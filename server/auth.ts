@@ -88,6 +88,12 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(req.body.email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already in use. Log back in" });
+      }
+
       // Create user with hashed password
       const hashedPassword = await hashPassword(req.body.password);
       const user = await storage.createUser({
@@ -103,6 +109,10 @@ export function setupAuth(app: Express) {
       });
     } catch (error) {
       console.error("Registration error:", error);
+      // Check if the error is a duplicate email constraint error
+      if (error instanceof Error && error.message.includes('users_email_unique')) {
+        return res.status(400).json({ message: "Email already in use. Log back in" });
+      }
       next(error);
     }
   });
