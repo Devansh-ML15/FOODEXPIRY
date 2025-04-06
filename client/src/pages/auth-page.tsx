@@ -117,11 +117,11 @@ export default function AuthPage() {
         <div className="text-center z-10 max-w-md space-y-6">
           <img 
             src={foodSvgPath} 
-            alt="FreshTrack Logo" 
+            alt="FoodExpiry Logo" 
             className="w-24 h-24 mx-auto mb-4"
           />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 text-transparent bg-clip-text">
-            FreshTrack
+            FoodExpiry
           </h1>
           <p className="text-xl">
             Your smart food inventory manager
@@ -175,7 +175,7 @@ function LoginForm() {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your username" {...field} />
+                <Input placeholder="Enter your username" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -189,7 +189,7 @@ function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Enter your password" {...field} />
+                <Input type="password" placeholder="Enter your password" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -225,6 +225,7 @@ function RegisterForm() {
       password: "",
       passwordConfirm: "",
       email: "",
+      name: "",
     },
   });
   
@@ -244,7 +245,7 @@ function RegisterForm() {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Choose a username" {...field} />
+                <Input placeholder="Choose a username" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -258,7 +259,21 @@ function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter your email" {...field} />
+                <Input type="email" placeholder="Enter your email" {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your full name" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -272,7 +287,7 @@ function RegisterForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Create a password" {...field} />
+                <Input type="password" placeholder="Create a password" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -286,7 +301,7 @@ function RegisterForm() {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Confirm your password" {...field} />
+                <Input type="password" placeholder="Confirm your password" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

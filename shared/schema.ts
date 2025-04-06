@@ -113,7 +113,7 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").unique(),
-  name: text("name"),
+  name: text("name").default(""),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
