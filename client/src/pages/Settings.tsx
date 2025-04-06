@@ -392,7 +392,7 @@ export default function Settings() {
                           onClick={handleTestNotification}
                           disabled={sendTestNotificationMutation.isPending}
                         >
-                          {sendTestNotificationMutation.isPending ? 'Sending...' : 'Send Test Notification'}
+                          {sendTestNotificationMutation.isPending ? 'Sending...' : 'Send Notification'}
                         </Button>
                         
                         <div className="text-xs text-muted-foreground mt-2">
