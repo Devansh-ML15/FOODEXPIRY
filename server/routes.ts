@@ -12,6 +12,7 @@ import { differenceInDays, isAfter } from "date-fns";
 import { setupAuth } from "./auth";
 import { emailService } from "./email-service";
 import { ENABLE_EMAIL_FALLBACK } from "./email-service";
+import { aiService } from "./ai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -252,38 +253,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Recipe suggestions based on food items
+  // AI Recipe suggestions based on food items
   apiRouter.get("/recipe-suggestions", async (req: Request, res: Response) => {
     try {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ message: "Not authenticated" });
       }
       
+      // Check if OpenAI is configured
+      if (!aiService.isConfigured()) {
+        return res.status(503).json({ message: "AI recipe suggestions are not available at the moment" });
+      }
+      
       const userId = req.user!.id;
-      const foodItems = await storage.getFoodItemsByUserId(userId);
-      const recipes = await storage.getAllRecipes();
       
-      // Get food item names for matching with recipe ingredients
-      const itemNames = foodItems.map(item => item.name.toLowerCase());
+      // Get user's food items with expiration status
+      const items = await storage.getFoodItemsByUserId(userId);
       
-      // Match recipes with available ingredients
-      const suggestions = recipes.map(recipe => {
-        const matchingIngredients = recipe.ingredients.filter(ingredient => 
-          itemNames.some(item => ingredient.toLowerCase().includes(item))
-        );
+      // If no items, return empty array
+      if (items.length === 0) {
+        return res.json({ recipes: [] });
+      }
+      
+      // Add expiration status to each item
+      const itemsWithStatus: FoodItemWithStatus[] = items.map(item => {
+        const expirationDate = new Date(item.expirationDate);
+        const today = new Date();
+        const daysUntilExpiration = differenceInDays(expirationDate, today);
+        
+        let status: 'expired' | 'expiring-soon' | 'fresh';
+        if (!isAfter(expirationDate, today)) {
+          status = 'expired';
+        } else if (daysUntilExpiration <= 3) {
+          status = 'expiring-soon';
+        } else {
+          status = 'fresh';
+        }
         
         return {
-          ...recipe,
-          matchingIngredients,
-          matchScore: matchingIngredients.length / recipe.ingredients.length
+          ...item,
+          status,
+          daysUntilExpiration
         };
-      })
-      .filter(recipe => recipe.matchingIngredients.length > 0)
-      .sort((a, b) => b.matchScore - a.matchScore);
+      });
+      
+      // Get priority parameter (whether to prioritize expiring items)
+      const useExpiring = req.query.expiring !== 'false';
+      
+      // Get limit parameter (number of recipes to generate)
+      const limit = parseInt(req.query.limit as string) || 3;
+      
+      // Generate AI recipe suggestions
+      const suggestions = await aiService.generateRecipeSuggestions(
+        itemsWithStatus,
+        useExpiring, 
+        Math.min(limit, 5) // Cap at 5 recipes max
+      );
       
       res.json(suggestions);
     } catch (error) {
-      res.status(500).json({ message: "Failed to generate recipe suggestions" });
+      console.error("Error generating AI recipe suggestions:", error);
+      res.status(500).json({ 
+        message: "Failed to generate recipe suggestions",
+        error: (error as Error).message
+      });
+    }
+  });
+  
+  // Generate detailed AI recipe based on selected ingredients
+  apiRouter.post("/recipe-details", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      // Check if OpenAI is configured
+      if (!aiService.isConfigured()) {
+        return res.status(503).json({ message: "AI recipe generation is not available at the moment" });
+      }
+      
+      const { ingredients, dietary } = req.body;
+      
+      if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
+        return res.status(400).json({ message: "At least one ingredient is required" });
+      }
+      
+      // Generate detailed recipe
+      const recipe = await aiService.generateDetailedRecipe(ingredients, dietary);
+      
+      res.json(recipe);
+    } catch (error) {
+      console.error("Error generating detailed recipe:", error);
+      res.status(500).json({ 
+        message: "Failed to generate detailed recipe",
+        error: (error as Error).message
+      });
     }
   });
   
