@@ -54,11 +54,11 @@ export default function Insights() {
         <GlassLogoBackground className="rounded-xl p-4">
         <h1 className="page-header">Insights</h1>
         
-        <Tabs defaultValue="waste" className="mb-6">
+        <Tabs defaultValue="categories" className="mb-6">
           <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="waste">Waste Trends</TabsTrigger>
             <TabsTrigger value="categories">Category Distribution</TabsTrigger>
             <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
+            <TabsTrigger value="waste">Waste Trends</TabsTrigger>
           </TabsList>
           
         <TabsContent value="waste">
@@ -237,15 +237,20 @@ export default function Insights() {
                           labelLine={true}
                           label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                           outerRadius={100}
-                          fill="#8884d8"
+                          fill={CATEGORY_COLORS.produce}
                           dataKey="value"
                         >
-                          {categoryData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={CATEGORY_COLORS[entry.name as keyof typeof CATEGORY_COLORS] || "#94a3b8"} 
-                            />
-                          ))}
+                          {categoryData.map((entry, index) => {
+                            // Convert to lowercase for matching with our category keys
+                            const category = entry.name.toLowerCase();
+                            const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || "#94a3b8";
+                            return (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={color} 
+                              />
+                            );
+                          })}
                         </Pie>
                         <Tooltip formatter={(value) => [`${value} items`, 'Count']} />
                       </PieChart>
