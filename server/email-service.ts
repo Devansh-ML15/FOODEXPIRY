@@ -1,6 +1,7 @@
 import { MailService, MailDataRequired } from '@sendgrid/mail';
-import { FoodItemWithStatus } from '@shared/schema';
+import { FoodItemWithStatus, foodItems, FoodItem } from '@shared/schema';
 import { formatDistance } from 'date-fns';
+import { db } from './db';
 
 // Initialize SendGrid
 if (!process.env.SENDGRID_API_KEY) {
@@ -23,7 +24,9 @@ export const ENABLE_EMAIL_FALLBACK = true;
 export class EmailService {
   private static instance: EmailService;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton pattern initialization
+  }
 
   public static getInstance(): EmailService {
     if (!EmailService.instance) {
@@ -210,9 +213,9 @@ This is an automated message. To change your notification preferences, visit the
     }
 
     try {
-      const expiredItems = foodItems.filter(item => item.status === 'expired');
-      const expiringSoonItems = foodItems.filter(item => item.status === 'expiring-soon');
-      const freshItems = foodItems.filter(item => item.status === 'fresh');
+      const expiredItems = foodItems.filter((item: FoodItemWithStatus) => item.status === 'expired');
+      const expiringSoonItems = foodItems.filter((item: FoodItemWithStatus) => item.status === 'expiring-soon');
+      const freshItems = foodItems.filter((item: FoodItemWithStatus) => item.status === 'fresh');
 
       // Create HTML content with nice styling and statistics
       const html = `
@@ -369,6 +372,39 @@ This weekly summary is sent based on your notification preferences. To change yo
     }
 
     try {
+      // First get all food items to display in the test email
+      let foodItemsWithStatus: FoodItemWithStatus[] = [];
+      try {
+        // Try to get food items from storage to display in the test notification
+        const items = await db.select().from(foodItems);
+        
+        // Add status information for each item
+        foodItemsWithStatus = items.map((item: FoodItem) => {
+          const expirationDate = new Date(item.expirationDate);
+          const today = new Date();
+          const daysUntilExpiration = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          
+          let status: 'expired' | 'expiring-soon' | 'fresh' = 'fresh';
+          if (daysUntilExpiration < 0) {
+            status = 'expired';
+          } else if (daysUntilExpiration <= 3) {
+            status = 'expiring-soon';
+          }
+          
+          return {
+            ...item,
+            status,
+            daysUntilExpiration
+          };
+        });
+      } catch (err) {
+        console.error('Error fetching food items for test notification:', err);
+        // Continue with empty array if there's an error
+      }
+      
+      const expiredItems = foodItemsWithStatus.filter((item: FoodItemWithStatus) => item.status === 'expired');
+      const expiringSoonItems = foodItemsWithStatus.filter((item: FoodItemWithStatus) => item.status === 'expiring-soon');
+
       const html = `
         <!DOCTYPE html>
         <html>
@@ -379,6 +415,11 @@ This weekly summary is sent based on your notification preferences. To change yo
             .content { padding: 20px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; }
             .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #777; }
             h1 { margin: 0; }
+            h2 { color: #22c55e; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            ul { padding-left: 20px; }
+            li { margin-bottom: 8px; }
+            .expired { color: #dc2626; }
+            .expiring-soon { color: #ea580c; }
           </style>
         </head>
         <body>
@@ -387,12 +428,42 @@ This weekly summary is sent based on your notification preferences. To change yo
           </div>
           <div class="content">
             <p>Hello,</p>
-            <p>This is a test email from your FoodExpiry application.</p>
-            <p>If you're receiving this, your email notifications are correctly configured!</p>
+            <p>This is a test email from your FoodExpiry application. If you're receiving this, your email notifications are correctly configured!</p>
+            
+            ${expiredItems.length > 0 || expiringSoonItems.length > 0 ? `
+              <p>Here's a summary of items in your inventory that need attention:</p>
+              
+              ${expiredItems.length > 0 ? `
+                <h2>🚫 Expired Items (${expiredItems.length})</h2>
+                <ul>
+                  ${expiredItems.map((item: FoodItemWithStatus) => `
+                    <li class="expired">
+                      <strong>${item.name}</strong> - expired ${Math.abs(item.daysUntilExpiration)} days ago
+                      (${item.quantity} ${item.unit})
+                    </li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+              
+              ${expiringSoonItems.length > 0 ? `
+                <h2>⚠️ Expiring Soon (${expiringSoonItems.length})</h2>
+                <ul>
+                  ${expiringSoonItems.map((item: FoodItemWithStatus) => `
+                    <li class="expiring-soon">
+                      <strong>${item.name}</strong> - expires in ${item.daysUntilExpiration} day${item.daysUntilExpiration !== 1 ? 's' : ''}
+                      (${item.quantity} ${item.unit})
+                    </li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+            ` : `
+              <p>You currently have no expired or expiring items in your inventory. Great job managing your food!</p>
+            `}
+            
             <p>Thank you for using FoodExpiry!</p>
           </div>
           <div class="footer">
-            <p>This is a test message from FoodExpiry. No action is required.</p>
+            <p>This is a test message from FoodExpiry. You can view your full inventory in the app.</p>
           </div>
         </body>
         </html>
@@ -403,12 +474,27 @@ FoodExpiry Test Notification
 
 Hello,
 
-This is a test email from your FoodExpiry application.
-If you're receiving this, your email notifications are correctly configured!
+This is a test email from your FoodExpiry application. If you're receiving this, your email notifications are correctly configured!
+
+${expiredItems.length > 0 || expiringSoonItems.length > 0 ? `
+Here's a summary of items in your inventory that need attention:
+
+${expiredItems.length > 0 ? `
+EXPIRED ITEMS (${expiredItems.length}):
+${expiredItems.map((item: FoodItemWithStatus) => `- ${item.name} - expired ${Math.abs(item.daysUntilExpiration)} days ago (${item.quantity} ${item.unit})`).join('\n')}
+` : ''}
+
+${expiringSoonItems.length > 0 ? `
+EXPIRING SOON (${expiringSoonItems.length}):
+${expiringSoonItems.map((item: FoodItemWithStatus) => `- ${item.name} - expires in ${item.daysUntilExpiration} day${item.daysUntilExpiration !== 1 ? 's' : ''} (${item.quantity} ${item.unit})`).join('\n')}
+` : ''}
+` : `
+You currently have no expired or expiring items in your inventory. Great job managing your food!
+`}
 
 Thank you for using FoodExpiry!
 
-This is a test message from FoodExpiry. No action is required.
+This is a test message from FoodExpiry. You can view your full inventory in the app.
       `;
 
       const params: MailDataRequired = {
