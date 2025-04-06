@@ -12,8 +12,10 @@ if (process.env.SENDGRID_API_KEY) {
   mailService.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
-// Change this to an email you've verified with SendGrid
-const FROM_EMAIL = 'notifications@foodexpiry.app';
+// This should be an email address that is verified in your SendGrid account
+// For production, use an email from your verified domain (like notifications@yourdomain.com)
+// For testing, you can use your personal email address if it's verified in SendGrid
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'notifications@foodexpiry.app';
 
 // For development, we can also allow fallback to console output
 export const ENABLE_EMAIL_FALLBACK = true;
