@@ -5,45 +5,43 @@ export function useMobileDetector() {
   const [hasCameraSupport, setHasCameraSupport] = useState(false);
 
   useEffect(() => {
-    // Check if device is mobile based on screen width
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
     // Initial check
-    checkMobile();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
-
+    checkIfMobile();
+    
+    // Add event listener for resize
+    window.addEventListener('resize', checkIfMobile);
+    
     // Check for camera support
-    const checkCameraSupport = async () => {
-      try {
-        // Check if the browser supports the MediaDevices API
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          setHasCameraSupport(false);
-          return;
-        }
-        
-        // Try to access the camera to confirm permissions and availability
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        // Camera is available, stop the stream
-        stream.getTracks().forEach(track => track.stop());
-        
-        setHasCameraSupport(true);
-      } catch (error) {
-        console.error('Camera access failed:', error);
-        setHasCameraSupport(false);
-      }
-    };
-
     checkCameraSupport();
-
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
+
+  const checkIfMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  const checkCameraSupport = async () => {
+    try {
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setHasCameraSupport(false);
+        return;
+      }
+      
+      // Try to get camera permission - this will throw if no camera or permission denied
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      
+      // If we got here, camera is available and permission granted
+      setHasCameraSupport(true);
+      
+      // Clean up the stream
+      stream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      setHasCameraSupport(false);
+    }
+  };
 
   return { isMobile, hasCameraSupport };
 }

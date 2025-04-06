@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Navbar from "@/components/Navbar";
+import MobileLayout from "@/components/MobileLayout";
 import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
 import Recipes from "@/pages/Recipes";
@@ -13,7 +14,7 @@ import Settings from "@/pages/Settings";
 import BarcodeScannerPage from "@/pages/BarcodeScannerPage";
 import AddFoodItemPage from "@/pages/AddFoodItemPage";
 import AuthPage from "@/pages/auth-page";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
@@ -34,17 +35,12 @@ function Router() {
 }
 
 function AppContent() {
-  const { user } = useAuth();
-  // Include proper conditional rendering for Navbar based on authentication state
   return (
-    <div className="flex flex-col h-screen">
-      {user && <Navbar />}
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <Router />
-        </div>
-      </main>
-    </div>
+    <MobileLayout>
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <Router />
+      </div>
+    </MobileLayout>
   );
 }
 

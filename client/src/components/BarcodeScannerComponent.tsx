@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useZxing } from 'react-zxing';
 import { Button } from '@/components/ui/button';
-import { Loader2, Camera, X } from 'lucide-react';
+import { Loader2, Camera, X, ScanLine } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface BarcodeScannerComponentProps {
   onBarcodeDetected: (barcode: string) => void;
@@ -14,6 +15,8 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
 }) => {
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
+  const [torchAvailable, setTorchAvailable] = useState(false);
+  const [scanAnimation, setScanAnimation] = useState(true);
 
   const { ref, torch } = useZxing({
     onDecodeResult(result) {
@@ -24,15 +27,35 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
       console.error('Scanner error:', error);
     },
     paused: !isScanning,
+    constraints: {
+      facingMode: 'environment', // Use back camera
+      aspectRatio: { ideal: 1 },
+    },
   });
+
+  useEffect(() => {
+    // Check if torch is available
+    if (torch) {
+      torch.isAvailable.then(available => {
+        setTorchAvailable(available);
+      }).catch(() => {
+        setTorchAvailable(false);
+      });
+    }
+
+    // Set up scan animation
+    const animationInterval = setInterval(() => {
+      setScanAnimation(prev => !prev);
+    }, 2000);
+
+    return () => clearInterval(animationInterval);
+  }, [torch]);
 
   const toggleTorch = async () => {
     try {
-      if (torch) {
-        if (torch.isAvailable) {
-          await (isTorchOn ? torch.off() : torch.on());
-          setIsTorchOn(!isTorchOn);
-        }
+      if (torch && await torch.isAvailable) {
+        await (isTorchOn ? torch.off() : torch.on());
+        setIsTorchOn(!isTorchOn);
       }
     } catch (error) {
       console.error('Failed to toggle torch:', error);
@@ -45,11 +68,11 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
         {/* Camera View */}
         <div className="flex-1 relative overflow-hidden">
           {/* Top Overlay */}
-          <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 to-transparent">
+          <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 to-transparent h-16">
             <Button
               variant="ghost"
               size="icon"
-              className="text-white bg-black/30 hover:bg-black/50"
+              className="text-white bg-black/30 hover:bg-black/50 h-10 w-10"
               onClick={onClose}
             >
               <X className="h-5 w-5" />
@@ -57,14 +80,18 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
             <div className="text-center text-white font-semibold">
               Scan Barcode
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`text-white bg-black/30 hover:bg-black/50 ${isTorchOn ? 'text-yellow-300' : ''}`}
-              onClick={toggleTorch}
-            >
-              <Camera className="h-5 w-5" />
-            </Button>
+            {torchAvailable ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`text-white bg-black/30 hover:bg-black/50 h-10 w-10 ${isTorchOn ? 'text-yellow-300' : ''}`}
+                onClick={toggleTorch}
+              >
+                <Camera className="h-5 w-5" />
+              </Button>
+            ) : (
+              <div className="w-10 h-10"></div> // Empty div for spacing
+            )}
           </div>
 
           {/* Scanner View */}
@@ -75,15 +102,26 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
 
           {/* Scanning Overlay */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-64 h-64 border-2 border-white/70 rounded-lg flex items-center justify-center">
+            <div className="w-64 h-64 border-2 border-white/70 rounded-lg flex items-center justify-center relative overflow-hidden">
               {isScanning && (
-                <div className="h-1/2 w-4/5 border border-green-500 animate-pulse" />
+                <AnimatePresence>
+                  <motion.div
+                    key="scanline"
+                    initial={{ y: -100 }}
+                    animate={{ y: scanAnimation ? 100 : -100 }}
+                    transition={{ duration: 2, ease: "linear" }}
+                    className="absolute w-full h-2 bg-primary/50 z-10"
+                  >
+                    <div className="absolute inset-0 blur-sm bg-primary/30"></div>
+                  </motion.div>
+                </AnimatePresence>
               )}
+              <ScanLine className="h-8 w-8 text-primary/70" />
             </div>
           </div>
 
           {/* Bottom Instructions */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-center">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-center pb-12">
             <p className="text-white text-sm">
               Position barcode within the frame to scan
             </p>
@@ -91,12 +129,21 @@ export const BarcodeScannerComponent: React.FC<BarcodeScannerComponentProps> = (
         </div>
 
         {!isScanning && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-            <div className="bg-white p-4 rounded-md shadow-lg text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-2" />
-              <p>Processing barcode data...</p>
-            </div>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 flex items-center justify-center bg-black/70"
+          >
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", damping: 20 }}
+              className="bg-white p-6 rounded-md shadow-lg text-center"
+            >
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+              <p className="font-medium">Processing barcode...</p>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </div>
