@@ -181,6 +181,96 @@ export function setupAuth(app: Express) {
     }
   });
   
+  // Password reset request endpoint
+  app.post("/api/reset-password/request", async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      
+      // Even if user doesn't exist, don't reveal this information for security
+      if (!user) {
+        return res.status(200).json({ 
+          message: "If an account with that email exists, a reset code has been sent.",
+          email
+        });
+      }
+      
+      // Create an OTP for password reset
+      const resetData = JSON.stringify({ userId: user.id, type: 'password-reset' });
+      const otp = await otpService.createOTP(email, resetData);
+      
+      // Send the password reset email
+      await otpService.sendPasswordResetEmail(email, otp);
+      
+      res.status(200).json({ 
+        message: "Password reset code sent to your email",
+        email
+      });
+    } catch (error) {
+      console.error("Password reset request error:", error);
+      next(error);
+    }
+  });
+  
+  // Password reset verification endpoint
+  app.post("/api/reset-password/verify", async (req, res, next) => {
+    try {
+      const { email, otp, newPassword } = req.body;
+      
+      if (!email || !otp || !newPassword) {
+        return res.status(400).json({ 
+          message: "Email, verification code, and new password are required" 
+        });
+      }
+      
+      // Verify the OTP
+      const verification = await otpService.verifyOTP(email, otp);
+      
+      if (!verification.valid || !verification.userData) {
+        return res.status(400).json({ 
+          message: "Invalid or expired verification code. Please try again." 
+        });
+      }
+      
+      // Parse the reset data
+      const resetData = JSON.parse(verification.userData);
+      
+      // Make sure this is a password reset OTP
+      if (resetData.type !== 'password-reset') {
+        return res.status(400).json({ 
+          message: "Invalid reset code. Please request a new one." 
+        });
+      }
+      
+      // Get user by ID
+      const user = await storage.getUser(resetData.userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      // Update the user's password
+      await storage.updateUser(user.id, { password: hashedPassword });
+      
+      // Return success message
+      res.status(200).json({ 
+        message: "Password has been successfully reset. You can now log in with your new password." 
+      });
+    } catch (error) {
+      console.error("Password reset verification error:", error);
+      next(error);
+    }
+  });
+  
   // Legacy registration endpoint (without verification)
   app.post("/api/register", async (req, res, next) => {
     try {

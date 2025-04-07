@@ -110,6 +110,37 @@ export class OtpService {
       htmlContent
     );
   }
+  
+  /**
+   * Send a password reset email with OTP
+   * @param email The email to which the OTP will be sent
+   * @param otp The OTP to include in the email
+   */
+  public async sendPasswordResetEmail(email: string, otp: string): Promise<boolean> {
+    const appName = "FoodExpiry";
+    
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <h2 style="color: #0d6a30; text-align: center;">Reset Your ${appName} Password</h2>
+        <p>We received a request to reset your password. To proceed with the password reset, please use the following verification code:</p>
+        <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 4px;">
+          ${otp}
+        </div>
+        <p>This code will expire in 10 minutes.</p>
+        <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns about your account security.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">
+          <p>This is an automated email from ${appName}. Please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    return await emailService.sendEmail(
+      email, 
+      `${otp} is your ${appName} password reset code`, 
+      `Your password reset code for ${appName} is: ${otp}. This code will expire in 10 minutes.`,
+      htmlContent
+    );
+  }
 }
 
 export const otpService = OtpService.getInstance();

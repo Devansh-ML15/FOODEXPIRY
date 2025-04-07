@@ -22,6 +22,16 @@ type VerifyOTPData = {
   otp: string;
 };
 
+type RequestPasswordResetData = {
+  email: string;
+};
+
+type VerifyPasswordResetData = {
+  email: string;
+  otp: string;
+  newPassword: string;
+};
+
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
@@ -30,6 +40,8 @@ type AuthContextType = {
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<{ message: string, email: string }, Error, RegisterData>;
   verifyOTPMutation: UseMutationResult<User, Error, VerifyOTPData>;
+  requestPasswordResetMutation: UseMutationResult<{ message: string, email: string }, Error, RequestPasswordResetData>;
+  verifyPasswordResetMutation: UseMutationResult<{ message: string }, Error, VerifyPasswordResetData>;
 };
 
 // Create the auth context
@@ -143,6 +155,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Mutation to request password reset
+  const requestPasswordResetMutation = useMutation({
+    mutationFn: async (data: RequestPasswordResetData) => {
+      const res = await apiRequest("POST", "/api/reset-password/request", data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to request password reset");
+      }
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Reset code sent",
+        description: "Please check your email for a verification code to reset your password.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Request failed",
+        description: error.message || "Could not request password reset",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation to verify password reset OTP and update password
+  const verifyPasswordResetMutation = useMutation({
+    mutationFn: async (data: VerifyPasswordResetData) => {
+      const res = await apiRequest("POST", "/api/reset-password/verify", data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to reset password");
+      }
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Password reset successful",
+        description: "Your password has been updated. You can now log in with your new password.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Password reset failed",
+        description: error.message || "Could not reset password",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
@@ -153,6 +215,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logoutMutation,
         registerMutation,
         verifyOTPMutation,
+        requestPasswordResetMutation,
+        verifyPasswordResetMutation,
       }}
     >
       {children}
