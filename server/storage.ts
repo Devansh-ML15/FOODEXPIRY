@@ -27,7 +27,7 @@ import {
   type InsertMealPlan
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, between, and, desc, sql } from "drizzle-orm";
+import { eq, between, and, desc, sql, gt } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 import session from "express-session";
 import { pool } from "./db";
@@ -100,10 +100,13 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getFoodItemsByUserId(userId: number): Promise<FoodItem[]> {
-    return await db.select()
+    const result = await db.select()
       .from(foodItems)
       .where(eq(foodItems.userId, userId))
       .orderBy(desc(foodItems.expirationDate));
+    
+    // Filter out consumed items (quantity = 0) in memory
+    return result.filter(item => item.quantity > 0);
   }
 
   async getFoodItem(id: number): Promise<FoodItem | undefined> {
@@ -393,8 +396,9 @@ export class DatabaseStorage implements IStorage {
     
     // Get food items that will expire within the threshold days
     // Filter by userId if provided
+    let result: FoodItem[];
     if (userId !== undefined) {
-      return await db
+      result = await db
         .select()
         .from(foodItems)
         .where(
@@ -405,7 +409,7 @@ export class DatabaseStorage implements IStorage {
           )
         );
     } else {
-      return await db
+      result = await db
         .select()
         .from(foodItems)
         .where(
@@ -415,6 +419,9 @@ export class DatabaseStorage implements IStorage {
           )
         );
     }
+    
+    // Filter out consumed items (quantity = 0) in memory
+    return result.filter(item => item.quantity > 0);
   }
 
   async updateLastNotified(id: number, timestamp: Date): Promise<void> {
