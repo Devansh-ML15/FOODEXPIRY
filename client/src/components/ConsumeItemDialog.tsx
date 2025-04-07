@@ -71,6 +71,7 @@ export default function ConsumeItemDialog({ open, onOpenChange, item }: ConsumeI
         consumptionDate: new Date().toISOString().split('T')[0],
         notes: values.notes || null,
         estimatedValue: null,
+        userId: 0, // This is a placeholder; the server will override with the authenticated user's ID
       };
       
       await apiRequest('POST', '/api/consumption-entries', consumeData);
