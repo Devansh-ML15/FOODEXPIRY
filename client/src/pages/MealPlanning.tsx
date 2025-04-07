@@ -14,6 +14,7 @@ import { z } from "zod";
 import { FoodItemWithStatus } from "@shared/schema";
 import { SectionBackground } from "@/components/ui/section-background";
 import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
+import { ThemeOverlay } from "@/components/ui/theme-overlay"; 
 import { PlusCircle, Utensils, Calendar as CalendarIcon, Info } from "lucide-react";
 import { format } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -159,26 +160,27 @@ export default function MealPlanning() {
 
   return (
     <div className="mb-8">
-      <SectionBackground pattern="meal-planning" className="p-6">
-        <GlassLogoBackground className="rounded-xl p-4">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="page-header">Meal Planning</h1>
-            <Button 
-              onClick={() => {
-                form.reset({
-                  date: date || new Date(),
-                  mealType: "dinner",
-                  name: "",
-                  ingredients: [],
-                  notes: "",
-                });
-                setIsAddPlanOpen(true);
-              }}
-              className="bg-primary hover:bg-primary-dark text-white"
-            >
-              <PlusCircle className="mr-2 h-5 w-5" /> Add Meal Plan
-            </Button>
-          </div>
+      <ThemeOverlay variant="full">
+        <SectionBackground pattern="meal-planning" className="p-6">
+          <GlassLogoBackground className="rounded-xl p-4">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="page-header">Meal Planning</h1>
+              <Button 
+                onClick={() => {
+                  form.reset({
+                    date: date || new Date(),
+                    mealType: "dinner",
+                    name: "",
+                    ingredients: [],
+                    notes: "",
+                  });
+                  setIsAddPlanOpen(true);
+                }}
+                className="bg-primary hover:bg-primary-dark text-white"
+              >
+                <PlusCircle className="mr-2 h-5 w-5" /> Add Meal Plan
+              </Button>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Calendar column */}
@@ -519,8 +521,9 @@ export default function MealPlanning() {
               </Form>
             </DialogContent>
           </Dialog>
-        </GlassLogoBackground>
-      </SectionBackground>
+          </GlassLogoBackground>
+        </SectionBackground>
+      </ThemeOverlay>
     </div>
   );
 }

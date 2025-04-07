@@ -6,6 +6,7 @@ import { useTheme } from '@/lib/theme-context';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { SectionBackground } from "@/components/ui/section-background";
+import { ThemeOverlay } from "@/components/ui/theme-overlay";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -376,17 +377,18 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 mb-8">
-      <SectionBackground pattern="settings" className="p-6">
-        <h1 className="page-header">Settings</h1>
-        <p className="text-gray-500 mb-4">
-          Manage your account settings and notification preferences.
-        </p>
+      <ThemeOverlay variant="header">
+        <SectionBackground pattern="settings" className="p-6">
+          <h1 className="page-header">Settings</h1>
+          <p className="text-gray-500 mb-4">
+            Manage your account settings and notification preferences.
+          </p>
 
-        <Tabs defaultValue="notifications" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="notifications" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+            <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              <TabsTrigger value="appearance">Appearance</TabsTrigger>
+            </TabsList>
 
         <TabsContent value="notifications" className="space-y-4 mt-6">
           <Card>
@@ -591,6 +593,7 @@ export default function Settings() {
           </AlertDialog>
         </div>
       </SectionBackground>
+      </ThemeOverlay>
     </div>
   );
 }
