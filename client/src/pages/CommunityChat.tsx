@@ -107,14 +107,22 @@ export default function CommunityChat() {
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
   
   // Query for chat messages
-  const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useQuery({
+  const { 
+    data: messages = [] as ChatMessage[], 
+    isLoading: messagesLoading, 
+    refetch: refetchMessages 
+  } = useQuery<ChatMessage[]>({
     queryKey: ['/api/chat-messages'],
     refetchInterval: 0, // Disable automatic polling since we'll use WebSocket
     refetchOnWindowFocus: false,
   });
   
   // Query for shared recipes
-  const { data: recipes = [], isLoading: recipesLoading, refetch: refetchRecipes } = useQuery({
+  const { 
+    data: recipes = [] as SharedRecipe[], 
+    isLoading: recipesLoading, 
+    refetch: refetchRecipes 
+  } = useQuery<SharedRecipe[]>({
     queryKey: ['/api/shared-recipes'],
     refetchInterval: 0,
     refetchOnWindowFocus: false,
@@ -124,7 +132,7 @@ export default function CommunityChat() {
   const loadComments = async (recipeId: number) => {
     try {
       const response = await fetch(`/api/recipe-comments/${recipeId}`);
-      const data = await response.json();
+      const data = await response.json() as RecipeComment[];
       setComments(data);
     } catch (error) {
       console.error('Error loading comments:', error);
@@ -185,14 +193,11 @@ export default function CommunityChat() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: recipe.title,
+          name: recipe.title, // In the schema, the field is 'name', not 'title'
           ingredients: ingredientsArray,
+          preparationTime: recipe.prepTime + recipe.cookTime, // In schema, we only have preparationTime 
           instructions: recipe.instructions,
-          prepTime: recipe.prepTime,
-          cookTime: recipe.cookTime,
-          servings: recipe.servings,
           imageUrl: recipe.imageUrl || undefined,
-          userId: user?.id,
         }),
       });
       
@@ -322,7 +327,9 @@ export default function CommunityChat() {
       
       // Setup WebSocket connection
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const host = window.location.host;
+      const wsUrl = `${protocol}//${host}/ws`;
+      console.log('Connecting to WebSocket:', wsUrl);
       const socket = new WebSocket(wsUrl);
       socketRef.current = socket;
       
