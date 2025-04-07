@@ -3,6 +3,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { uploadImage } from '@/lib/image-upload-service';
+import { ImageUpload } from '@/components/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -97,6 +99,7 @@ export default function CommunityChat() {
   });
   const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [recipeDialogOpen, setRecipeDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<SharedRecipe | null>(null);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<RecipeComment[]>([]);
@@ -453,6 +456,45 @@ export default function CommunityChat() {
     });
   };
   
+  // Handle image upload
+  const handleImageUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      setImageUrlError(null);
+      
+      // Upload the image to the server
+      const imagePath = await uploadImage(file);
+      
+      // Update recipe data with the image path
+      setRecipeData({
+        ...recipeData,
+        imageUrl: imagePath
+      });
+      
+      toast({
+        title: 'Image uploaded successfully',
+        description: 'Your image has been uploaded and will be included with your recipe'
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: 'Image upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload image',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  // Handle image removal
+  const handleImageRemove = () => {
+    setRecipeData({
+      ...recipeData,
+      imageUrl: ''
+    });
+  };
+
   // Create and share a new recipe
   const handleCreateRecipe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -493,8 +535,8 @@ export default function CommunityChat() {
       return;
     }
     
-    // Validate image URL if provided
-    if (recipeData.imageUrl && recipeData.imageUrl.trim() !== '') {
+    // For URL inputs, validate image URL if provided
+    if (recipeData.imageUrl && recipeData.imageUrl.trim() !== '' && !recipeData.imageUrl.startsWith('/uploads/')) {
       if (!validateImageUrl(recipeData.imageUrl)) {
         toast({
           title: 'Invalid image URL',
@@ -788,35 +830,82 @@ export default function CommunityChat() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL (optional)</Label>
-                <Input
-                  id="imageUrl"
-                  value={recipeData.imageUrl}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    setRecipeData({...recipeData, imageUrl: url});
+                <Label>Recipe Image (optional)</Label>
+                
+                {/* Image upload section with preview */}
+                {recipeData.imageUrl && !recipeData.imageUrl.startsWith('/uploads/') ? (
+                  // Show existing URL input if there's already a URL that's not an uploaded file
+                  <div className="space-y-3">
+                    <Input
+                      id="imageUrl"
+                      value={recipeData.imageUrl}
+                      onChange={(e) => {
+                        const url = e.target.value;
+                        setRecipeData({...recipeData, imageUrl: url});
+                        
+                        if (url.trim() !== '') {
+                          if (!validateImageUrl(url)) {
+                            setImageUrlError('Please enter a valid image URL (must end with .jpg, .png, .gif, etc.)');
+                          } else {
+                            setImageUrlError(null);
+                          }
+                        } else {
+                          setImageUrlError(null);
+                        }
+                      }}
+                      placeholder="https://example.com/image.jpg"
+                      className={imageUrlError ? 'border-red-500' : ''}
+                    />
+                    {imageUrlError ? (
+                      <p className="text-sm text-red-500">{imageUrlError}</p>
+                    ) : (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        <p>Add a direct link to an image file (must end with .jpg, .png, .gif, etc.).</p>
+                      </div>
+                    )}
                     
-                    if (url.trim() !== '') {
-                      if (!validateImageUrl(url)) {
-                        setImageUrlError('Please enter a valid image URL (must end with .jpg, .png, .gif, etc.)');
-                      } else {
-                        setImageUrlError(null);
-                      }
-                    } else {
-                      setImageUrlError(null);
-                    }
-                  }}
-                  placeholder="https://example.com/image.jpg"
-                  className={imageUrlError ? 'border-red-500' : ''}
-                />
-                {imageUrlError ? (
-                  <p className="text-sm text-red-500">{imageUrlError}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm">or</div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setRecipeData({...recipeData, imageUrl: ''})}
+                      >
+                        Upload an image instead
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="text-xs text-muted-foreground mt-1 space-y-1">
-                    <p>Add a direct link to an image file (must end with .jpg, .png, .gif, etc.).</p>
-                    <p><strong>Important:</strong> Google Image search URLs will not work. Use the actual image URL instead.</p>
-                    <p><strong>Example:</strong> https://example.com/food-image.jpg</p>
-                    <p>Recommended image hosts: Imgur, Unsplash, or food blogs with direct image links.</p>
+                  // Show image upload component
+                  <div>
+                    <ImageUpload 
+                      onImageSelected={handleImageUpload}
+                      onImageRemoved={handleImageRemove}
+                      className="mt-2"
+                    />
+                    {isUploading && (
+                      <div className="flex items-center mt-2 gap-2 text-sm text-muted-foreground">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <span>Uploading image...</span>
+                      </div>
+                    )}
+                    {recipeData.imageUrl && recipeData.imageUrl.startsWith('/uploads/') && (
+                      <div className="text-sm text-green-600 mt-2">
+                        Image uploaded successfully
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="text-sm">or</div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setRecipeData({...recipeData, imageUrl: 'https://'})}
+                      >
+                        Provide an image URL instead
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

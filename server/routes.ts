@@ -18,6 +18,10 @@ import {
 import { differenceInDays, isAfter } from "date-fns";
 import { setupAuth } from "./auth";
 import { emailService } from "./email-service";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { randomBytes } from "crypto";
 import { ENABLE_EMAIL_FALLBACK } from "./email-service";
 import { aiService } from "./ai-service";
 import { ZodError } from "zod";
@@ -1584,6 +1588,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to retrieve recipe comments" });
     }
   });
+
+  // Configure multer for image uploads
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  
+  // Ensure uploads directory exists
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  
+  // Configure multer storage
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+      // Generate a random filename to prevent collisions
+      const uniqueSuffix = randomBytes(8).toString('hex');
+      const extension = path.extname(file.originalname);
+      cb(null, `${Date.now()}-${uniqueSuffix}${extension}`);
+    }
+  });
+  
+  // Create multer upload middleware
+  const upload = multer({ 
+    storage: storage,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      // Accept only images
+      if (!file.mimetype.startsWith('image/')) {
+        return cb(new Error('Only image files are allowed'));
+      }
+      cb(null, true);
+    }
+  });
+  
+  // Image upload endpoint
+  apiRouter.post('/upload-image', upload.single('image'), (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Return the path to the uploaded file
+      const imagePath = `/uploads/${req.file.filename}`;
+      res.status(201).json({ 
+        message: "Image uploaded successfully",
+        imagePath 
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+  
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(uploadsDir));
   
   app.use("/api", apiRouter);
   
