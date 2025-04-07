@@ -36,23 +36,40 @@ const registerSchema = insertUserSchema
     path: ["passwordConfirm"],
   });
 
+// OTP verification schema
+const otpVerificationSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  otp: z.string().length(6, "Verification code must be 6 digits"),
+});
+
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
+type OtpVerificationFormValues = z.infer<typeof otpVerificationSchema>;
 
 export default function AuthPage() {
-  const { user, isLoading, loginMutation, registerMutation } = useAuth();
+  const { user, isLoading, loginMutation, registerMutation, verifyOTPMutation } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
+  const [verificationState, setVerificationState] = useState<{
+    isVerifying: boolean;
+    email: string;
+  } | null>(null);
 
-  // Switch to login tab after successful registration
+  // Handle successful registration by showing verification form
   useEffect(() => {
-    if (registerMutation.isSuccess) {
-      setActiveTab("login");
-      // Reset registration form after switching tabs
-      setTimeout(() => {
-        registerMutation.reset();
-      }, 100);
+    if (registerMutation.isSuccess && registerMutation.data?.email) {
+      setVerificationState({
+        isVerifying: true,
+        email: registerMutation.data.email,
+      });
     }
-  }, [registerMutation.isSuccess, registerMutation]);
+  }, [registerMutation.isSuccess, registerMutation.data]);
+
+  // Handle successful verification by switching to login tab
+  useEffect(() => {
+    if (verifyOTPMutation.isSuccess) {
+      setVerificationState(null);
+    }
+  }, [verifyOTPMutation.isSuccess]);
   
   // Redirect if user is already logged in - move this after all hooks are called
   if (user) {
@@ -63,58 +80,76 @@ export default function AuthPage() {
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-card">
       {/* Left side - Auth Form */}
       <div className="flex items-center justify-center p-4 md:p-8">
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full max-w-md mx-auto"
-        >
-          <TabsList className="grid grid-cols-2 mb-6">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="register">Register</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">Welcome back</CardTitle>
-                <CardDescription>Login to manage your food inventory</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <LoginForm />
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button
-                  variant="ghost"
-                  onClick={() => setActiveTab("register")}
-                  className="text-sm"
-                >
-                  Don't have an account? Register
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="register">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">Create an account</CardTitle>
-                <CardDescription>Sign up to start tracking your food inventory</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RegisterForm />
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button
-                  variant="ghost"
-                  onClick={() => setActiveTab("login")}
-                  className="text-sm"
-                >
-                  Already have an account? Login
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {verificationState?.isVerifying ? (
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+              <CardDescription>
+                We've sent a verification code to {verificationState.email}. 
+                Please enter it below to complete your registration.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VerifyOTPForm 
+                email={verificationState.email} 
+                onCancel={() => setVerificationState(null)}
+              />
+            </CardContent>
+          </Card>
+        ) : (
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full max-w-md mx-auto"
+          >
+            <TabsList className="grid grid-cols-2 mb-6">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Welcome back</CardTitle>
+                  <CardDescription>Login to manage your food inventory</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LoginForm />
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setActiveTab("register")}
+                    className="text-sm"
+                  >
+                    Don't have an account? Register
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="register">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Create an account</CardTitle>
+                  <CardDescription>Sign up to start tracking your food inventory</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RegisterForm />
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setActiveTab("login")}
+                    className="text-sm"
+                  >
+                    Already have an account? Login
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
       
       {/* Right side - Hero Image and Marketing */}
@@ -333,6 +368,90 @@ function RegisterForm() {
             "Register"
           )}
         </Button>
+      </form>
+    </Form>
+  );
+}
+
+function VerifyOTPForm({ email, onCancel }: { email: string; onCancel: () => void }) {
+  const { verifyOTPMutation } = useAuth();
+  
+  const form = useForm<OtpVerificationFormValues>({
+    resolver: zodResolver(otpVerificationSchema),
+    defaultValues: {
+      email: email,
+      otp: "",
+    },
+  });
+  
+  const onSubmit = (values: OtpVerificationFormValues) => {
+    verifyOTPMutation.mutate(values);
+  };
+  
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input readOnly {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="otp"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Verification Code</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter 6-digit code" 
+                  {...field} 
+                  value={field.value || ''} 
+                  maxLength={6} 
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="flex flex-col space-y-2">
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={verifyOTPMutation.isPending}
+          >
+            {verifyOTPMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              "Verify Email"
+            )}
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={onCancel}
+            disabled={verifyOTPMutation.isPending}
+          >
+            Cancel
+          </Button>
+        </div>
       </form>
     </Form>
   );

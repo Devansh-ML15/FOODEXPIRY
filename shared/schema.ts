@@ -55,7 +55,19 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   email: text("email").unique(),
   name: text("name").default(""),
+  isVerified: boolean("is_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// OTP verification
+export const otpVerifications = pgTable("otp_verifications", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  otp: text("otp").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  verified: boolean("verified").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  userData: text("user_data").notNull(), // JSON stringified user registration data
 });
 
 // Food items table
@@ -149,13 +161,16 @@ export const insertConsumptionEntrySchema = createInsertSchema(consumptionEntrie
   .omit({ id: true, createdAt: true });
 
 export const insertUserSchema = createInsertSchema(users)
-  .omit({ id: true, createdAt: true });
+  .omit({ id: true, createdAt: true, isVerified: true });
 
 export const insertMealPlanSchema = createInsertSchema(mealPlans)
   .omit({ id: true, createdAt: true });
 
 export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings)
   .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
+
+export const insertOtpVerificationSchema = createInsertSchema(otpVerifications)
+  .omit({ id: true, createdAt: true });
 
 // Types
 export type FoodItem = typeof foodItems.$inferSelect;
@@ -178,6 +193,9 @@ export type InsertNotificationSetting = z.infer<typeof insertNotificationSetting
 
 export type MealPlan = typeof mealPlans.$inferSelect;
 export type InsertMealPlan = z.infer<typeof insertMealPlanSchema>;
+
+export type OtpVerification = typeof otpVerifications.$inferSelect;
+export type InsertOtpVerification = z.infer<typeof insertOtpVerificationSchema>;
 
 // Food item with expiration status
 export type FoodItemWithStatus = FoodItem & {

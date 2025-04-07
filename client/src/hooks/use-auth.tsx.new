@@ -33,7 +33,7 @@ type AuthContextType = {
 };
 
 // Create the auth context
-export const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 // Auth Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -160,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -167,3 +168,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// Export the context for testing purposes
+export { AuthContext };

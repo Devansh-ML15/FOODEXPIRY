@@ -364,6 +364,57 @@ This weekly summary is sent based on your notification preferences. To change yo
   }
 
   /**
+   * Sends an email with custom subject and content
+   */
+  public async sendEmail(
+    to: string, 
+    subject: string, 
+    textContent: string, 
+    htmlContent: string
+  ): Promise<boolean> {
+    if (!this.isConfigured()) {
+      console.warn("SendGrid not configured, skipping email");
+      return false;
+    }
+
+    try {
+      const params: MailDataRequired = {
+        to,
+        from: FROM_EMAIL,
+        subject,
+        text: textContent,
+        html: htmlContent,
+      };
+
+      try {
+        await mailService.send(params);
+        console.log(`Email sent to ${to}`);
+        return true;
+      } catch (sendError) {
+        console.error('SendGrid email error:', sendError);
+        
+        // If enabled, provide a fallback for development
+        if (ENABLE_EMAIL_FALLBACK) {
+          console.log('-------- EMAIL FALLBACK (FOR DEVELOPMENT) --------');
+          console.log(`To: ${to}`);
+          console.log(`From: ${FROM_EMAIL}`);
+          console.log(`Subject: ${subject}`);
+          console.log(`Text Content: ${textContent.substring(0, 100)}...`);
+          console.log('-------- END EMAIL FALLBACK --------');
+          
+          // For development, we'll pretend the email was sent successfully
+          return true;
+        }
+        
+        return false;
+      }
+    } catch (error) {
+      console.error('Error preparing email:', error);
+      return false;
+    }
+  }
+
+  /**
    * Sends a test notification email
    */
   public async sendTestNotification(email: string, userId?: number): Promise<boolean> {

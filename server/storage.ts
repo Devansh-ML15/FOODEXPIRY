@@ -6,6 +6,7 @@ import {
   users,
   notificationSettings,
   mealPlans,
+  otpVerifications,
   FOOD_CATEGORIES,
   STORAGE_LOCATIONS,
   QUANTITY_UNITS,
@@ -24,7 +25,9 @@ import {
   type NotificationSetting,
   type InsertNotificationSetting,
   type MealPlan,
-  type InsertMealPlan
+  type InsertMealPlan,
+  type OtpVerification,
+  type InsertOtpVerification
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, between, and, desc, sql, gt } from "drizzle-orm";
@@ -77,6 +80,12 @@ export interface IStorage {
   updateNotificationSettings(id: number, settings: Partial<InsertNotificationSetting>): Promise<NotificationSetting | undefined>;
   getExpiringFoodItemsForNotification(daysThreshold: number, userId?: number): Promise<FoodItem[]>;
   updateLastNotified(id: number, timestamp: Date): Promise<void>;
+  
+  // OTP Verification
+  getOtpByEmail(email: string): Promise<OtpVerification | undefined>;
+  createOtp(otpData: InsertOtpVerification): Promise<OtpVerification>;
+  updateOtp(id: number, updates: Partial<InsertOtpVerification>): Promise<OtpVerification | undefined>;
+  deleteOtpByEmail(email: string): Promise<boolean>;
   
   // Session Management
   sessionStore: session.Store;
@@ -432,6 +441,37 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(notificationSettings.id, id));
+  }
+  
+  // OTP Verification
+  async getOtpByEmail(email: string): Promise<OtpVerification | undefined> {
+    const result = await db
+      .select()
+      .from(otpVerifications)
+      .where(eq(otpVerifications.email, email));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async createOtp(otpData: InsertOtpVerification): Promise<OtpVerification> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newOtp] = await db.insert(otpVerifications).values(otpData).returning();
+    return newOtp;
+  }
+
+  async updateOtp(id: number, updates: Partial<InsertOtpVerification>): Promise<OtpVerification | undefined> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [updatedOtp] = await db
+      .update(otpVerifications)
+      .set(updates)
+      .where(eq(otpVerifications.id, id))
+      .returning();
+    
+    return updatedOtp;
+  }
+
+  async deleteOtpByEmail(email: string): Promise<boolean> {
+    const result = await db.delete(otpVerifications).where(eq(otpVerifications.email, email)).returning();
+    return result.length > 0;
   }
 
   // Initialize sample data for a fresh database
