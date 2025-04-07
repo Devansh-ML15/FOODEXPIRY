@@ -53,7 +53,8 @@ export default function InventoryGrid({}: InventoryGridProps) {
   useEffect(() => {
     if (!foodItems) return;
 
-    let result = [...foodItems];
+    // Filter out items with quantity 0 (fully consumed)
+    let result = foodItems.filter(item => item.quantity > 0);
 
     // Apply search filter
     if (search) {

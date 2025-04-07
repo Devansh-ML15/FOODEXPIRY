@@ -82,8 +82,10 @@ export default function ConsumeItemDialog({ open, onOpenChange, item }: ConsumeI
           quantity: item.quantity - values.quantity,
         });
       } else {
-        // If fully consumed, delete the item
-        await apiRequest('DELETE', `/api/food-items/${item.id}`);
+        // If fully consumed, update the quantity to 0
+        await apiRequest('PATCH', `/api/food-items/${item.id}`, {
+          quantity: 0,
+        });
       }
     },
     onSuccess: () => {
@@ -155,7 +157,7 @@ export default function ConsumeItemDialog({ open, onOpenChange, item }: ConsumeI
                     </FormControl>
                     {isFullQuantity && (
                       <FormDescription className="text-amber-600">
-                        This will remove the item from inventory
+                        This will mark the item as fully consumed
                       </FormDescription>
                     )}
                     <FormMessage />
