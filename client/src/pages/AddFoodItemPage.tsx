@@ -37,7 +37,7 @@ export default function AddFoodItemPage() {
   const search = useSearch();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { isMobile, hasCameraSupport } = useMobileDetector();
+  const { isMobile } = useMobileDetector();
   
   // Form setup
   const form = useForm<FormValues>({
