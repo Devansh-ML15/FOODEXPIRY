@@ -310,7 +310,7 @@
   
   /* Background Patterns */
   .bg-pattern-food {
-    background-image: url('@assets/patterns/food-pattern.svg');
+    background-image: url('/src/assets/patterns/food-pattern.svg');
     background-repeat: repeat;
     background-size: 200px 200px;
   }
@@ -331,49 +331,49 @@
   }
   
   .bg-pattern-dashboard {
-    background-image: url('@assets/patterns/dashboard-pattern.svg');
+    background-image: url('/src/assets/patterns/dashboard-pattern.svg');
     background-repeat: repeat;
     background-size: 300px 300px;
     animation: patternFloat 30s linear infinite;
   }
   
   .bg-pattern-inventory {
-    background-image: url('@assets/patterns/inventory-pattern.svg');
+    background-image: url('/src/assets/patterns/inventory-pattern.svg');
     background-repeat: repeat;
     background-size: 250px 250px;
     animation: patternFloat 25s linear infinite;
   }
   
   .bg-pattern-recipes {
-    background-image: url('@assets/patterns/recipes-pattern.svg');
+    background-image: url('/src/assets/patterns/recipes-pattern.svg');
     background-repeat: repeat;
     background-size: 280px 280px;
     animation: patternFloat 35s linear infinite;
   }
   
   .bg-pattern-meal-planning {
-    background-image: url('@assets/patterns/meal-planning-pattern.svg');
+    background-image: url('/src/assets/patterns/meal-planning-pattern.svg');
     background-repeat: repeat;
     background-size: 320px 320px;
     animation: patternFloat 40s linear infinite;
   }
   
   .bg-pattern-insights {
-    background-image: url('@assets/patterns/insights-pattern.svg');
+    background-image: url('/src/assets/patterns/insights-pattern.svg');
     background-repeat: repeat;
     background-size: 270px 270px;
     animation: patternFloat 30s linear infinite;
   }
   
   .bg-pattern-tips {
-    background-image: url('@assets/patterns/tips-pattern.svg');
+    background-image: url('/src/assets/patterns/tips-pattern.svg');
     background-repeat: repeat;
     background-size: 250px 250px;
     animation: patternFloat 27s linear infinite;
   }
   
   .bg-pattern-settings {
-    background-image: url('@assets/patterns/settings-pattern.svg');
+    background-image: url('/src/assets/patterns/settings-pattern.svg');
     background-repeat: repeat;
     background-size: 200px 200px;
     animation: patternFloat 20s linear infinite;

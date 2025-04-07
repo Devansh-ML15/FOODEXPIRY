@@ -8,6 +8,7 @@ import mealPlanningPatternSvg from '@/assets/patterns/meal-planning-pattern.svg'
 import insightsPatternSvg from '@/assets/patterns/insights-pattern.svg';
 import tipsPatternSvg from '@/assets/patterns/tips-pattern.svg';
 import settingsPatternSvg from '@/assets/patterns/settings-pattern.svg';
+import foodPatternSvg from '@/assets/patterns/food-pattern.svg';
 
 interface AnimatedBackgroundProps {
   children: React.ReactNode;
@@ -236,9 +237,13 @@ export function AnimatedBackground({
       {effectivePattern === 'food' && (
         <div className="absolute inset-0">
           <div 
-            className="absolute inset-0 parallax-bg opacity-30 bg-pattern-food transition-all"
+            className="absolute inset-0 parallax-bg transition-all"
             style={{ 
-              backgroundSize: '400px 400px',
+              backgroundImage: `url(${foodPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
               animation: 'patternFloat 20s linear infinite',
             }}
           />
