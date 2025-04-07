@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { ArrowLeft, Barcode, Calendar, Info } from 'lucide-react';
+import { ArrowLeft, Calendar, Info } from 'lucide-react';
 import { z } from 'zod';
 import { InsertFoodItem, insertFoodItemSchema, FOOD_CATEGORIES, STORAGE_LOCATIONS, QUANTITY_UNITS } from '@shared/schema';
 import { useMobileDetector } from '@/hooks/use-mobile-detector';
@@ -39,10 +39,6 @@ export default function AddFoodItemPage() {
   const queryClient = useQueryClient();
   const { isMobile, hasCameraSupport } = useMobileDetector();
   
-  // Parse barcode from query params if present
-  const urlParams = new URLSearchParams(search);
-  const barcodeFromUrl = urlParams.get('barcode');
-
   // Form setup
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,7 +50,7 @@ export default function AddFoodItemPage() {
       purchaseDate: getTodayDate(),
       expirationDate: getTodayDate(),
       storageLocation: 'pantry',
-      notes: barcodeFromUrl ? `Barcode: ${barcodeFromUrl}` : '',
+      notes: '',
     },
   });
 
@@ -95,10 +91,6 @@ export default function AddFoodItemPage() {
     return `${year}-${month}-${day}`;
   }
 
-  const goToScannerPage = () => {
-    setLocation('/barcode-scanner');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
       <div className="container mx-auto px-4 pt-16">
@@ -111,17 +103,6 @@ export default function AddFoodItemPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-bold">Add New Item</h1>
-          
-          {isMobile && hasCameraSupport && (
-            <Button 
-              variant="ghost" 
-              className="ml-auto"
-              onClick={goToScannerPage}
-            >
-              <Barcode className="h-5 w-5 mr-1" />
-              <span className="sr-only sm:not-sr-only sm:inline-block">Scan</span>
-            </Button>
-          )}
         </div>
 
         <Card>

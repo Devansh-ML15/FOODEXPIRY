@@ -2,11 +2,10 @@ import { Link, useLocation } from "wouter";
 import {
   Home,
   Refrigerator,
-  ScrollText,
   BarChart2,
   Lightbulb,
   Settings,
-  Scan
+  Plus
 } from "lucide-react";
 
 export default function MobileNavBar() {
@@ -16,7 +15,7 @@ export default function MobileNavBar() {
   const navItems = [
     { name: "Dashboard", path: "/", icon: <Home size={20} /> },
     { name: "Inventory", path: "/inventory", icon: <Refrigerator size={20} /> },
-    { name: "Scan", path: "/barcode-scanner", icon: <Scan size={24} />, highlight: true },
+    { name: "Add Item", path: "/add-food-item", icon: <Plus size={24} />, highlight: true },
     { name: "Insights", path: "/insights", icon: <BarChart2 size={20} /> },
     { name: "Tips", path: "/tips", icon: <Lightbulb size={20} /> }
   ];

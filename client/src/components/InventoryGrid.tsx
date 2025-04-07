@@ -8,14 +8,12 @@ import AddItemDialog from "./AddItemDialog";
 import EditItemDialog from "./EditItemDialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Barcode, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Link } from "wouter";
 
-type InventoryGridProps = {
-  showScanButton?: boolean;
-};
+type InventoryGridProps = {};
 
-export default function InventoryGrid({ showScanButton = false }: InventoryGridProps) {
+export default function InventoryGrid({}: InventoryGridProps) {
   const { data: foodItems, isLoading } = useQuery<FoodItemWithStatus[]>({
     queryKey: ['/api/food-items'],
   });
@@ -104,16 +102,6 @@ export default function InventoryGrid({ showScanButton = false }: InventoryGridP
     <>
       <div className="flex items-center justify-between mb-6">
         <div className="flex space-x-3">
-          {!showScanButton && (
-            <Link href="/barcode-scanner">
-              <Button
-                className="flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg"
-              >
-                <Barcode className="mr-2 h-5 w-5" />
-                Scan
-              </Button>
-            </Link>
-          )}
           <Button
             onClick={() => setIsAddDialogOpen(true)}
             className="inline-flex items-center bg-primary hover:bg-primary-dark text-white"

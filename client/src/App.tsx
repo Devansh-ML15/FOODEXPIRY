@@ -10,7 +10,6 @@ import Inventory from "@/pages/Inventory";
 import Insights from "@/pages/Insights";
 import Tips from "@/pages/Tips";
 import Settings from "@/pages/Settings";
-import BarcodeScannerPage from "@/pages/BarcodeScannerPage";
 import AddFoodItemPage from "@/pages/AddFoodItemPage";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -24,7 +23,6 @@ function Router() {
       <ProtectedRoute path="/insights" component={Insights} />
       <ProtectedRoute path="/tips" component={Tips} />
       <ProtectedRoute path="/settings" component={Settings} />
-      <ProtectedRoute path="/barcode-scanner" component={BarcodeScannerPage} />
       <ProtectedRoute path="/add-food-item" component={AddFoodItemPage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />

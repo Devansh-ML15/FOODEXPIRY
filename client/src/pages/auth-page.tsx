@@ -147,8 +147,8 @@ export default function AuthPage() {
               description="Track your progress in reducing food waste"
             />
             <FeatureCard
-              title="Scan Barcodes"
-              description="Quickly add items by scanning barcodes"
+              title="Easy Inventory"
+              description="Quickly add items with a clean, simple interface"
             />
             <FeatureCard
               title="Data Insights"
