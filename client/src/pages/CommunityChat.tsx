@@ -193,11 +193,12 @@ export default function CommunityChat() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: recipe.title, // In the schema, the field is 'name', not 'title'
+          name: recipe.title, 
           ingredients: ingredientsArray,
-          preparationTime: recipe.prepTime + recipe.cookTime, // In schema, we only have preparationTime 
+          preparationTime: recipe.prepTime + recipe.cookTime,
           instructions: recipe.instructions,
-          imageUrl: recipe.imageUrl || undefined,
+          imageUrl: recipe.imageUrl || null,
+          userId: user?.id, // Add userId as required by schema
         }),
       });
       
