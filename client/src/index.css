@@ -384,43 +384,44 @@
   /* Button hover animations */
   
   /* Shadow borders for all components */
-  .card,
-  .dialog,
-  .popover,
-  .dropdown-menu,
-  .alert-dialog,
-  .hover-card,
-  .select,
-  .form,
-  .input,
-  .textarea,
-  .button,
-  .accordion,
-  .scroll-area,
-  .tabs,
+  .shadcn-card,
+  .dropdown-content,
+  .dialog-content,
+  .popover-content,
+  .alert-dialog-content,
+  .hover-card-content,
+  .select-content,
+  button, 
+  input,
+  textarea,
+  select,
+  .accordion-content,
+  .tabs-content,
   .toast {
-    @apply shadow-md border border-border/40 dark:border-border/50;
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.12), 
-                0 0 0 1px rgba(0, 0, 0, 0.05);
+    @apply border border-slate-200 dark:border-slate-700;
+    box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.18), 
+                0 0 0 1px rgba(0, 0, 0, 0.08);
   }
   
-  .dark .card,
-  .dark .dialog,
-  .dark .popover,
-  .dark .dropdown-menu,
-  .dark .alert-dialog,
-  .dark .hover-card,
-  .dark .select,
-  .dark .form,
-  .dark .input,
-  .dark .textarea,
-  .dark .button,
-  .dark .accordion,
-  .dark .scroll-area,
-  .dark .tabs,
-  .dark .toast {
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25), 
-                0 0 0 1px rgba(255, 255, 255, 0.1);
+  /* Enhanced shadow for cards */
+  [class*="card"] {
+    @apply border border-slate-200 dark:border-slate-700;
+    box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.18), 
+                0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Dark mode enhanced shadows */
+  .dark [class*="card"],
+  .dark button,
+  .dark input,
+  .dark textarea,
+  .dark select,
+  .dark .dropdown-content,
+  .dark .tabs-content,
+  .dark .dialog-content,
+  .dark .popover-content {
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35), 
+                0 0 0 1px rgba(255, 255, 255, 0.15);
   }
   .button-animated {
     position: relative;
