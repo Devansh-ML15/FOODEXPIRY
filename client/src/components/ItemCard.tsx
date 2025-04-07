@@ -1,8 +1,10 @@
 import { FoodItemWithStatus } from "@shared/schema";
 import FoodCategoryIcon from "./FoodCategoryIcon";
 import StatusBadge from "./StatusBadge";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import ConsumeItemDialog from "./ConsumeItemDialog";
 
 type ItemCardProps = {
   item: FoodItemWithStatus;
@@ -12,6 +14,7 @@ type ItemCardProps = {
 
 export default function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
   const { name, category, quantity, unit, status, daysUntilExpiration } = item;
+  const [isConsumeDialogOpen, setIsConsumeDialogOpen] = useState(false);
   
   // Calculate progress bar percentage based on days until expiration
   let progressPercentage = 100;
@@ -32,6 +35,16 @@ export default function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
           <FoodCategoryIcon category={category} />
         </div>
         <div className="flex space-x-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsConsumeDialogOpen(true)}
+            className="h-8 w-8 text-gray-400 hover:text-green-500"
+            title="Mark as consumed"
+          >
+            <Utensils className="h-4 w-4" />
+            <span className="sr-only">Consume</span>
+          </Button>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -67,6 +80,12 @@ export default function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
           ></div>
         </div>
       </div>
+      
+      <ConsumeItemDialog 
+        open={isConsumeDialogOpen}
+        onOpenChange={setIsConsumeDialogOpen}
+        item={item}
+      />
     </div>
   );
 }
