@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import logoImage from "@/assets/logo.png";
 
 export default function Navbar() {
@@ -107,6 +108,7 @@ export default function Navbar() {
             </div>
           </div>
           <div className="flex items-center">
+            <ThemeSelector className="mr-3" />
             <Button
               onClick={handleNotificationClick}
               variant={notificationCount > 0 ? "destructive" : "ghost"}
