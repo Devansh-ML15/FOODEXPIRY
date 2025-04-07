@@ -31,7 +31,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Utensils } from "lucide-react";
 
 const formSchema = z.object({
-  quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
+  quantity: z.coerce.number()
+    .min(0.01, "Quantity must be greater than 0")
+    .transform(val => Math.round(val)), // Round to integer
   unit: z.string().min(1, "Please select a unit"),
   notes: z.string().optional(),
 });
@@ -61,13 +63,13 @@ export default function ConsumeItemDialog({ open, onOpenChange, item }: ConsumeI
   const consumeMutation = useMutation({
     mutationFn: async (values: FormValues) => {
       // If consuming full quantity, mark as completely consumed
+      // Create a consumption entry that matches the expected schema
       const consumeData = {
         foodItemId: item.id,
-        quantity: values.quantity,
+        quantity: parseInt(values.quantity.toString()),  // Ensure it's an integer
         unit: values.unit,
         consumptionDate: new Date().toISOString().split('T')[0],
-        notes: values.notes,
-        // Calculate estimated value based on quantity ratio
+        notes: values.notes || null,
         estimatedValue: null,
       };
       
