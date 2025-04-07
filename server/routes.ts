@@ -165,18 +165,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.delete("/food-items/:id", async (req: Request, res: Response) => {
     try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
       
+      // Get the food item to check if it belongs to the authenticated user
+      const foodItem = await storage.getFoodItem(id);
+      if (!foodItem) {
+        return res.status(404).json({ message: "Food item not found" });
+      }
+      
+      // Make sure the food item belongs to the authenticated user
+      if (foodItem.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to delete this food item" });
+      }
+      
+      console.log(`Attempting to delete food item ${id} for user ${req.user!.id}`);
       const success = await storage.deleteFoodItem(id);
       if (!success) {
         return res.status(404).json({ message: "Food item not found" });
       }
       
+      console.log(`Successfully deleted food item ${id}`);
       res.status(204).end();
     } catch (error) {
+      console.error("Error deleting food item:", error);
       res.status(500).json({ message: "Failed to delete food item" });
     }
   });
