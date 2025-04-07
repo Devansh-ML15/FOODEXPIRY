@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { FoodItemWithStatus } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/lib/theme-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const { user, logoutMutation } = useAuth();
+  const { visualTheme, resolvedTheme } = useTheme();
   
   // Query for food items to get expired and about-to-expire items
   const { data: foodItems = [] } = useQuery<FoodItemWithStatus[]>({
@@ -143,7 +145,15 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="rounded-full p-1 hover:bg-gray-100 transition-all duration-300">
                       <span className="sr-only">Open user menu</span>
-                      <Avatar className="h-8 w-8 bg-gradient-to-br from-green-600 to-green-400 shadow-md transform transition-all duration-300 hover:scale-110">
+                      <Avatar className={`h-8 w-8 shadow-md transform transition-all duration-300 hover:scale-110 ${
+                        visualTheme === 'default' 
+                          ? 'bg-gradient-to-br from-green-600 to-green-400' 
+                        : visualTheme === 'farm-to-table' 
+                          ? 'bg-gradient-to-br from-amber-600 to-amber-400' 
+                        : visualTheme === 'cozy-pantry' 
+                          ? 'bg-gradient-to-br from-purple-600 to-purple-400' 
+                        : 'bg-gradient-to-br from-rose-600 to-rose-400'
+                      }`}>
                         <AvatarFallback className="text-white font-bold">
                           {user.username.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
