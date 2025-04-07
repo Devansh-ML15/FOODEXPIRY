@@ -11,6 +11,7 @@ import Insights from "@/pages/Insights";
 import Tips from "@/pages/Tips";
 import Settings from "@/pages/Settings";
 import AddFoodItemPage from "@/pages/AddFoodItemPage";
+import MealPlanning from "@/pages/MealPlanning";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -22,6 +23,7 @@ function Router() {
       <ProtectedRoute path="/" component={Dashboard} />
       <ProtectedRoute path="/inventory" component={Inventory} />
       <ProtectedRoute path="/insights" component={Insights} />
+      <ProtectedRoute path="/meal-planning" component={MealPlanning} />
       <ProtectedRoute path="/tips" component={Tips} />
       <ProtectedRoute path="/settings" component={Settings} />
       <ProtectedRoute path="/add-food-item" component={AddFoodItemPage} />

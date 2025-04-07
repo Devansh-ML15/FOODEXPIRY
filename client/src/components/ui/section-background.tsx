@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 interface SectionBackgroundProps {
   children: React.ReactNode;
-  pattern: "dashboard" | "inventory" | "recipes" | "insights" | "tips" | "settings";
+  pattern: "dashboard" | "inventory" | "recipes" | "insights" | "tips" | "settings" | "meal-planning";
   className?: string;
 }
 

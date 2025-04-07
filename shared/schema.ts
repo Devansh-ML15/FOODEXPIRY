@@ -40,6 +40,14 @@ export const NOTIFICATION_FREQUENCIES = [
   "never"
 ] as const;
 
+// Meal types
+export const MEAL_TYPES = [
+  "breakfast",
+  "lunch",
+  "dinner",
+  "snack"
+] as const;
+
 // User profiles
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -101,6 +109,18 @@ export const consumptionEntries = pgTable("consumption_entries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Meal planning
+export const mealPlans = pgTable("meal_plans", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  date: date("date").notNull(),
+  mealType: text("meal_type").$type<typeof MEAL_TYPES[number]>().notNull(),
+  name: text("name").notNull(),
+  ingredients: integer("ingredients").array().notNull(), // Array of food item IDs
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Notification settings
 export const notificationSettings = pgTable("notification_settings", {
   id: serial("id").primaryKey(),
@@ -131,6 +151,9 @@ export const insertConsumptionEntrySchema = createInsertSchema(consumptionEntrie
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true });
 
+export const insertMealPlanSchema = createInsertSchema(mealPlans)
+  .omit({ id: true, createdAt: true });
+
 export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings)
   .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
 
@@ -152,6 +175,9 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
 export type InsertNotificationSetting = z.infer<typeof insertNotificationSettingsSchema>;
+
+export type MealPlan = typeof mealPlans.$inferSelect;
+export type InsertMealPlan = z.infer<typeof insertMealPlanSchema>;
 
 // Food item with expiration status
 export type FoodItemWithStatus = FoodItem & {
@@ -191,11 +217,19 @@ export const consumptionEntriesRelations = relations(consumptionEntries, ({ one 
   }),
 }));
 
+export const mealPlansRelations = relations(mealPlans, ({ one }) => ({
+  user: one(users, {
+    fields: [mealPlans.userId],
+    references: [users.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   notificationSetting: one(notificationSettings),
   foodItems: many(foodItems),
   wasteEntries: many(wasteEntries),
   consumptionEntries: many(consumptionEntries),
+  mealPlans: many(mealPlans),
 }));
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({

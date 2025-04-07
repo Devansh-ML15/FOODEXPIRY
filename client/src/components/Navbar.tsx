@@ -65,6 +65,7 @@ export default function Navbar() {
     { href: "/", label: "Dashboard" },
     { href: "/inventory", label: "Inventory" },
     { href: "/insights", label: "Insights" },
+    { href: "/meal-planning", label: "Meal Planning" },
     { href: "/tips", label: "Tips" },
     { href: "/settings", label: "Settings" },
   ];

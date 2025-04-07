@@ -5,10 +5,12 @@ import {
   consumptionEntries,
   users,
   notificationSettings,
+  mealPlans,
   FOOD_CATEGORIES,
   STORAGE_LOCATIONS,
   QUANTITY_UNITS,
   NOTIFICATION_FREQUENCIES,
+  MEAL_TYPES,
   type FoodItem, 
   type InsertFoodItem,
   type Recipe,
@@ -20,7 +22,9 @@ import {
   type User,
   type InsertUser,
   type NotificationSetting,
-  type InsertNotificationSetting
+  type InsertNotificationSetting,
+  type MealPlan,
+  type InsertMealPlan
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, between, and, desc, sql } from "drizzle-orm";
@@ -50,6 +54,14 @@ export interface IStorage {
   createConsumptionEntry(entry: InsertConsumptionEntry): Promise<ConsumptionEntry>;
   getConsumptionEntriesByUserId(userId: number): Promise<ConsumptionEntry[]>;
   getConsumptionEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<ConsumptionEntry[]>;
+
+  // Meal Plans
+  getMealPlansByUserId(userId: number): Promise<MealPlan[]>;
+  getMealPlansByDateRange(userId: number, startDate: Date, endDate: Date): Promise<MealPlan[]>;
+  getMealPlan(id: number): Promise<MealPlan | undefined>;
+  createMealPlan(mealPlan: InsertMealPlan): Promise<MealPlan>;
+  updateMealPlan(id: number, mealPlan: Partial<InsertMealPlan>): Promise<MealPlan | undefined>;
+  deleteMealPlan(id: number): Promise<boolean>;
   
   // User Management
   getUser(id: number): Promise<User | undefined>;
@@ -204,6 +216,71 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(consumptionEntries.consumptionDate));
   }
   
+  // Meal Plans
+  async getMealPlansByUserId(userId: number): Promise<MealPlan[]> {
+    return await db
+      .select()
+      .from(mealPlans)
+      .where(eq(mealPlans.userId, userId))
+      .orderBy(mealPlans.date);
+  }
+  
+  async getMealPlansByDateRange(userId: number, startDate: Date, endDate: Date): Promise<MealPlan[]> {
+    // Convert Date objects to strings in the format PostgreSQL expects
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+    
+    return await db
+      .select()
+      .from(mealPlans)
+      .where(
+        and(
+          // @ts-ignore - Type issues with drizzle-orm
+          between(mealPlans.date, startDateStr, endDateStr),
+          eq(mealPlans.userId, userId)
+        )
+      )
+      .orderBy(mealPlans.date);
+  }
+  
+  async getMealPlan(id: number): Promise<MealPlan | undefined> {
+    const result = await db.select().from(mealPlans).where(eq(mealPlans.id, id));
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async createMealPlan(mealPlan: InsertMealPlan): Promise<MealPlan> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newMealPlan] = await db.insert(mealPlans).values(mealPlan).returning();
+    return newMealPlan;
+  }
+  
+  async updateMealPlan(id: number, updates: Partial<InsertMealPlan>): Promise<MealPlan | undefined> {
+    // Handle type-safe mealType updates
+    const typeCheckedUpdates: any = { ...updates };
+    
+    // For proper type checking, ensure mealType is one of the allowed values
+    if (updates.mealType && typeof updates.mealType === 'string') {
+      if (MEAL_TYPES.includes(updates.mealType as any)) {
+        typeCheckedUpdates.mealType = updates.mealType;
+      } else {
+        throw new Error(`Invalid meal type: ${updates.mealType}`);
+      }
+    }
+    
+    const [updatedMealPlan] = await db
+      .update(mealPlans)
+      .set(typeCheckedUpdates)
+      .where(eq(mealPlans.id, id))
+      .returning();
+    
+    return updatedMealPlan;
+  }
+  
+  async deleteMealPlan(id: number): Promise<boolean> {
+    const result = await db.delete(mealPlans).where(eq(mealPlans.id, id)).returning();
+    return result.length > 0;
+  }
+  
   // User Management
   async getUser(id: number): Promise<User | undefined> {
     const result = await db.select().from(users).where(eq(users.id, id));
@@ -252,6 +329,9 @@ export class DatabaseStorage implements IStorage {
       
       // Delete consumption entries
       await db.delete(consumptionEntries).where(eq(consumptionEntries.userId, id));
+      
+      // Delete meal plans
+      await db.delete(mealPlans).where(eq(mealPlans.userId, id));
       
       // Finally, delete the user
       const result = await db.delete(users).where(eq(users.id, id)).returning();

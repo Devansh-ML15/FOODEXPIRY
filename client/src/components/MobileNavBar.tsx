@@ -5,7 +5,8 @@ import {
   BarChart2,
   Lightbulb,
   Settings,
-  Plus
+  Plus,
+  Calendar
 } from "lucide-react";
 
 export default function MobileNavBar() {
@@ -17,6 +18,7 @@ export default function MobileNavBar() {
     { name: "Inventory", path: "/inventory", icon: <Refrigerator size={20} /> },
     { name: "Add Item", path: "/add-food-item", icon: <Plus size={24} />, highlight: true },
     { name: "Insights", path: "/insights", icon: <BarChart2 size={20} /> },
+    { name: "Meal Plan", path: "/meal-planning", icon: <Calendar size={20} /> },
     { name: "Tips", path: "/tips", icon: <Lightbulb size={20} /> }
   ];
 

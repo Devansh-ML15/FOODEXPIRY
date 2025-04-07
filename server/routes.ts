@@ -7,6 +7,7 @@ import {
   insertConsumptionEntrySchema,
   insertUserSchema,
   insertNotificationSettingsSchema,
+  insertMealPlanSchema,
   FoodItemWithStatus 
 } from "@shared/schema";
 import { differenceInDays, isAfter } from "date-fns";
@@ -14,6 +15,12 @@ import { setupAuth } from "./auth";
 import { emailService } from "./email-service";
 import { ENABLE_EMAIL_FALLBACK } from "./email-service";
 import { aiService } from "./ai-service";
+import { ZodError } from "zod";
+
+// Helper function to format Zod validation errors
+function formatZodError(error: ZodError): string {
+  return error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -532,6 +539,200 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error calculating consumption insights:", error);
       res.status(500).json({ message: "Failed to calculate consumption insights" });
+    }
+  });
+  
+  // Meal Plan endpoints
+  apiRouter.get("/meal-plans", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const mealPlans = await storage.getMealPlansByUserId(userId);
+      
+      res.json(mealPlans);
+    } catch (error) {
+      console.error("Error fetching meal plans:", error);
+      res.status(500).json({ error: "Failed to fetch meal plans" });
+    }
+  });
+  
+  apiRouter.get("/meal-plans/date-range", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const { startDate, endDate } = req.query;
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ error: "Start date and end date are required" });
+      }
+      
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ error: "Invalid date format" });
+      }
+      
+      const mealPlans = await storage.getMealPlansByDateRange(userId, start, end);
+      
+      res.json(mealPlans);
+    } catch (error) {
+      console.error("Error fetching meal plans by date range:", error);
+      res.status(500).json({ error: "Failed to fetch meal plans" });
+    }
+  });
+  
+  apiRouter.get("/meal-plans/:id", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const mealPlanId = parseInt(req.params.id);
+      
+      if (isNaN(mealPlanId)) {
+        return res.status(400).json({ error: "Invalid meal plan ID" });
+      }
+      
+      const mealPlan = await storage.getMealPlan(mealPlanId);
+      
+      if (!mealPlan) {
+        return res.status(404).json({ error: "Meal plan not found" });
+      }
+      
+      // Make sure the meal plan belongs to the authenticated user
+      if (mealPlan.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized to access this meal plan" });
+      }
+      
+      res.json(mealPlan);
+    } catch (error) {
+      console.error("Error fetching meal plan:", error);
+      res.status(500).json({ error: "Failed to fetch meal plan" });
+    }
+  });
+  
+  apiRouter.post("/meal-plans", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      
+      // Validate the meal plan data using the insert schema
+      const validation = insertMealPlanSchema.safeParse({
+        ...req.body,
+        userId
+      });
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid meal plan data", 
+          details: formatZodError(validation.error)
+        });
+      }
+      
+      // Create the meal plan
+      const mealPlan = await storage.createMealPlan(validation.data);
+      
+      res.status(201).json(mealPlan);
+    } catch (error) {
+      console.error("Error creating meal plan:", error);
+      if (error instanceof ZodError) {
+        return res.status(400).json({ error: formatZodError(error) });
+      }
+      res.status(500).json({ error: "Failed to create meal plan" });
+    }
+  });
+  
+  apiRouter.patch("/meal-plans/:id", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const mealPlanId = parseInt(req.params.id);
+      
+      if (isNaN(mealPlanId)) {
+        return res.status(400).json({ error: "Invalid meal plan ID" });
+      }
+      
+      // Get the current meal plan
+      const existingMealPlan = await storage.getMealPlan(mealPlanId);
+      
+      if (!existingMealPlan) {
+        return res.status(404).json({ error: "Meal plan not found" });
+      }
+      
+      // Make sure the meal plan belongs to the authenticated user
+      if (existingMealPlan.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized to update this meal plan" });
+      }
+      
+      // Update the meal plan
+      const updatedMealPlan = await storage.updateMealPlan(mealPlanId, req.body);
+      
+      res.json(updatedMealPlan);
+    } catch (error) {
+      console.error("Error updating meal plan:", error);
+      if (error instanceof ZodError) {
+        return res.status(400).json({ error: formatZodError(error) });
+      }
+      res.status(500).json({ error: "Failed to update meal plan" });
+    }
+  });
+  
+  apiRouter.delete("/meal-plans/:id", async (req: Request, res: Response) => {
+    try {
+      // Make sure the user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const mealPlanId = parseInt(req.params.id);
+      
+      if (isNaN(mealPlanId)) {
+        return res.status(400).json({ error: "Invalid meal plan ID" });
+      }
+      
+      // Get the current meal plan
+      const existingMealPlan = await storage.getMealPlan(mealPlanId);
+      
+      if (!existingMealPlan) {
+        return res.status(404).json({ error: "Meal plan not found" });
+      }
+      
+      // Make sure the meal plan belongs to the authenticated user
+      if (existingMealPlan.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized to delete this meal plan" });
+      }
+      
+      // Delete the meal plan
+      const success = await storage.deleteMealPlan(mealPlanId);
+      
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ error: "Failed to delete meal plan" });
+      }
+    } catch (error) {
+      console.error("Error deleting meal plan:", error);
+      res.status(500).json({ error: "Failed to delete meal plan" });
     }
   });
   

@@ -1,0 +1,7 @@
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" fill-rule="evenodd">
+    <path d="M30 30c4.5 0 7.5-3 7.5-7.5S34.5 15 30 15s-7.5 3-7.5 7.5 3 7.5 7.5 7.5zm15 15c-1.5-4.5-7.5-7.5-15-7.5s-13.5 3-15 7.5" stroke="rgba(var(--primary-rgb), 0.2)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M45 22.5h-7.5m-15 0H15m30 15h-7.5m-15 0H15" stroke="rgba(var(--primary-rgb), 0.15)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M37.5 15v-7.5M22.5 15v-7.5M37.5 52.5V45M22.5 52.5V45" stroke="rgba(var(--primary-rgb), 0.1)" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,518 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { FoodItemWithStatus } from "@shared/schema";
+import { SectionBackground } from "@/components/ui/section-background";
+import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
+import { PlusCircle, Utensils, Calendar as CalendarIcon, Info } from "lucide-react";
+import { format } from "date-fns";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+
+// Define the meal plan schema
+const mealPlanSchema = z.object({
+  date: z.date({
+    required_error: "Date is required",
+  }),
+  mealType: z.string({
+    required_error: "Meal type is required",
+  }),
+  name: z.string({
+    required_error: "Meal name is required",
+  }).min(3, {
+    message: "Meal name must be at least 3 characters",
+  }),
+  ingredients: z.array(z.number()).min(1, {
+    message: "Select at least one ingredient from your inventory",
+  }),
+  notes: z.string().optional(),
+});
+
+type MealPlan = z.infer<typeof mealPlanSchema>;
+
+interface MealPlanWithId extends MealPlan {
+  id: number;
+  userId: number;
+}
+
+export default function MealPlanning() {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isAddPlanOpen, setIsAddPlanOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch inventory items
+  const { data: foodItems, isLoading: isLoadingFoodItems } = useQuery<FoodItemWithStatus[]>({
+    queryKey: ['/api/food-items'],
+  });
+
+  // Fetch meal plans
+  const { data: mealPlans, isLoading: isLoadingMealPlans } = useQuery<MealPlanWithId[]>({
+    queryKey: ['/api/meal-plans'],
+  });
+
+  // Create form
+  const form = useForm<MealPlan>({
+    resolver: zodResolver(mealPlanSchema),
+    defaultValues: {
+      date: new Date(),
+      mealType: "dinner",
+      name: "",
+      ingredients: [],
+      notes: "",
+    },
+  });
+
+  // Add meal plan mutation
+  const addMealPlanMutation = useMutation({
+    mutationFn: async (values: MealPlan) => {
+      return await apiRequest('POST', '/api/meal-plans', values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/meal-plans'] });
+      form.reset();
+      setIsAddPlanOpen(false);
+      toast({
+        title: "Meal planned",
+        description: "Your meal has been added to the calendar",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add meal plan: ${error}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete meal plan mutation
+  const deleteMealPlanMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('DELETE', `/api/meal-plans/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/meal-plans'] });
+      toast({
+        title: "Meal plan deleted",
+        description: "The meal plan has been removed from your calendar",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete meal plan: ${error}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle submit
+  function onSubmit(values: MealPlan) {
+    addMealPlanMutation.mutate(values);
+  }
+
+  // Helper for finding meal plans on a specific date
+  const getMealPlansForDate = (date: Date | undefined) => {
+    if (!date || !mealPlans) return [];
+    
+    const dateString = format(date, 'yyyy-MM-dd');
+    return mealPlans.filter(plan => {
+      const planDate = new Date(plan.date);
+      return format(planDate, 'yyyy-MM-dd') === dateString;
+    });
+  };
+
+  const getIngredientNamesFromIds = (ingredientIds: number[]) => {
+    if (!foodItems) return [];
+    return ingredientIds.map(id => {
+      const item = foodItems.find(item => item.id === id);
+      return item ? item.name : 'Unknown';
+    });
+  };
+
+  // Get plans for selected date
+  const selectedDatePlans = getMealPlansForDate(date);
+
+  // Get expiring items for recommendations
+  const expiringItems = foodItems?.filter(item => 
+    item.status === 'expiring-soon' || item.status === 'expired'
+  ).sort((a, b) => a.daysUntilExpiration - b.daysUntilExpiration);
+
+  return (
+    <div className="mb-8">
+      <SectionBackground pattern="meal-planning" className="p-6">
+        <GlassLogoBackground className="rounded-xl p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="page-header">Meal Planning</h1>
+            <Button 
+              onClick={() => {
+                form.reset({
+                  date: date || new Date(),
+                  mealType: "dinner",
+                  name: "",
+                  ingredients: [],
+                  notes: "",
+                });
+                setIsAddPlanOpen(true);
+              }}
+              className="bg-primary hover:bg-primary-dark text-white"
+            >
+              <PlusCircle className="mr-2 h-5 w-5" /> Add Meal Plan
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Calendar column */}
+            <div className="md:col-span-7">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Meal Calendar</CardTitle>
+                  <CardDescription>Plan your meals ahead to reduce food waste</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border"
+                    modifiers={{
+                      hasMeal: mealPlans ? mealPlans.map(plan => new Date(plan.date)) : [],
+                    }}
+                    modifiersStyles={{
+                      hasMeal: { 
+                        fontWeight: 'bold',
+                        backgroundColor: 'rgba(var(--primary-rgb), 0.1)',
+                        borderRadius: '0.3rem',
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Details column */}
+            <div className="md:col-span-5">
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle>
+                    {date ? format(date, 'MMMM d, yyyy') : 'Select a date'}
+                  </CardTitle>
+                  <CardDescription>
+                    {selectedDatePlans.length > 0 
+                      ? `${selectedDatePlans.length} meal(s) planned` 
+                      : 'No meals planned for this date'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {selectedDatePlans.length > 0 ? (
+                    <div className="space-y-4">
+                      {selectedDatePlans.map((plan) => (
+                        <div 
+                          key={plan.id} 
+                          className="border rounded-lg p-4 bg-white shadow-sm hover:shadow transition-shadow"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-lg">{plan.name}</h3>
+                              <Badge variant="outline" className="capitalize mt-1">
+                                {plan.mealType}
+                              </Badge>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this meal plan?")) {
+                                  deleteMealPlanMutation.mutate(plan.id);
+                                }
+                              }}
+                              className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 h-8 w-8 p-0"
+                            >
+                              <span className="sr-only">Delete</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                            </Button>
+                          </div>
+                          
+                          <div className="mt-3">
+                            <p className="text-sm font-medium text-gray-500">Ingredients:</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {getIngredientNamesFromIds(plan.ingredients).map((name, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-xs">
+                                  {name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {plan.notes && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium text-gray-500">Notes:</p>
+                              <p className="text-sm mt-1 text-gray-600">{plan.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-40 text-center">
+                      <CalendarIcon className="h-10 w-10 text-gray-300 mb-2" />
+                      <p className="text-gray-500">No meals planned for this date</p>
+                      <Button 
+                        variant="link" 
+                        onClick={() => {
+                          form.reset({
+                            date: date || new Date(),
+                            mealType: "dinner",
+                            name: "",
+                            ingredients: [],
+                            notes: "",
+                          });
+                          setIsAddPlanOpen(true);
+                        }}
+                        className="text-primary mt-2"
+                      >
+                        Add a meal plan
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Recommendations Section */}
+                  {expiringItems && expiringItems.length > 0 && (
+                    <div className="mt-6 pt-4 border-t">
+                      <div className="flex items-center mb-2">
+                        <h3 className="font-medium text-amber-600">Items to Use Soon</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-4 h-4 ml-2 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs max-w-xs">These items are expiring soon. Consider using them in your meal planning.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ScrollArea className="h-28">
+                        <div className="flex flex-wrap gap-1">
+                          {expiringItems.map((item) => (
+                            <Badge 
+                              key={item.id} 
+                              variant={item.status === 'expired' ? "destructive" : "outline"}
+                              className="text-xs cursor-pointer"
+                              onClick={() => {
+                                setIsAddPlanOpen(true);
+                                form.reset({
+                                  ...form.getValues(),
+                                  date: date || new Date(),
+                                  ingredients: [...(form.getValues().ingredients || []), item.id]
+                                });
+                              }}
+                            >
+                              {item.name} ({Math.abs(item.daysUntilExpiration)} {item.daysUntilExpiration >= 0 ? 'days left' : 'days past'})
+                            </Badge>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Add Meal Plan Dialog */}
+          <Dialog open={isAddPlanOpen} onOpenChange={setIsAddPlanOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center">
+                  <Utensils className="mr-2 h-5 w-5 text-primary" />
+                  Plan a Meal
+                </DialogTitle>
+                <DialogDescription>
+                  Create a meal plan using items from your inventory
+                </DialogDescription>
+              </DialogHeader>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Date</FormLabel>
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date()}
+                          className="rounded-md border p-3"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="mealType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Meal Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select meal type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="breakfast">Breakfast</SelectItem>
+                              <SelectItem value="lunch">Lunch</SelectItem>
+                              <SelectItem value="dinner">Dinner</SelectItem>
+                              <SelectItem value="snack">Snack</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Meal Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Pasta Primavera" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="ingredients"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ingredients from Inventory</FormLabel>
+                        <div className="h-40 overflow-auto border rounded-md p-3">
+                          {isLoadingFoodItems ? (
+                            <div className="text-center py-4">Loading inventory...</div>
+                          ) : foodItems && foodItems.length > 0 ? (
+                            foodItems
+                              .filter(item => item.quantity > 0)
+                              .map((item) => (
+                                <div key={item.id} className="flex items-center space-x-2 mb-2">
+                                  <input 
+                                    type="checkbox"
+                                    id={`ingredient-${item.id}`}
+                                    value={item.id}
+                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    checked={field.value.includes(item.id)}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      const value = parseInt(e.target.value);
+                                      const newValues = checked
+                                        ? [...field.value, value]
+                                        : field.value.filter(id => id !== value);
+                                      field.onChange(newValues);
+                                    }}
+                                  />
+                                  <label 
+                                    htmlFor={`ingredient-${item.id}`}
+                                    className={cn(
+                                      "text-sm cursor-pointer",
+                                      item.status === 'expired' ? "text-red-500" :
+                                      item.status === 'expiring-soon' ? "text-amber-600" : ""
+                                    )}
+                                  >
+                                    {item.name} ({item.quantity} {item.unit})
+                                    {item.status !== 'fresh' && 
+                                      <span className="ml-2 text-xs">
+                                        ({item.daysUntilExpiration > 0 
+                                          ? `${item.daysUntilExpiration} days left` 
+                                          : `${Math.abs(item.daysUntilExpiration)} days past`})
+                                      </span>
+                                    }
+                                  </label>
+                                </div>
+                              ))
+                          ) : (
+                            <div className="text-center py-4 text-gray-500">
+                              No items in inventory
+                            </div>
+                          )}
+                        </div>
+                        <FormDescription>
+                          Select the ingredients you plan to use for this meal
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notes (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Add notes about the meal or recipe ideas"
+                            className="resize-none h-20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsAddPlanOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit"
+                      className="bg-primary hover:bg-primary-dark text-white"
+                    >
+                      Save Meal Plan
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </GlassLogoBackground>
+      </SectionBackground>
+    </div>
+  );
+}
