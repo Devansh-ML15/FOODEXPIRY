@@ -1,32 +1,42 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { cn } from '@/lib/utils';
+import { AnimatedBackground } from './animated-background';
 
 interface SectionBackgroundProps {
   children: React.ReactNode;
-  pattern: "dashboard" | "inventory" | "recipes" | "insights" | "tips" | "settings" | "meal-planning";
+  title?: string | React.ReactNode;
+  description?: string | React.ReactNode;
+  pattern?: "food" | "waves" | "geometric" | "gradient" | "none" | "inventory" | "meal-planning" | "insights" | "settings" | "dashboard" | "recipes" | "tips";
   className?: string;
 }
 
-export function SectionBackground({ children, pattern, className }: SectionBackgroundProps) {
-  const patternPath = `/src/assets/patterns/${pattern}-pattern.svg`;
-  
+export function SectionBackground({
+  children,
+  title,
+  description,
+  pattern = "gradient",
+  className,
+}: SectionBackgroundProps) {
   return (
-    <div
-      className={cn(
-        "relative rounded-lg overflow-hidden",
-        className
-      )}
-      style={{
-        backgroundImage: `url(${patternPath})`,
-        backgroundRepeat: "repeat",
-        backgroundSize: "auto",
-      }}
+    <AnimatedBackground
+      pattern={pattern}
+      className={cn("rounded-xl p-6 mb-6 relative overflow-hidden", className)}
     >
-      {/* Semi-transparent overlay to ensure content readability */}
-      <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80"></div>
-      
-      {/* Content container */}
-      <div className="relative z-10">{children}</div>
-    </div>
+      <div className="space-y-4">
+        {title && (
+          <div className="flex items-center">
+            <h3 className="text-xl font-bold tracking-tight">{title}</h3>
+          </div>
+        )}
+        {description && (
+          <div className="text-sm text-muted-foreground">
+            {description}
+          </div>
+        )}
+        <div className="pt-2">
+          {children}
+        </div>
+      </div>
+    </AnimatedBackground>
   );
 }
