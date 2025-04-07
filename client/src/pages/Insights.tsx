@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectionBackground } from "@/components/ui/section-background";
 import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
 import WasteInsights from "@/components/WasteInsights";
+import ConsumptionInsights from "@/components/ConsumptionInsights";
 
 type WasteInsightsData = {
   labels: string[];
@@ -59,6 +60,7 @@ export default function Insights() {
             <TabsTrigger value="categories">Category Distribution</TabsTrigger>
             <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
             <TabsTrigger value="waste">Waste Trends</TabsTrigger>
+            <TabsTrigger value="consumption">Consumption</TabsTrigger>
           </TabsList>
           
         <TabsContent value="waste">
@@ -372,6 +374,10 @@ export default function Insights() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="consumption">
+          <ConsumptionInsights />
         </TabsContent>
       </Tabs>
       </GlassLogoBackground>
