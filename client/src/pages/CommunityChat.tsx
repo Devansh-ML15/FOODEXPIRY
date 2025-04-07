@@ -95,6 +95,7 @@ export default function CommunityChat() {
     servings: 2,
     imageUrl: ''
   });
+  const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [recipeDialogOpen, setRecipeDialogOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<SharedRecipe | null>(null);
   const [comment, setComment] = useState('');
@@ -197,7 +198,7 @@ export default function CommunityChat() {
           ingredients: ingredientsArray,
           preparationTime: recipe.prepTime + recipe.cookTime,
           instructions: recipe.instructions,
-          imageUrl: recipe.imageUrl || null,
+          imageUrl: recipe.imageUrl && recipe.imageUrl.trim() !== '' ? recipe.imageUrl.trim() : null,
           userId: user?.id, // Add userId as required by schema
         }),
       });
@@ -296,6 +297,26 @@ export default function CommunityChat() {
       return formatDistanceToNow(date, { addSuffix: true });
     } catch (e) {
       return 'just now';
+    }
+  };
+  
+  // Validate image URL
+  const validateImageUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return true; // Empty URLs are valid (optional)
+    
+    try {
+      // Basic URL validation using built-in URL constructor
+      new URL(url);
+      
+      // Check if the URL has an image file extension
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      const hasImageExtension = imageExtensions.some(ext => 
+        url.toLowerCase().endsWith(ext)
+      );
+      
+      return hasImageExtension;
+    } catch (e) {
+      return false; // Invalid URL format
     }
   };
   
@@ -445,6 +466,18 @@ export default function CommunityChat() {
       return;
     }
     
+    // Validate image URL if provided
+    if (recipeData.imageUrl && recipeData.imageUrl.trim() !== '') {
+      if (!validateImageUrl(recipeData.imageUrl)) {
+        toast({
+          title: 'Invalid image URL',
+          description: 'Please provide a valid image URL or leave the field empty',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+    
     createRecipeMutation.mutate(recipeData);
   };
   
@@ -585,12 +618,16 @@ export default function CommunityChat() {
             ) : (
               recipes.map((recipe: SharedRecipe) => (
                 <Card key={recipe.id} className="overflow-hidden shadow-md">
-                  {recipe.imageUrl && (
+                  {recipe.imageUrl && recipe.imageUrl.trim() !== '' && (
                     <div className="h-48 w-full overflow-hidden">
                       <img 
                         src={recipe.imageUrl} 
                         alt={recipe.title} 
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Handle image loading errors
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                     </div>
                   )}
@@ -719,9 +756,26 @@ export default function CommunityChat() {
                 <Input
                   id="imageUrl"
                   value={recipeData.imageUrl}
-                  onChange={(e) => setRecipeData({...recipeData, imageUrl: e.target.value})}
+                  onChange={(e) => {
+                    const url = e.target.value;
+                    setRecipeData({...recipeData, imageUrl: url});
+                    
+                    if (url.trim() !== '') {
+                      if (!validateImageUrl(url)) {
+                        setImageUrlError('Please enter a valid image URL (ending with .jpg, .png, etc.)');
+                      } else {
+                        setImageUrlError(null);
+                      }
+                    } else {
+                      setImageUrlError(null);
+                    }
+                  }}
                   placeholder="https://example.com/image.jpg"
+                  className={imageUrlError ? 'border-red-500' : ''}
                 />
+                {imageUrlError && (
+                  <p className="text-sm text-red-500">{imageUrlError}</p>
+                )}
               </div>
             </div>
             
@@ -735,7 +789,7 @@ export default function CommunityChat() {
               </Button>
               <Button 
                 type="submit"
-                disabled={createRecipeMutation.isPending}
+                disabled={createRecipeMutation.isPending || !!imageUrlError}
               >
                 {createRecipeMutation.isPending ? (
                   <>
@@ -769,12 +823,17 @@ export default function CommunityChat() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                {selectedRecipe.imageUrl && (
+                {selectedRecipe.imageUrl && selectedRecipe.imageUrl.trim() !== '' && (
                   <div className="rounded-md overflow-hidden">
                     <img 
                       src={selectedRecipe.imageUrl} 
                       alt={selectedRecipe.title} 
                       className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        // Handle image loading errors
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+                      }}
                     />
                   </div>
                 )}
