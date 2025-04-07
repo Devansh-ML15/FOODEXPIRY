@@ -1,9 +1,46 @@
-<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="inventoryPattern" patternUnits="userSpaceOnUse" width="60" height="60">
-      <rect x="0" y="0" width="10" height="10" fill="#FB923C15" />
-      <rect x="30" y="30" width="10" height="10" fill="#FB923C15" />
-    </pattern>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#inventoryPattern)" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="250" height="250" viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Inventory elements -->
+  <g opacity="0.6">
+    <!-- Shelves -->
+    <g transform="translate(20, 20)">
+      <rect x="0" y="0" width="120" height="5" fill="#0d6a30" opacity="0.7" />
+      <rect x="0" y="40" width="120" height="5" fill="#0d6a30" opacity="0.7" />
+      <rect x="0" y="80" width="120" height="5" fill="#0d6a30" opacity="0.7" />
+      <rect x="0" y="120" width="120" height="5" fill="#0d6a30" opacity="0.7" />
+      <rect x="0" y="0" width="5" height="125" fill="#0d6a30" opacity="0.7" />
+      <rect x="115" y="0" width="5" height="125" fill="#0d6a30" opacity="0.7" />
+    </g>
+    
+    <!-- Food items on shelves -->
+    <g transform="translate(35, 15)">
+      <rect x="0" y="0" width="15" height="15" rx="2" fill="#e67e22" opacity="0.6" />
+      <rect x="25" y="0" width="15" height="15" rx="2" fill="#0d6a30" opacity="0.5" />
+      <rect x="50" y="0" width="15" height="15" rx="7.5" fill="#e67e22" opacity="0.6" />
+      <rect x="75" y="0" width="15" height="15" rx="2" fill="#0d6a30" opacity="0.5" />
+    </g>
+    
+    <g transform="translate(35, 55)">
+      <rect x="0" y="0" width="15" height="15" rx="7.5" fill="#0d6a30" opacity="0.5" />
+      <rect x="25" y="0" width="15" height="15" rx="2" fill="#e67e22" opacity="0.6" />
+      <rect x="50" y="0" width="15" height="15" rx="2" fill="#0d6a30" opacity="0.5" />
+      <rect x="75" y="0" width="15" height="15" rx="7.5" fill="#e67e22" opacity="0.6" />
+    </g>
+    
+    <g transform="translate(35, 95)">
+      <rect x="0" y="0" width="15" height="15" rx="2" fill="#0d6a30" opacity="0.5" />
+      <rect x="25" y="0" width="15" height="15" rx="7.5" fill="#0d6a30" opacity="0.5" />
+      <rect x="50" y="0" width="15" height="15" rx="7.5" fill="#e67e22" opacity="0.6" />
+      <rect x="75" y="0" width="15" height="15" rx="2" fill="#0d6a30" opacity="0.5" />
+    </g>
+    
+    <!-- Clipboard -->
+    <g transform="translate(170, 50)">
+      <rect x="0" y="0" width="50" height="70" rx="3" fill="#f5f5f5" stroke="#0d6a30" stroke-width="2" opacity="0.7" />
+      <line x1="10" y1="20" x2="40" y2="20" stroke="#0d6a30" stroke-width="1.5" />
+      <line x1="10" y1="30" x2="40" y2="30" stroke="#0d6a30" stroke-width="1.5" />
+      <line x1="10" y1="40" x2="40" y2="40" stroke="#0d6a30" stroke-width="1.5" />
+      <line x1="10" y1="50" x2="30" y2="50" stroke="#0d6a30" stroke-width="1.5" />
+    </g>
+  </g>
 </svg>

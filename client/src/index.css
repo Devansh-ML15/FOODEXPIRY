@@ -309,10 +309,74 @@
   }
   
   /* Background Patterns */
-  .bg-food-pattern {
+  .bg-pattern-food {
     background-image: url('@assets/patterns/food-pattern.svg');
     background-repeat: repeat;
     background-size: 200px 200px;
+  }
+  
+  .bg-pattern-gradient {
+    background: linear-gradient(135deg, rgba(13, 106, 48, 0.1) 0%, rgba(37, 162, 68, 0.05) 100%);
+    background-size: 400% 400%;
+    animation: gradient-flow 15s ease infinite;
+  }
+  
+  .bg-pattern-geometric {
+    position: relative;
+  }
+  
+  .bg-pattern-waves {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .bg-pattern-dashboard {
+    background-image: url('@assets/patterns/dashboard-pattern.svg');
+    background-repeat: repeat;
+    background-size: 300px 300px;
+    animation: patternFloat 30s linear infinite;
+  }
+  
+  .bg-pattern-inventory {
+    background-image: url('@assets/patterns/inventory-pattern.svg');
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    animation: patternFloat 25s linear infinite;
+  }
+  
+  .bg-pattern-recipes {
+    background-image: url('@assets/patterns/recipes-pattern.svg');
+    background-repeat: repeat;
+    background-size: 280px 280px;
+    animation: patternFloat 35s linear infinite;
+  }
+  
+  .bg-pattern-meal-planning {
+    background-image: url('@assets/patterns/meal-planning-pattern.svg');
+    background-repeat: repeat;
+    background-size: 320px 320px;
+    animation: patternFloat 40s linear infinite;
+  }
+  
+  .bg-pattern-insights {
+    background-image: url('@assets/patterns/insights-pattern.svg');
+    background-repeat: repeat;
+    background-size: 270px 270px;
+    animation: patternFloat 30s linear infinite;
+  }
+  
+  .bg-pattern-tips {
+    background-image: url('@assets/patterns/tips-pattern.svg');
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    animation: patternFloat 27s linear infinite;
+  }
+  
+  .bg-pattern-settings {
+    background-image: url('@assets/patterns/settings-pattern.svg');
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: patternFloat 20s linear infinite;
   }
   
   .bg-grid-pattern {

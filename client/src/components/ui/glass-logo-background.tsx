@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { AnimatedBackground } from './animated-background';
-import logoPath from '@assets/your-logo.png';
+import logoPath from '@/assets/your-logo.png';
 
 interface GlassLogoBackgroundProps {
   children: React.ReactNode;

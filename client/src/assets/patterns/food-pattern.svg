@@ -1,63 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800px" height="800px" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <title>Food Pattern</title>
-  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-    <!-- Apple -->
-    <g transform="translate(100, 100)" fill-rule="nonzero">
-      <path d="M60,20 C60,8.954 51.046,0 40,0 C28.954,0 20,8.954 20,20 C8.954,20 0,28.954 0,40 C0,51.046 8.954,60 20,60 L60,60 C71.046,60 80,51.046 80,40 C80,28.954 71.046,20 60,20 Z" fill="#0d6a30" opacity="0.8"/>
-      <path d="M40,10 L45,5 C46.667,3.333 50,3.333 50,5 L45,15 C43.333,16.667 40,15 40,10 Z" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Bread -->
-    <g transform="translate(300, 100)" fill-rule="nonzero">
-      <rect x="0" y="10" width="80" height="50" rx="10" fill="#0d6a30" opacity="0.8"/>
-      <circle cx="15" cy="28" r="5" fill="#25a244" opacity="0.9"/>
-      <circle cx="35" cy="28" r="5" fill="#25a244" opacity="0.9"/>
-      <circle cx="55" cy="28" r="5" fill="#25a244" opacity="0.9"/>
-      <circle cx="75" cy="28" r="5" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Carrot -->
-    <g transform="translate(500, 100)" fill-rule="nonzero">
-      <path d="M20,0 L40,0 L50,60 L10,60 L20,0 Z" fill="#0d6a30" opacity="0.8"/>
-      <path d="M20,50 C20,44.477 24.477,40 30,40 C35.523,40 40,44.477 40,50 C40,55.523 35.523,60 30,60 C24.477,60 20,55.523 20,50 Z" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Milk -->
-    <g transform="translate(100, 300)" fill-rule="nonzero">
-      <path d="M20,0 L60,0 L70,60 L10,60 L20,0 Z" fill="#0d6a30" opacity="0.8"/>
-      <rect x="30" y="10" width="20" height="10" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Egg -->
-    <g transform="translate(300, 300)" fill-rule="nonzero">
-      <ellipse cx="40" cy="35" rx="30" ry="35" fill="#0d6a30" opacity="0.8"/>
-      <ellipse cx="40" cy="25" rx="15" ry="20" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Broccoli -->
-    <g transform="translate(500, 300)" fill-rule="nonzero">
-      <circle cx="40" cy="40" r="20" fill="#0d6a30" opacity="0.8"/>
-      <circle cx="25" cy="25" r="15" fill="#25a244" opacity="0.9"/>
-      <circle cx="55" cy="25" r="15" fill="#25a244" opacity="0.9"/>
-      <circle cx="40" cy="15" r="15" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Tomato -->
-    <g transform="translate(100, 500)" fill-rule="nonzero">
-      <circle cx="40" cy="40" r="30" fill="#0d6a30" opacity="0.8"/>
-      <path d="M40,10 L45,5 C46.667,3.333 50,3.333 50,5 L45,15 C43.333,16.667 40,15 40,10 Z" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Fish -->
-    <g transform="translate(300, 500)" fill-rule="nonzero">
-      <path d="M0,30 C0,30 20,0 40,0 C60,0 80,30 80,30 C80,30 60,60 40,60 C20,60 0,30 0,30 Z" fill="#0d6a30" opacity="0.8"/>
-      <circle cx="60" cy="30" r="5" fill="#25a244" opacity="0.9"/>
-    </g>
-    
-    <!-- Banana -->
-    <g transform="translate(500, 500)" fill-rule="nonzero">
-      <path d="M20,10 C20,10 0,20 0,40 C0,60 20,70 20,70 L60,30 C60,30 40,10 20,10 Z" fill="#0d6a30" opacity="0.8"/>
-    </g>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Apple -->
+  <g transform="translate(20, 30)" fill="#0d6a30" opacity="0.7">
+    <path d="M30,0 C25,0 20,5 20,15 L15,15 C5,15 0,25 0,40 C0,60 15,80 30,80 C45,80 60,60 60,40 C60,25 55,15 45,15 L40,15 C40,5 35,0 30,0 Z" />
+    <path d="M30,5 C28,5 25,7 25,15 L35,15 C35,7 32,5 30,5 Z" fill="#FFFFFF" opacity="0.3" />
+  </g>
+  
+  <!-- Orange -->
+  <g transform="translate(120, 40)" fill="#e67e22" opacity="0.7">
+    <circle cx="30" cy="30" r="30" />
+    <path d="M30,0 L30,60" stroke="#0d6a30" stroke-width="3" />
+    <circle cx="30" cy="30" r="20" fill="#FFFFFF" opacity="0.2" />
+  </g>
+  
+  <!-- Carrot -->
+  <g transform="translate(50, 120)" fill="#e67e22" opacity="0.7">
+    <path d="M20,0 L30,50 L10,50 Z" />
+    <path d="M20,0 C20,0 10,-10 0,-10 M20,0 C20,0 30,-10 40,-10 M20,0 C20,0 20,-15 20,-20" stroke="#0d6a30" stroke-width="2" />
+  </g>
+  
+  <!-- Leaf -->
+  <g transform="translate(130, 130) rotate(45)" fill="#0d6a30" opacity="0.7">
+    <path d="M0,0 C0,0 30,10 30,30 C30,45 15,50 0,50 C-15,50 -30,45 -30,30 C-30,10 0,0 0,0 Z" />
+    <path d="M0,0 L0,50" stroke="#FFFFFF" stroke-width="2" opacity="0.3" />
   </g>
 </svg>

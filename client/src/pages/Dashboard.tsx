@@ -15,7 +15,7 @@ export default function Dashboard() {
       </SectionBackground>
       
       <SectionBackground pattern="dashboard" className="p-6">
-        <GlassLogoBackground opacity={0.05}>
+        <GlassLogoBackground logoOpacity={0.05}>
           <ExpirationAlerts />
         </GlassLogoBackground>
       </SectionBackground>

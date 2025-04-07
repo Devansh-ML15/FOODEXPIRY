@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/lib/theme-context';
+import dashboardPatternSvg from '@/assets/patterns/dashboard-pattern.svg';
+import inventoryPatternSvg from '@/assets/patterns/inventory-pattern.svg';
+import recipesPatternSvg from '@/assets/patterns/recipes-pattern.svg';
+import mealPlanningPatternSvg from '@/assets/patterns/meal-planning-pattern.svg';
+import insightsPatternSvg from '@/assets/patterns/insights-pattern.svg';
+import tipsPatternSvg from '@/assets/patterns/tips-pattern.svg';
+import settingsPatternSvg from '@/assets/patterns/settings-pattern.svg';
 
 interface AnimatedBackgroundProps {
   children: React.ReactNode;
@@ -80,51 +87,156 @@ export function AnimatedBackground({
     };
   };
   
-  // Get page-specific pattern
-  const getPagePattern = () => {
-    // Default to gradient for unknown patterns
-    if (pattern === "inventory" || 
-        pattern === "meal-planning" || 
-        pattern === "insights" || 
-        pattern === "settings" || 
-        pattern === "dashboard" || 
-        pattern === "recipes" || 
-        pattern === "tips") {
-      return "geometric";
-    }
-    return pattern;
-  };
+  // Check if pattern is a special page pattern
+  const isPagePattern = ["inventory", "dashboard", "recipes", "meal-planning", "insights", "settings", "tips"].includes(pattern);
   
-  // The effective pattern to use
-  const effectivePattern = getPagePattern();
+  // The effective pattern to use for basic patterns
+  const effectivePattern = isPagePattern ? null : pattern;
   
-  // Pattern classes
-  const patternClass = effectivePattern === 'none' ? '' : `bg-pattern-${effectivePattern}`;
+  // Pattern class for basic CSS background patterns
+  const patternClass = pattern === 'none' ? '' : `bg-pattern-${pattern}`;
   
   return (
     <div 
       ref={containerRef}
       className={cn(
         "relative overflow-hidden",
+        patternClass,
         className
       )}
     >
       {/* Base animated gradient background */}
-      {(effectivePattern === 'gradient' || 
-        pattern === "inventory" || 
-        pattern === "dashboard" || 
-        pattern === "recipes") && (
+      {(effectivePattern === 'gradient') && (
         <div 
           className="absolute inset-0 parallax-bg transition-all"
           style={getGradientStyle()}
         />
       )}
       
+      {/* Dashboard pattern */}
+      {pattern === "dashboard" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${dashboardPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Inventory pattern */}
+      {pattern === "inventory" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${inventoryPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Recipes pattern */}
+      {pattern === "recipes" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${recipesPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Meal Planning pattern */}
+      {pattern === "meal-planning" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${mealPlanningPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Insights pattern */}
+      {pattern === "insights" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${insightsPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Tips pattern */}
+      {pattern === "tips" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${tipsPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
+      {/* Settings pattern */}
+      {pattern === "settings" && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 parallax-bg transition-all"
+            style={{ 
+              backgroundImage: `url(${settingsPatternSvg})`,
+              backgroundSize: '800px 800px',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'repeat',
+              opacity: isLightTheme ? 0.25 : 0.3,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent to-background" />
+        </div>
+      )}
+      
       {/* Animated food pattern */}
       {effectivePattern === 'food' && (
         <div className="absolute inset-0">
           <div 
-            className="absolute inset-0 parallax-bg opacity-30 bg-food-pattern transition-all"
+            className="absolute inset-0 parallax-bg opacity-30 bg-pattern-food transition-all"
             style={{ 
               backgroundSize: '400px 400px',
               animation: 'patternFloat 20s linear infinite',
@@ -135,9 +247,7 @@ export function AnimatedBackground({
       )}
       
       {/* Animated waves */}
-      {(effectivePattern === 'waves' || 
-        pattern === "insights" || 
-        pattern === "settings") && (
+      {effectivePattern === 'waves' && (
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <svg className="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
@@ -177,9 +287,7 @@ export function AnimatedBackground({
       )}
       
       {/* Animated geometric patterns */}
-      {(effectivePattern === 'geometric' || 
-        pattern === "meal-planning" || 
-        pattern === "tips") && (
+      {effectivePattern === 'geometric' && (
         <div className="absolute inset-0">
           <div className="absolute inset-0 parallax-bg opacity-20 bg-grid-pattern" />
           <div className="absolute h-full w-full">
