@@ -306,15 +306,30 @@ export default function CommunityChat() {
     
     try {
       // Basic URL validation using built-in URL constructor
-      new URL(url);
+      const parsedUrl = new URL(url);
+      
+      // Extract the path part without query parameters
+      const pathWithoutQuery = parsedUrl.pathname;
       
       // Check if the URL has an image file extension
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'];
+      
+      // Check the path part (without query parameters) for an image extension
       const hasImageExtension = imageExtensions.some(ext => 
-        url.toLowerCase().endsWith(ext)
+        pathWithoutQuery.toLowerCase().endsWith(ext)
       );
       
-      return hasImageExtension;
+      // Some image URLs don't have extensions but have image-specific hostnames
+      const imageHostnames = ['i.imgur.com', 'images.unsplash.com', 'img.freepik.com'];
+      const isImageHostname = imageHostnames.some(host => 
+        parsedUrl.hostname.toLowerCase() === host
+      );
+      
+      // Service-specific checks for common image hosts
+      const isCloudinaryImage = parsedUrl.hostname.includes('cloudinary.com') && 
+                               (parsedUrl.pathname.includes('/image/') || url.includes('/upload/'));
+      
+      return hasImageExtension || isImageHostname || isCloudinaryImage;
     } catch (e) {
       return false; // Invalid URL format
     }
@@ -626,7 +641,16 @@ export default function CommunityChat() {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           // Handle image loading errors
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          console.log('Image failed to load:', recipe.imageUrl);
+                          // Hide the entire image container
+                          (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+                          
+                          // Show feedback
+                          toast({
+                            title: "Image couldn't be loaded",
+                            description: "The recipe image URL is invalid or inaccessible",
+                            variant: "destructive",
+                          });
                         }}
                       />
                     </div>
@@ -762,7 +786,7 @@ export default function CommunityChat() {
                     
                     if (url.trim() !== '') {
                       if (!validateImageUrl(url)) {
-                        setImageUrlError('Please enter a valid image URL (ending with .jpg, .png, etc.)');
+                        setImageUrlError('Please enter a valid image URL (must end with .jpg, .png, .gif, etc.)');
                       } else {
                         setImageUrlError(null);
                       }
@@ -773,8 +797,12 @@ export default function CommunityChat() {
                   placeholder="https://example.com/image.jpg"
                   className={imageUrlError ? 'border-red-500' : ''}
                 />
-                {imageUrlError && (
+                {imageUrlError ? (
                   <p className="text-sm text-red-500">{imageUrlError}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Add a direct link to an image file (must end with .jpg, .png, .gif, etc.). Images from Imgur, Unsplash, or Cloudinary are recommended.
+                  </p>
                 )}
               </div>
             </div>
@@ -831,8 +859,16 @@ export default function CommunityChat() {
                       className="w-full h-48 object-cover"
                       onError={(e) => {
                         // Handle image loading errors
-                        (e.target as HTMLImageElement).style.display = 'none';
+                        console.log('Image failed to load in detail view:', selectedRecipe.imageUrl);
+                        // Hide the entire image container
                         (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+                        
+                        // Show feedback
+                        toast({
+                          title: "Recipe image couldn't be loaded",
+                          description: "The image URL is invalid or inaccessible",
+                          variant: "destructive",
+                        });
                       }}
                     />
                   </div>
