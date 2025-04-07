@@ -88,6 +88,19 @@ export const wasteEntries = pgTable("waste_entries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Consumption tracking
+export const consumptionEntries = pgTable("consumption_entries", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  foodItemId: integer("food_item_id").notNull().references(() => foodItems.id),
+  quantity: integer("quantity").notNull(),
+  unit: text("unit").$type<typeof QUANTITY_UNITS[number]>().notNull(),
+  consumptionDate: date("consumption_date").notNull(),
+  notes: text("notes"),
+  estimatedValue: doublePrecision("estimated_value"), // estimated monetary value in user's currency
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Notification settings
 export const notificationSettings = pgTable("notification_settings", {
   id: serial("id").primaryKey(),
@@ -112,6 +125,9 @@ export const insertRecipeSchema = createInsertSchema(recipes)
 export const insertWasteEntrySchema = createInsertSchema(wasteEntries)
   .omit({ id: true, createdAt: true });
 
+export const insertConsumptionEntrySchema = createInsertSchema(consumptionEntries)
+  .omit({ id: true, createdAt: true });
+
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true });
 
@@ -128,6 +144,9 @@ export type InsertRecipe = z.infer<typeof insertRecipeSchema>;
 export type WasteEntry = typeof wasteEntries.$inferSelect;
 export type InsertWasteEntry = z.infer<typeof insertWasteEntrySchema>;
 
+export type ConsumptionEntry = typeof consumptionEntries.$inferSelect;
+export type InsertConsumptionEntry = z.infer<typeof insertConsumptionEntrySchema>;
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
@@ -143,6 +162,7 @@ export type FoodItemWithStatus = FoodItem & {
 // Define relationships between tables
 export const foodItemsRelations = relations(foodItems, ({ many, one }) => ({
   wasteEntries: many(wasteEntries),
+  consumptionEntries: many(consumptionEntries),
   user: one(users, {
     fields: [foodItems.userId],
     references: [users.id],
@@ -160,10 +180,22 @@ export const wasteEntriesRelations = relations(wasteEntries, ({ one }) => ({
   }),
 }));
 
+export const consumptionEntriesRelations = relations(consumptionEntries, ({ one }) => ({
+  foodItem: one(foodItems, {
+    fields: [consumptionEntries.foodItemId],
+    references: [foodItems.id],
+  }),
+  user: one(users, {
+    fields: [consumptionEntries.userId],
+    references: [users.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   notificationSetting: one(notificationSettings),
   foodItems: many(foodItems),
   wasteEntries: many(wasteEntries),
+  consumptionEntries: many(consumptionEntries),
 }));
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({

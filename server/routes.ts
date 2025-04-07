@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { 
   insertFoodItemSchema, 
   insertWasteEntrySchema, 
+  insertConsumptionEntrySchema,
   insertUserSchema,
   insertNotificationSettingsSchema,
   FoodItemWithStatus 
@@ -391,6 +392,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Consumption Entries
+  apiRouter.post("/consumption-entries", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const validation = insertConsumptionEntrySchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid consumption entry data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Add the user ID from the authenticated session
+      const entryData = {
+        ...validation.data,
+        userId: req.user!.id
+      };
+      
+      const newEntry = await storage.createConsumptionEntry(entryData);
+      res.status(201).json(newEntry);
+    } catch (error) {
+      console.error("Error creating consumption entry:", error);
+      res.status(500).json({ message: "Failed to create consumption entry" });
+    }
+  });
+  
+  apiRouter.get("/consumption-entries", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = req.user!.id;
+      const entries = await storage.getConsumptionEntriesByUserId(userId);
+      res.json(entries);
+    } catch (error) {
+      console.error("Error fetching consumption entries:", error);
+      res.status(500).json({ message: "Failed to retrieve consumption entries" });
+    }
+  });
+  
+  apiRouter.get("/consumption-insights", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      // Default to last 6 months if not specified
+      const months = parseInt(req.query.months as string) || 6;
+      
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - months);
+      
+      const userId = req.user!.id;
+      const entries = await storage.getConsumptionEntriesByDateRange(userId, startDate, endDate);
+      
+      // Group by month
+      const monthlyData: Record<string, { count: number, value: number }> = {};
+      
+      for (let i = 0; i < months; i++) {
+        const date = new Date();
+        date.setMonth(endDate.getMonth() - i);
+        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        monthlyData[monthKey] = { count: 0, value: 0 };
+      }
+      
+      // Calculate consumption per month
+      entries.forEach(entry => {
+        const consumptionDate = new Date(entry.consumptionDate);
+        const monthKey = `${consumptionDate.getFullYear()}-${consumptionDate.getMonth() + 1}`;
+        
+        if (monthlyData[monthKey] !== undefined) {
+          monthlyData[monthKey].count += 1;
+          monthlyData[monthKey].value += (entry.estimatedValue || 0);
+        }
+      });
+      
+      // Format for chart display
+      const labels = Object.keys(monthlyData)
+        .sort()
+        .map(key => {
+          const [year, month] = key.split('-').map(Number);
+          return new Date(year, month - 1).toLocaleString('default', { month: 'short' });
+        });
+      
+      const countData = Object.keys(monthlyData)
+        .sort()
+        .map(key => monthlyData[key].count);
+        
+      const valueData = Object.keys(monthlyData)
+        .sort()
+        .map(key => parseFloat(monthlyData[key].value.toFixed(2)));
+      
+      // Calculate trend for consumption value
+      let trend = 0;
+      if (valueData.length >= 2) {
+        const latest = valueData[valueData.length - 1];
+        const previous = valueData[valueData.length - 2];
+        
+        if (previous > 0) {
+          trend = ((latest - previous) / previous) * 100;
+        }
+      }
+      
+      res.json({
+        labels,
+        countData,
+        valueData,
+        trend: parseFloat(trend.toFixed(2))
+      });
+    } catch (error) {
+      console.error("Error calculating consumption insights:", error);
+      res.status(500).json({ message: "Failed to calculate consumption insights" });
+    }
+  });
+  
   // Dashboard stats
   apiRouter.get("/dashboard-stats", async (req: Request, res: Response) => {
     try {
@@ -421,13 +542,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return total + (entry.wasteWeight || 0);
       }, 0);
       
+      // Get consumption entries for the last 3 months
+      const consumptionEntries = await storage.getConsumptionEntriesByDateRange(
+        userId,
+        new Date(today.getFullYear(), today.getMonth() - 3, today.getDate()),
+        today
+      );
+      
+      // Calculate consumption metrics
+      const consumedCount = consumptionEntries.length;
+      const consumedValue = consumptionEntries.reduce((total, entry) => {
+        return total + (entry.estimatedValue || 0);
+      }, 0);
+      
       // Estimate waste saved (in a real app, this would compare to previous periods)
       const wasteSaved = foodItems.length * 0.1; // Simple placeholder calculation
       
       res.json({
         totalItems: foodItems.length,
         expiringCount: expiringItems.length,
-        wasteSavedKg: parseFloat(wasteSaved.toFixed(1))
+        wasteSavedKg: parseFloat(wasteSaved.toFixed(1)),
+        consumedCount,
+        consumedValue: parseFloat(consumedValue.toFixed(2))
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to calculate dashboard stats" });

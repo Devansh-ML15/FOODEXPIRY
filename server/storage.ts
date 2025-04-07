@@ -2,6 +2,7 @@ import {
   foodItems, 
   recipes, 
   wasteEntries,
+  consumptionEntries,
   users,
   notificationSettings,
   FOOD_CATEGORIES,
@@ -14,6 +15,8 @@ import {
   type InsertRecipe,
   type WasteEntry,
   type InsertWasteEntry,
+  type ConsumptionEntry,
+  type InsertConsumptionEntry,
   type User,
   type InsertUser,
   type NotificationSetting,
@@ -42,6 +45,11 @@ export interface IStorage {
   // Waste Entries
   createWasteEntry(entry: InsertWasteEntry): Promise<WasteEntry>;
   getWasteEntriesByDateRange(startDate: Date, endDate: Date): Promise<WasteEntry[]>;
+  
+  // Consumption Entries
+  createConsumptionEntry(entry: InsertConsumptionEntry): Promise<ConsumptionEntry>;
+  getConsumptionEntriesByUserId(userId: number): Promise<ConsumptionEntry[]>;
+  getConsumptionEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<ConsumptionEntry[]>;
   
   // User Management
   getUser(id: number): Promise<User | undefined>;
@@ -163,6 +171,39 @@ export class DatabaseStorage implements IStorage {
       );
   }
   
+  // Consumption Entries
+  async createConsumptionEntry(entry: InsertConsumptionEntry): Promise<ConsumptionEntry> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newEntry] = await db.insert(consumptionEntries).values(entry).returning();
+    return newEntry;
+  }
+
+  async getConsumptionEntriesByUserId(userId: number): Promise<ConsumptionEntry[]> {
+    return await db
+      .select()
+      .from(consumptionEntries)
+      .where(eq(consumptionEntries.userId, userId))
+      .orderBy(desc(consumptionEntries.consumptionDate));
+  }
+
+  async getConsumptionEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<ConsumptionEntry[]> {
+    // Convert Date objects to strings in the format PostgreSQL expects
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+    
+    return await db
+      .select()
+      .from(consumptionEntries)
+      .where(
+        and(
+          // @ts-ignore - Type issues with drizzle-orm
+          between(consumptionEntries.consumptionDate, startDateStr, endDateStr),
+          eq(consumptionEntries.userId, userId)
+        )
+      )
+      .orderBy(desc(consumptionEntries.consumptionDate));
+  }
+  
   // User Management
   async getUser(id: number): Promise<User | undefined> {
     const result = await db.select().from(users).where(eq(users.id, id));
@@ -206,8 +247,11 @@ export class DatabaseStorage implements IStorage {
       // Delete notification settings
       await db.delete(notificationSettings).where(eq(notificationSettings.userId, id));
       
-      // Delete waste entries associated with the user's food items (if any)
+      // Delete waste entries
       await db.delete(wasteEntries).where(eq(wasteEntries.userId, id));
+      
+      // Delete consumption entries
+      await db.delete(consumptionEntries).where(eq(consumptionEntries.userId, id));
       
       // Finally, delete the user
       const result = await db.delete(users).where(eq(users.id, id)).returning();
