@@ -133,7 +133,10 @@ export default function MealPlanning() {
     
     const dateString = format(date, 'yyyy-MM-dd');
     return mealPlans.filter(plan => {
-      const planDate = new Date(plan.date);
+      // Handle either string or Date object
+      const planDate = typeof plan.date === 'string' 
+        ? new Date(plan.date) 
+        : plan.date;
       return format(planDate, 'yyyy-MM-dd') === dateString;
     });
   };
@@ -192,7 +195,12 @@ export default function MealPlanning() {
                     onSelect={setDate}
                     className="rounded-md border"
                     modifiers={{
-                      hasMeal: mealPlans ? mealPlans.map(plan => new Date(plan.date)) : [],
+                      hasMeal: mealPlans ? mealPlans.map(plan => {
+                        // Convert string dates from the API to Date objects
+                        return typeof plan.date === 'string' 
+                          ? new Date(plan.date) 
+                          : plan.date;
+                      }) : [],
                     }}
                     modifiersStyles={{
                       hasMeal: { 
