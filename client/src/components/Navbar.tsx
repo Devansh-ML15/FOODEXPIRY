@@ -180,7 +180,7 @@ export default function Navbar() {
                           boxShadow: getAvatarShadow()
                         }}
                       >
-                        <AvatarFallback className="text-white font-bold">
+                        <AvatarFallback className={`${resolvedTheme === 'dark' ? 'text-white' : 'text-green-900'} font-bold`}>
                           {user.username.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -195,13 +195,6 @@ export default function Navbar() {
                         </p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <Link href="/settings">
-                      <DropdownMenuItem className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </DropdownMenuItem>
-                    </Link>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={() => logoutMutation.mutate()}
