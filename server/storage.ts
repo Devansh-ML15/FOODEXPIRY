@@ -7,11 +7,15 @@ import {
   notificationSettings,
   mealPlans,
   otpVerifications,
+  chatMessages,
+  sharedRecipes,
+  recipeComments,
   FOOD_CATEGORIES,
   STORAGE_LOCATIONS,
   QUANTITY_UNITS,
   NOTIFICATION_FREQUENCIES,
   MEAL_TYPES,
+  MESSAGE_TYPES,
   type FoodItem, 
   type InsertFoodItem,
   type Recipe,
@@ -27,7 +31,14 @@ import {
   type MealPlan,
   type InsertMealPlan,
   type OtpVerification,
-  type InsertOtpVerification
+  type InsertOtpVerification,
+  type ChatMessage,
+  type InsertChatMessage,
+  type ChatMessageWithUser,
+  type SharedRecipe,
+  type InsertSharedRecipe,
+  type RecipeComment,
+  type InsertRecipeComment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, between, and, desc, sql, gt } from "drizzle-orm";
@@ -86,6 +97,16 @@ export interface IStorage {
   createOtp(otpData: InsertOtpVerification): Promise<OtpVerification>;
   updateOtp(id: number, updates: Partial<InsertOtpVerification>): Promise<OtpVerification | undefined>;
   deleteOtpByEmail(email: string): Promise<boolean>;
+  
+  // Chat and Recipe Sharing
+  getChatMessages(limit?: number): Promise<ChatMessageWithUser[]>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  getSharedRecipes(): Promise<SharedRecipe[]>;
+  getSharedRecipe(id: number): Promise<SharedRecipe | undefined>;
+  createSharedRecipe(recipe: InsertSharedRecipe): Promise<SharedRecipe>;
+  updateSharedRecipe(id: number, updates: Partial<InsertSharedRecipe>): Promise<SharedRecipe | undefined>;
+  getRecipeComments(recipeId: number): Promise<RecipeComment[]>;
+  createRecipeComment(comment: InsertRecipeComment): Promise<RecipeComment>;
   
   // Session Management
   sessionStore: session.Store;
@@ -472,6 +493,118 @@ export class DatabaseStorage implements IStorage {
   async deleteOtpByEmail(email: string): Promise<boolean> {
     const result = await db.delete(otpVerifications).where(eq(otpVerifications.email, email)).returning();
     return result.length > 0;
+  }
+  
+  // Chat and Recipe Sharing
+  async getChatMessages(limit: number = 50): Promise<ChatMessageWithUser[]> {
+    const messagesRaw = await db
+      .select()
+      .from(chatMessages)
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(limit);
+      
+    // Get all unique user IDs from the messages
+    const userIds = [...new Set(messagesRaw.map(msg => msg.userId))];
+    
+    // Get all users in one query
+    const usersRaw = await db
+      .select()
+      .from(users)
+      .where(sql`${users.id} IN (${userIds.join(',')})`);
+      
+    // Create a map of user IDs to users for quick lookups
+    const userMap = new Map<number, User>();
+    usersRaw.forEach(user => userMap.set(user.id, user));
+    
+    // For recipe share messages, get the shared recipes too
+    const recipeMessageIds = messagesRaw
+      .filter(msg => msg.messageType === 'recipe_share' && msg.attachmentId !== null)
+      .map(msg => msg.attachmentId as number);
+    
+    // Get all recipes in one query
+    const recipesMap = new Map<number, SharedRecipe>();
+    if (recipeMessageIds.length > 0) {
+      const recipesRaw = await db
+        .select()
+        .from(sharedRecipes)
+        .where(sql`${sharedRecipes.id} IN (${recipeMessageIds.join(',')})`);
+        
+      recipesRaw.forEach(recipe => recipesMap.set(recipe.id, recipe));
+    }
+    
+    // Map messages to include user details
+    const messagesWithUser: ChatMessageWithUser[] = messagesRaw.map(msg => {
+      const user = userMap.get(msg.userId);
+      const recipe = msg.attachmentId ? recipesMap.get(msg.attachmentId) : undefined;
+      
+      return {
+        ...msg,
+        user: {
+          id: user?.id || 0,
+          username: user?.username || 'Unknown User'
+        },
+        sharedRecipe: recipe
+      };
+    });
+    
+    return messagesWithUser;
+  }
+  
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    // Type-safe messageType check
+    const typeCheckedMessage: any = { ...message };
+    if (message.messageType && typeof message.messageType === 'string') {
+      if (!MESSAGE_TYPES.includes(message.messageType as any)) {
+        throw new Error(`Invalid message type: ${message.messageType}`);
+      }
+    }
+    
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newMessage] = await db.insert(chatMessages).values(typeCheckedMessage).returning();
+    return newMessage;
+  }
+  
+  async getSharedRecipes(): Promise<SharedRecipe[]> {
+    return await db.select().from(sharedRecipes).orderBy(desc(sharedRecipes.createdAt));
+  }
+  
+  async getSharedRecipe(id: number): Promise<SharedRecipe | undefined> {
+    const result = await db.select().from(sharedRecipes).where(eq(sharedRecipes.id, id));
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async createSharedRecipe(recipe: InsertSharedRecipe): Promise<SharedRecipe> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newRecipe] = await db.insert(sharedRecipes).values(recipe).returning();
+    return newRecipe;
+  }
+  
+  async updateSharedRecipe(id: number, updates: Partial<InsertSharedRecipe>): Promise<SharedRecipe | undefined> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [updatedRecipe] = await db
+      .update(sharedRecipes)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(sharedRecipes.id, id))
+      .returning();
+      
+    return updatedRecipe;
+  }
+  
+  async getRecipeComments(recipeId: number): Promise<RecipeComment[]> {
+    return await db
+      .select()
+      .from(recipeComments)
+      .where(eq(recipeComments.recipeId, recipeId))
+      .orderBy(desc(recipeComments.createdAt));
+  }
+  
+  async createRecipeComment(comment: InsertRecipeComment): Promise<RecipeComment> {
+    // @ts-ignore - Type issues with drizzle-orm
+    const [newComment] = await db.insert(recipeComments).values(comment).returning();
+    return newComment;
   }
 
   // Initialize sample data for a fresh database

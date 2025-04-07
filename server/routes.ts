@@ -1,5 +1,6 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { 
   insertFoodItemSchema, 
@@ -8,7 +9,11 @@ import {
   insertUserSchema,
   insertNotificationSettingsSchema,
   insertMealPlanSchema,
-  FoodItemWithStatus 
+  insertChatMessageSchema,
+  insertSharedRecipeSchema,
+  insertRecipeCommentSchema,
+  FoodItemWithStatus,
+  ChatMessageWithUser
 } from "@shared/schema";
 import { differenceInDays, isAfter } from "date-fns";
 import { setupAuth } from "./auth";
@@ -1323,8 +1328,312 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Community chat and recipe sharing endpoints
+  
+  // Get chat messages
+  apiRouter.get("/chat-messages", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const limit = parseInt(req.query.limit as string) || 50;
+      const messages = await storage.getChatMessages(limit);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching chat messages:", error);
+      res.status(500).json({ message: "Failed to retrieve chat messages" });
+    }
+  });
+  
+  // Post a new chat message
+  apiRouter.post("/chat-messages", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const validation = insertChatMessageSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid chat message data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Add the user ID from the authenticated session
+      const messageData = {
+        ...validation.data,
+        userId: req.user!.id
+      };
+      
+      const newMessage = await storage.createChatMessage(messageData);
+      
+      // Get full message with user details for broadcasting
+      const user = await storage.getUser(req.user!.id);
+      const messageWithUser: ChatMessageWithUser = {
+        ...newMessage,
+        user: {
+          id: user!.id,
+          username: user!.username
+        }
+      };
+      
+      // If this is a recipe share, get the recipe details
+      if (newMessage.messageType === 'recipe_share' && newMessage.attachmentId) {
+        const recipe = await storage.getSharedRecipe(newMessage.attachmentId);
+        if (recipe) {
+          messageWithUser.sharedRecipe = recipe;
+        }
+      }
+      
+      // Broadcast to all connected WebSocket clients
+      broadcastToClients(JSON.stringify({
+        type: 'new_message',
+        data: messageWithUser
+      }));
+      
+      res.status(201).json(newMessage);
+    } catch (error) {
+      console.error("Error creating chat message:", error);
+      res.status(500).json({ message: "Failed to create chat message" });
+    }
+  });
+  
+  // Get shared recipes
+  apiRouter.get("/shared-recipes", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const recipes = await storage.getSharedRecipes();
+      res.json(recipes);
+    } catch (error) {
+      console.error("Error fetching shared recipes:", error);
+      res.status(500).json({ message: "Failed to retrieve shared recipes" });
+    }
+  });
+  
+  // Get a single shared recipe
+  apiRouter.get("/shared-recipes/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const recipe = await storage.getSharedRecipe(id);
+      if (!recipe) {
+        return res.status(404).json({ message: "Shared recipe not found" });
+      }
+      
+      res.json(recipe);
+    } catch (error) {
+      console.error("Error retrieving shared recipe:", error);
+      res.status(500).json({ message: "Failed to retrieve shared recipe" });
+    }
+  });
+  
+  // Share a new recipe
+  apiRouter.post("/shared-recipes", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const validation = insertSharedRecipeSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid recipe data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Add the user ID from the authenticated session
+      const recipeData = {
+        ...validation.data,
+        userId: req.user!.id
+      };
+      
+      const newRecipe = await storage.createSharedRecipe(recipeData);
+      
+      // Create a chat message about the new shared recipe
+      const chatMessage = await storage.createChatMessage({
+        userId: req.user!.id,
+        content: `Shared a new recipe: ${newRecipe.name}`,
+        messageType: 'recipe_share',
+        attachmentId: newRecipe.id
+      });
+      
+      // Get user details for broadcasting
+      const user = await storage.getUser(req.user!.id);
+      const messageWithUser: ChatMessageWithUser = {
+        ...chatMessage,
+        user: {
+          id: user!.id,
+          username: user!.username
+        },
+        sharedRecipe: newRecipe
+      };
+      
+      // Broadcast to all connected WebSocket clients
+      broadcastToClients(JSON.stringify({
+        type: 'new_recipe',
+        data: {
+          message: messageWithUser,
+          recipe: newRecipe
+        }
+      }));
+      
+      res.status(201).json(newRecipe);
+    } catch (error) {
+      console.error("Error creating shared recipe:", error);
+      res.status(500).json({ message: "Failed to create shared recipe" });
+    }
+  });
+  
+  // Comment on a shared recipe
+  apiRouter.post("/recipe-comments", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const validation = insertRecipeCommentSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid comment data", 
+          errors: validation.error.format() 
+        });
+      }
+      
+      // Add the user ID from the authenticated session
+      const commentData = {
+        ...validation.data,
+        userId: req.user!.id
+      };
+      
+      const newComment = await storage.createRecipeComment(commentData);
+      
+      // Get the recipe and update its popularity if there's a rating
+      if (newComment.rating) {
+        const recipe = await storage.getSharedRecipe(newComment.recipeId);
+        if (recipe) {
+          // Increment likes if rating is 4 or 5
+          if (newComment.rating >= 4) {
+            await storage.updateSharedRecipe(recipe.id, { likes: recipe.likes + 1 });
+            
+            // Broadcast rating update
+            broadcastToClients(JSON.stringify({
+              type: 'recipe_rated',
+              data: {
+                recipeId: recipe.id,
+                likes: recipe.likes + 1
+              }
+            }));
+          }
+        }
+      }
+      
+      // Get the comments for the recipe
+      const comments = await storage.getRecipeComments(newComment.recipeId);
+      
+      // Broadcast to all connected WebSocket clients
+      broadcastToClients(JSON.stringify({
+        type: 'new_comment',
+        data: {
+          recipeId: newComment.recipeId,
+          comment: newComment,
+          commentCount: comments.length
+        }
+      }));
+      
+      res.status(201).json(newComment);
+    } catch (error) {
+      console.error("Error creating recipe comment:", error);
+      res.status(500).json({ message: "Failed to create recipe comment" });
+    }
+  });
+  
+  // Get comments for a recipe
+  apiRouter.get("/recipe-comments/:recipeId", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const recipeId = parseInt(req.params.recipeId);
+      if (isNaN(recipeId)) {
+        return res.status(400).json({ message: "Invalid recipe ID format" });
+      }
+      
+      const comments = await storage.getRecipeComments(recipeId);
+      res.json(comments);
+    } catch (error) {
+      console.error("Error fetching recipe comments:", error);
+      res.status(500).json({ message: "Failed to retrieve recipe comments" });
+    }
+  });
+  
   app.use("/api", apiRouter);
   
   const httpServer = createServer(app);
+  
+  // Set up WebSocket server for real-time chat
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Store connected clients
+  const clients = new Set<WebSocket>();
+  
+  // Broadcast message to all connected clients
+  function broadcastToClients(message: string) {
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+  
+  wss.on('connection', (ws: WebSocket) => {
+    console.log('Client connected to chat WebSocket');
+    
+    // Add client to our set
+    clients.add(ws);
+    
+    // Send welcome message
+    ws.send(JSON.stringify({
+      type: 'system',
+      data: {
+        message: 'Connected to FoodExpiry Community Chat',
+        timestamp: new Date().toISOString()
+      }
+    }));
+    
+    // Handle incoming messages
+    ws.on('message', async (message: string) => {
+      try {
+        const data = JSON.parse(message);
+        console.log('Received WebSocket message:', data);
+        
+        // Handle different types of messages here if needed
+        // Most message handling is done through the REST API endpoints
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    });
+    
+    // Handle client disconnection
+    ws.on('close', () => {
+      console.log('Client disconnected from chat WebSocket');
+      clients.delete(ws);
+    });
+  });
+  
   return httpServer;
 }

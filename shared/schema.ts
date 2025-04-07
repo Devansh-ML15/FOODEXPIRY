@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, date, timestamp, doublePrecision, boolean, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, timestamp, doublePrecision, boolean, foreignKey, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -147,6 +147,47 @@ export const notificationSettings = pgTable("notification_settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Chat message types
+export const MESSAGE_TYPES = [
+  "text",
+  "recipe_share",
+  "image"
+] as const;
+
+// Community chat messages
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  messageType: text("message_type").$type<typeof MESSAGE_TYPES[number]>().notNull().default("text"),
+  attachmentId: integer("attachment_id"), // Optional reference to a shared recipe or other attachment
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Shared recipes in the community
+export const sharedRecipes = pgTable("shared_recipes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  ingredients: text("ingredients").array().notNull(),
+  preparationTime: integer("preparation_time").notNull(), // in minutes
+  instructions: text("instructions").notNull(),
+  imageUrl: text("image_url"),
+  likes: integer("likes").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Recipe ratings and comments
+export const recipeComments = pgTable("recipe_comments", {
+  id: serial("id").primaryKey(),
+  recipeId: integer("recipe_id").notNull().references(() => sharedRecipes.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  rating: integer("rating"), // 1-5 star rating, optional
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Zod schemas
 export const insertFoodItemSchema = createInsertSchema(foodItems)
   .omit({ id: true, createdAt: true });
@@ -170,6 +211,15 @@ export const insertNotificationSettingsSchema = createInsertSchema(notificationS
   .omit({ id: true, createdAt: true, updatedAt: true, lastNotified: true });
 
 export const insertOtpVerificationSchema = createInsertSchema(otpVerifications)
+  .omit({ id: true, createdAt: true });
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages)
+  .omit({ id: true, createdAt: true });
+
+export const insertSharedRecipeSchema = createInsertSchema(sharedRecipes)
+  .omit({ id: true, createdAt: true, updatedAt: true, likes: true });
+
+export const insertRecipeCommentSchema = createInsertSchema(recipeComments)
   .omit({ id: true, createdAt: true });
 
 // Types
@@ -197,10 +247,28 @@ export type InsertMealPlan = z.infer<typeof insertMealPlanSchema>;
 export type OtpVerification = typeof otpVerifications.$inferSelect;
 export type InsertOtpVerification = z.infer<typeof insertOtpVerificationSchema>;
 
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
+export type SharedRecipe = typeof sharedRecipes.$inferSelect;
+export type InsertSharedRecipe = z.infer<typeof insertSharedRecipeSchema>;
+
+export type RecipeComment = typeof recipeComments.$inferSelect;
+export type InsertRecipeComment = z.infer<typeof insertRecipeCommentSchema>;
+
 // Food item with expiration status
 export type FoodItemWithStatus = FoodItem & {
   status: 'expired' | 'expiring-soon' | 'fresh';
   daysUntilExpiration: number;
+};
+
+// Chat message with user details
+export type ChatMessageWithUser = ChatMessage & {
+  user: {
+    username: string;
+    id: number;
+  };
+  sharedRecipe?: SharedRecipe;
 };
 
 // Define relationships between tables
@@ -248,11 +316,44 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   wasteEntries: many(wasteEntries),
   consumptionEntries: many(consumptionEntries),
   mealPlans: many(mealPlans),
+  chatMessages: many(chatMessages),
+  sharedRecipes: many(sharedRecipes),
+  recipeComments: many(recipeComments),
 }));
 
 export const notificationSettingsRelations = relations(notificationSettings, ({ one }) => ({
   user: one(users, {
     fields: [notificationSettings.userId],
     references: [users.id],
+  }),
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  user: one(users, {
+    fields: [chatMessages.userId],
+    references: [users.id],
+  }),
+  sharedRecipe: one(sharedRecipes, {
+    fields: [chatMessages.attachmentId],
+    references: [sharedRecipes.id],
+  }),
+}));
+
+export const sharedRecipesRelations = relations(sharedRecipes, ({ one, many }) => ({
+  user: one(users, {
+    fields: [sharedRecipes.userId],
+    references: [users.id],
+  }),
+  comments: many(recipeComments),
+}));
+
+export const recipeCommentsRelations = relations(recipeComments, ({ one }) => ({
+  user: one(users, {
+    fields: [recipeComments.userId],
+    references: [users.id],
+  }),
+  recipe: one(sharedRecipes, {
+    fields: [recipeComments.recipeId],
+    references: [sharedRecipes.id],
   }),
 }));

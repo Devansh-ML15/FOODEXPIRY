@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Bell, Cog, Menu, LogOut, User } from "lucide-react";
+import { Bell, Cog, Menu, LogOut, Users, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -99,6 +99,7 @@ export default function Navbar() {
     { href: "/insights", label: "Insights" },
     { href: "/meal-planning", label: "Meal Planning" },
     { href: "/tips", label: "Tips" },
+    { href: "/community", label: "Community" },
     { href: "/settings", label: "Settings" },
   ];
 
