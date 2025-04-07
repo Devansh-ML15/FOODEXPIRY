@@ -50,14 +50,13 @@ type User = {
 
 type SharedRecipe = {
   id: number;
-  title: string;
-  ingredients: string[];
-  instructions: string;
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  imageUrl?: string;
   userId: number;
+  name: string; // This maps to 'title' in the UI
+  ingredients: string[];
+  preparationTime: number; // This combines prepTime and cookTime
+  instructions: string;
+  imageUrl?: string;
+  likes: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -511,7 +510,7 @@ export default function CommunityChat() {
                                     onClick={() => handleRecipeClick(msg.sharedRecipe!)}>
                                     <div className="flex items-center gap-2">
                                       <Utensils className="h-4 w-4" />
-                                      <span>{msg.sharedRecipe.title}</span>
+                                      <span>{msg.sharedRecipe.name}</span>
                                     </div>
                                     <p className="text-xs mt-1">Click to view details</p>
                                   </div>
@@ -584,14 +583,14 @@ export default function CommunityChat() {
                     <div className="h-48 w-full overflow-hidden">
                       <img 
                         src={recipe.imageUrl} 
-                        alt={recipe.title} 
+                        alt={recipe.name} 
                         className="w-full h-full object-cover"
                       />
                     </div>
                   )}
                   
                   <CardHeader>
-                    <CardTitle>{recipe.title}</CardTitle>
+                    <CardTitle>{recipe.name}</CardTitle>
                     <CardDescription>
                       Shared by {recipe.userId === user?.id ? 'you' : 
                         messages.find((m: ChatMessage) => 
@@ -603,11 +602,11 @@ export default function CommunityChat() {
                     <div className="flex items-center text-sm text-muted-foreground space-x-4">
                       <div className="flex items-center">
                         <Clock className="mr-1 h-4 w-4" />
-                        <span>{recipe.prepTime + recipe.cookTime} min</span>
+                        <span>{recipe.preparationTime} min</span>
                       </div>
                       <div className="flex items-center">
                         <User className="mr-1 h-4 w-4" />
-                        <span>{recipe.servings} servings</span>
+                        <span>2 servings</span>
                       </div>
                     </div>
                   </CardContent>
@@ -754,7 +753,7 @@ export default function CommunityChat() {
         <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>{selectedRecipe.title}</DialogTitle>
+              <DialogTitle>{selectedRecipe.name}</DialogTitle>
               <DialogDescription>
                 Shared by {selectedRecipe.userId === user?.id ? 'you' : 
                   messages.find((m: ChatMessage) => 
@@ -768,7 +767,7 @@ export default function CommunityChat() {
                   <div className="rounded-md overflow-hidden">
                     <img 
                       src={selectedRecipe.imageUrl} 
-                      alt={selectedRecipe.title} 
+                      alt={selectedRecipe.name} 
                       className="w-full h-48 object-cover"
                     />
                   </div>
@@ -777,24 +776,27 @@ export default function CommunityChat() {
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center">
                     <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
-                    <span>Prep: {selectedRecipe.prepTime} min</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
-                    <span>Cook: {selectedRecipe.cookTime} min</span>
+                    <span>Prep time: {selectedRecipe.preparationTime || 0} min</span>
                   </div>
                   <div className="flex items-center">
                     <User className="mr-1 h-4 w-4 text-muted-foreground" />
-                    <span>{selectedRecipe.servings} servings</span>
+                    <span>2 servings</span>
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-lg font-medium">Ingredients</h3>
                   <ul className="list-disc list-inside ml-2 mt-2 space-y-1">
-                    {selectedRecipe.ingredients.map((ingredient, index) => (
-                      <li key={index}>{ingredient}</li>
-                    ))}
+                    {Array.isArray(selectedRecipe.ingredients) 
+                      ? selectedRecipe.ingredients.map((ingredient: string, index: number) => (
+                          <li key={index}>{ingredient}</li>
+                        ))
+                      : typeof selectedRecipe.ingredients === 'string' 
+                        ? String(selectedRecipe.ingredients).split(',').map((ingredient: string, index: number) => (
+                            <li key={index}>{ingredient.trim()}</li>
+                          ))
+                        : <li>No ingredients available</li>
+                    }
                   </ul>
                 </div>
               </div>
