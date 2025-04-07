@@ -6,10 +6,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Paintbrush, Wheat, UtensilsCrossed, Leaf } from 'lucide-react';
+import { Paintbrush, Wheat, UtensilsCrossed, Apple, BookOpen } from 'lucide-react';
 import { useTheme } from '@/lib/theme-context';
 
-export type VisualTheme = 'default' | 'farm-to-table' | 'modern-kitchen' | 'eco-friendly';
+export type VisualTheme = 'default' | 'farm-to-table' | 'cozy-pantry' | 'seasonal-harvest';
 
 interface ThemeSelectorProps {
   className?: string;
@@ -39,16 +39,16 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
             <span>Farm-to-Table</span>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setVisualTheme('modern-kitchen')}>
+        <DropdownMenuItem onClick={() => setVisualTheme('cozy-pantry')}>
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className={`h-4 w-4 text-slate-600 ${visualTheme === 'modern-kitchen' ? 'opacity-100' : 'opacity-60'}`} />
-            <span>Modern Kitchen</span>
+            <BookOpen className={`h-4 w-4 text-purple-600 ${visualTheme === 'cozy-pantry' ? 'opacity-100' : 'opacity-60'}`} />
+            <span>Cozy Pantry</span>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setVisualTheme('eco-friendly')}>
+        <DropdownMenuItem onClick={() => setVisualTheme('seasonal-harvest')}>
           <div className="flex items-center gap-2">
-            <Leaf className={`h-4 w-4 text-green-600 ${visualTheme === 'eco-friendly' ? 'opacity-100' : 'opacity-60'}`} />
-            <span>Eco-Friendly</span>
+            <Apple className={`h-4 w-4 text-red-600 ${visualTheme === 'seasonal-harvest' ? 'opacity-100' : 'opacity-60'}`} />
+            <span>Seasonal Harvest</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

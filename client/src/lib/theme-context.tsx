@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
-type VisualTheme = 'default' | 'farm-to-table' | 'modern-kitchen' | 'eco-friendly';
+type VisualTheme = 'default' | 'farm-to-table' | 'cozy-pantry' | 'seasonal-harvest';
 
 interface ThemeContextType {
   theme: Theme;
@@ -94,7 +94,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
     
     // Remove old visual theme classes
-    root.classList.remove('theme-default', 'theme-farm-to-table', 'theme-modern-kitchen', 'theme-eco-friendly');
+    root.classList.remove('theme-default', 'theme-farm-to-table', 'theme-cozy-pantry', 'theme-seasonal-harvest');
     
     // Apply the visual theme
     root.classList.add(`theme-${visualTheme}`);
