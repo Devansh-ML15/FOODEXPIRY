@@ -208,23 +208,8 @@ export default function CommunityChat() {
       
       const newRecipe = await recipeResponse.json();
       
-      // Now create a chat message that links to the recipe
-      const messageResponse = await fetch('/api/chat-messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: `Shared a new recipe: ${recipe.title}`,
-          userId: user?.id,
-          messageType: 'recipe_share',
-          attachmentId: newRecipe.id,
-        }),
-      });
-      
-      if (!messageResponse.ok) {
-        throw new Error('Failed to announce recipe');
-      }
+      // The server will automatically create a chat message about the recipe
+      // No need to create a second message from the client
       
       return newRecipe;
     },
