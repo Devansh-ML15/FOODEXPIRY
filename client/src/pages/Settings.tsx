@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { Bell, Mail, ShieldAlert, Save, Trash2, AlertTriangle } from 'lucide-react';
+import { Bell, Mail, ShieldAlert, Save, Trash2, AlertTriangle, Sun, Moon, Laptop } from 'lucide-react';
+import { useTheme } from '@/lib/theme-context';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { SectionBackground } from "@/components/ui/section-background";
@@ -62,6 +63,53 @@ type User = {
   email: string;
   createdAt: string;
 };
+
+function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+  
+  return (
+    <div className="flex flex-col space-y-4">
+      <button
+        onClick={() => setTheme('light')}
+        className={`flex items-center p-3 rounded-lg ${
+          theme === 'light' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+      >
+        <Sun className="h-5 w-5 mr-2" />
+        <div className="flex flex-col items-start">
+          <span className="font-medium">Light</span>
+          <span className="text-xs text-muted-foreground">Use light theme</span>
+        </div>
+      </button>
+      
+      <button
+        onClick={() => setTheme('dark')}
+        className={`flex items-center p-3 rounded-lg ${
+          theme === 'dark' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+      >
+        <Moon className="h-5 w-5 mr-2" />
+        <div className="flex flex-col items-start">
+          <span className="font-medium">Dark</span>
+          <span className="text-xs text-muted-foreground">Use dark theme</span>
+        </div>
+      </button>
+      
+      <button
+        onClick={() => setTheme('system')}
+        className={`flex items-center p-3 rounded-lg ${
+          theme === 'system' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+      >
+        <Laptop className="h-5 w-5 mr-2" />
+        <div className="flex flex-col items-start">
+          <span className="font-medium">System</span>
+          <span className="text-xs text-muted-foreground">Follow system preference</span>
+        </div>
+      </button>
+    </div>
+  );
+}
 
 export default function Settings() {
   const { toast } = useToast();
@@ -335,8 +383,9 @@ export default function Settings() {
         </p>
 
         <Tabs defaultValue="notifications" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-1">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="appearance">Appearance</TabsTrigger>
           </TabsList>
 
         <TabsContent value="notifications" className="space-y-4 mt-6">
@@ -472,6 +521,27 @@ export default function Settings() {
                 </Button>
               </CardFooter>
             </form>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="space-y-4 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance Settings</CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Theme Mode</h3>
+                  <p className="text-sm text-gray-500 mb-4">Choose your preferred color theme</p>
+                  
+                  <ThemeSelector />
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
