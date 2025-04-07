@@ -308,6 +308,13 @@ export default function CommunityChat() {
       // Basic URL validation using built-in URL constructor
       const parsedUrl = new URL(url);
       
+      // Explicitly reject Google Image search URLs
+      if (parsedUrl.hostname.includes('google.com') && 
+          (parsedUrl.pathname.includes('/imgres') || parsedUrl.pathname.includes('/images') || 
+           parsedUrl.search.includes('imgurl=') || parsedUrl.search.includes('&q='))) {
+        return false;
+      }
+      
       // Extract the path part without query parameters
       const pathWithoutQuery = parsedUrl.pathname;
       
@@ -329,7 +336,12 @@ export default function CommunityChat() {
       const isCloudinaryImage = parsedUrl.hostname.includes('cloudinary.com') && 
                                (parsedUrl.pathname.includes('/image/') || url.includes('/upload/'));
       
-      return hasImageExtension || isImageHostname || isCloudinaryImage;
+      // Check for image serving websites
+      const isImageService = parsedUrl.hostname.includes('pexels.com') || 
+                            parsedUrl.hostname.includes('pixabay.com') || 
+                            parsedUrl.hostname.includes('unsplash.com');
+      
+      return hasImageExtension || isImageHostname || isCloudinaryImage || isImageService;
     } catch (e) {
       return false; // Invalid URL format
     }
@@ -800,9 +812,12 @@ export default function CommunityChat() {
                 {imageUrlError ? (
                   <p className="text-sm text-red-500">{imageUrlError}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Add a direct link to an image file (must end with .jpg, .png, .gif, etc.). Images from Imgur, Unsplash, or Cloudinary are recommended.
-                  </p>
+                  <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                    <p>Add a direct link to an image file (must end with .jpg, .png, .gif, etc.).</p>
+                    <p><strong>Important:</strong> Google Image search URLs will not work. Use the actual image URL instead.</p>
+                    <p><strong>Example:</strong> https://example.com/food-image.jpg</p>
+                    <p>Recommended image hosts: Imgur, Unsplash, or food blogs with direct image links.</p>
+                  </div>
                 )}
               </div>
             </div>
