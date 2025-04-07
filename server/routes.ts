@@ -399,8 +399,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
       
+      console.log("Received consumption entry data:", req.body);
+      
       const validation = insertConsumptionEntrySchema.safeParse(req.body);
       if (!validation.success) {
+        console.error("Validation error:", validation.error.format());
         return res.status(400).json({ 
           message: "Invalid consumption entry data", 
           errors: validation.error.format() 
@@ -412,6 +415,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validation.data,
         userId: req.user!.id
       };
+      
+      console.log("Validated entry data:", entryData);
       
       const newEntry = await storage.createConsumptionEntry(entryData);
       res.status(201).json(newEntry);
