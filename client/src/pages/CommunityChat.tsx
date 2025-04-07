@@ -293,7 +293,9 @@ export default function CommunityChat() {
   });
   
   // Get initials for avatar
-  const getInitials = (username: string) => {
+  const getInitials = (username?: string) => {
+    if (!username) return 'U'; // Default to 'U' for "User" if username is undefined
+    
     return username
       .split(' ')
       .map(name => name[0])
