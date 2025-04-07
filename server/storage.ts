@@ -504,17 +504,22 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
       
     // Get all unique user IDs from the messages
-    const userIds = [...new Set(messagesRaw.map(msg => msg.userId))];
+    const userIds = Array.from(new Set(messagesRaw.map(msg => msg.userId)));
     
-    // Get all users in one query
-    const usersRaw = await db
-      .select()
-      .from(users)
-      .where(sql`${users.id} IN (${userIds.join(',')})`);
-      
     // Create a map of user IDs to users for quick lookups
     const userMap = new Map<number, User>();
-    usersRaw.forEach(user => userMap.set(user.id, user));
+    
+    // Fetch each user individually instead of using IN clause
+    for (const userId of userIds) {
+      const userResult = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId));
+      
+      if (userResult.length > 0) {
+        userMap.set(userId, userResult[0]);
+      }
+    }
     
     // For recipe share messages, get the shared recipes too
     const recipeMessageIds = messagesRaw
@@ -523,13 +528,17 @@ export class DatabaseStorage implements IStorage {
     
     // Get all recipes in one query
     const recipesMap = new Map<number, SharedRecipe>();
-    if (recipeMessageIds.length > 0) {
-      const recipesRaw = await db
+    
+    // Fetch each recipe individually instead of using IN clause
+    for (const recipeId of recipeMessageIds) {
+      const recipeResult = await db
         .select()
         .from(sharedRecipes)
-        .where(sql`${sharedRecipes.id} IN (${recipeMessageIds.join(',')})`);
-        
-      recipesRaw.forEach(recipe => recipesMap.set(recipe.id, recipe));
+        .where(eq(sharedRecipes.id, recipeId));
+      
+      if (recipeResult.length > 0) {
+        recipesMap.set(recipeId, recipeResult[0]);
+      }
     }
     
     // Map messages to include user details
