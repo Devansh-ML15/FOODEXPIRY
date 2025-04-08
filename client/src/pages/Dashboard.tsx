@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { 
   BarChart, 
   Bar, 
@@ -16,6 +17,7 @@ import {
 } from "recharts";
 import DashboardStats from "@/components/DashboardStats";
 import ExpirationAlerts from "@/components/ExpirationAlerts";
+import { AnimatedIngredientTracker } from "@/components/AnimatedIngredientTracker";
 import { SectionBackground } from "@/components/ui/section-background";
 import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
 import { ThemeOverlay } from "@/components/ui/theme-overlay";
@@ -73,6 +75,23 @@ export default function Dashboard() {
         <SectionBackground pattern="dashboard" className="p-6 mb-6">
           <GlassLogoBackground logoOpacity={0.05} className="mb-6">
             <ExpirationAlerts />
+          </GlassLogoBackground>
+        </SectionBackground>
+      </ThemeOverlay>
+      
+      {/* Animated Ingredient Tracker */}
+      <ThemeOverlay variant="card">
+        <SectionBackground pattern="dashboard" className="p-6 mb-6">
+          <GlassLogoBackground logoOpacity={0.05} className="mb-6">
+            <AnimatedIngredientTracker 
+              foodItems={foodItems || []} 
+              isLoading={!foodItems}
+              onItemClick={(item) => {
+                // Navigate to item detail or show edit dialog
+                // Could implement this in the future
+                console.log("Item clicked:", item);
+              }}
+            />
           </GlassLogoBackground>
         </SectionBackground>
       </ThemeOverlay>
