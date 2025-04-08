@@ -100,11 +100,15 @@ export interface IStorage {
   
   // Chat and Recipe Sharing
   getChatMessages(limit?: number): Promise<ChatMessageWithUser[]>;
+  getChatMessage(id: number): Promise<ChatMessage | undefined>;
+  getChatMessagesByAttachmentId(attachmentId: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  deleteChatMessage(id: number): Promise<boolean>;
   getSharedRecipes(): Promise<SharedRecipe[]>;
   getSharedRecipe(id: number): Promise<SharedRecipe | undefined>;
   createSharedRecipe(recipe: InsertSharedRecipe): Promise<SharedRecipe>;
   updateSharedRecipe(id: number, updates: Partial<InsertSharedRecipe>): Promise<SharedRecipe | undefined>;
+  deleteSharedRecipe(id: number): Promise<boolean>;
   getRecipeComments(recipeId: number): Promise<RecipeComment[]>;
   createRecipeComment(comment: InsertRecipeComment): Promise<RecipeComment>;
   
@@ -559,6 +563,18 @@ export class DatabaseStorage implements IStorage {
     return messagesWithUser;
   }
   
+  async getChatMessage(id: number): Promise<ChatMessage | undefined> {
+    const result = await db.select().from(chatMessages).where(eq(chatMessages.id, id));
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async getChatMessagesByAttachmentId(attachmentId: number): Promise<ChatMessage[]> {
+    return await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.attachmentId, attachmentId));
+  }
+  
   async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
     // Type-safe messageType check
     const typeCheckedMessage: any = { ...message };
@@ -571,6 +587,11 @@ export class DatabaseStorage implements IStorage {
     // @ts-ignore - Type issues with drizzle-orm
     const [newMessage] = await db.insert(chatMessages).values(typeCheckedMessage).returning();
     return newMessage;
+  }
+  
+  async deleteChatMessage(id: number): Promise<boolean> {
+    const result = await db.delete(chatMessages).where(eq(chatMessages.id, id)).returning();
+    return result.length > 0;
   }
   
   async getSharedRecipes(): Promise<SharedRecipe[]> {
@@ -600,6 +621,12 @@ export class DatabaseStorage implements IStorage {
       .returning();
       
     return updatedRecipe;
+  }
+  
+  async deleteSharedRecipe(id: number): Promise<boolean> {
+    // Delete the recipe
+    const result = await db.delete(sharedRecipes).where(eq(sharedRecipes.id, id)).returning();
+    return result.length > 0;
   }
   
   async getRecipeComments(recipeId: number): Promise<RecipeComment[]> {

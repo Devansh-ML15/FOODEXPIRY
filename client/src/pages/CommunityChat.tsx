@@ -183,6 +183,72 @@ export default function CommunityChat() {
     },
   });
   
+  // Delete message mutation
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId: number) => {
+      const response = await fetch(`/api/chat-messages/${messageId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete message');
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message deleted",
+        description: "Your message has been permanently removed",
+      });
+      // No need to refetch as the WebSocket will update the UI
+    },
+    onError: (error) => {
+      toast({
+        title: 'Failed to delete message',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Delete recipe mutation
+  const deleteRecipeMutation = useMutation({
+    mutationFn: async (recipeId: number) => {
+      const response = await fetch(`/api/shared-recipes/${recipeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete recipe');
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Recipe deleted",
+        description: "Your shared recipe has been permanently removed",
+      });
+      // WebSocket will update the UI, but we need to fetch recipes
+      // as they might not be updated via WebSocket
+      queryClient.invalidateQueries({ queryKey: ['/api/shared-recipes'] });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Failed to delete recipe',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+  
   // Create recipe mutation
   const createRecipeMutation = useMutation({
     mutationFn: async (recipe: typeof recipeData) => {
@@ -495,6 +561,26 @@ export default function CommunityChat() {
     });
   };
 
+  // Delete a message
+  const handleDeleteMessage = (messageId: number) => {
+    if (!user) return;
+    
+    // Confirm delete
+    if (window.confirm("Are you sure you want to delete this message? This action cannot be undone.")) {
+      deleteMessageMutation.mutate(messageId);
+    }
+  };
+  
+  // Delete a recipe
+  const handleDeleteRecipe = (recipeId: number) => {
+    if (!user) return;
+    
+    // Confirm delete
+    if (window.confirm("Are you sure you want to delete this recipe? This action cannot be undone.")) {
+      deleteRecipeMutation.mutate(recipeId);
+    }
+  };
+  
   // Create and share a new recipe
   const handleCreateRecipe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -628,12 +714,41 @@ export default function CommunityChat() {
                               )}
                             </div>
                             
-                            <div className={`text-xs text-muted-foreground mt-1 ${
-                              msg.userId === user?.id ? 'text-right' : 'text-left'
+                            <div className={`text-xs text-muted-foreground mt-1 flex items-center ${
+                              msg.userId === user?.id ? 'justify-end' : 'justify-start'
                             }`}>
                               <span className="font-medium">{msg.userId === user?.id ? 'You' : msg.user.username}</span>
                               {' · '}
                               <span>{formatMessageTime(msg.createdAt)}</span>
+                              
+                              {msg.userId === user?.id && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-5 w-5 p-0 ml-1 text-muted-foreground hover:text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteMessage(msg.id);
+                                  }}
+                                  title="Delete this message"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                  </svg>
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -732,7 +847,7 @@ export default function CommunityChat() {
                     </div>
                   </CardContent>
                   
-                  <CardFooter>
+                  <CardFooter className="flex flex-col gap-2">
                     <Button 
                       variant="secondary" 
                       className="w-full"
@@ -740,6 +855,36 @@ export default function CommunityChat() {
                     >
                       View Recipe
                     </Button>
+                    
+                    {recipe.userId === user?.id && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-muted-foreground hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteRecipe(recipe.id);
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mr-1"
+                        >
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        Delete Recipe
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))

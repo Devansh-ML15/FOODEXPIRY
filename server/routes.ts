@@ -1351,6 +1351,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Delete a chat message
+  apiRouter.delete("/chat-messages/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const messageId = parseInt(req.params.id);
+      if (isNaN(messageId)) {
+        return res.status(400).json({ message: "Invalid message ID" });
+      }
+      
+      // Get the message to verify ownership
+      const message = await storage.getChatMessage(messageId);
+      if (!message) {
+        return res.status(404).json({ message: "Message not found" });
+      }
+      
+      // Check if user owns this message
+      if (message.userId !== req.user!.id) {
+        return res.status(403).json({ message: "You can only delete your own messages" });
+      }
+      
+      // Delete the message
+      await storage.deleteChatMessage(messageId);
+      
+      // Broadcast the deletion to all clients
+      broadcastToClients(JSON.stringify({
+        type: 'message_deleted',
+        data: { messageId }
+      }));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting chat message:", error);
+      res.status(500).json({ message: "Failed to delete chat message" });
+    }
+  });
+  
   // Post a new chat message
   apiRouter.post("/chat-messages", async (req: Request, res: Response) => {
     try {
@@ -1586,6 +1625,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching recipe comments:", error);
       res.status(500).json({ message: "Failed to retrieve recipe comments" });
+    }
+  });
+  
+  // Delete a shared recipe
+  apiRouter.delete("/shared-recipes/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const recipeId = parseInt(req.params.id);
+      if (isNaN(recipeId)) {
+        return res.status(400).json({ message: "Invalid recipe ID" });
+      }
+      
+      // Get the recipe to verify ownership
+      const recipe = await storage.getSharedRecipe(recipeId);
+      if (!recipe) {
+        return res.status(404).json({ message: "Recipe not found" });
+      }
+      
+      // Check if user owns this recipe
+      if (recipe.userId !== req.user!.id) {
+        return res.status(403).json({ message: "You can only delete your own recipes" });
+      }
+      
+      // Find related chat message for this recipe
+      const relatedMessages = await storage.getChatMessagesByAttachmentId(recipeId);
+      
+      // Delete the recipe
+      await storage.deleteSharedRecipe(recipeId);
+      
+      // Delete associated messages
+      for (const message of relatedMessages) {
+        await storage.deleteChatMessage(message.id);
+      }
+      
+      // Broadcast the deletion to all clients
+      broadcastToClients(JSON.stringify({
+        type: 'recipe_deleted',
+        data: { 
+          recipeId,
+          messageIds: relatedMessages.map(m => m.id)
+        }
+      }));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting shared recipe:", error);
+      res.status(500).json({ message: "Failed to delete shared recipe" });
     }
   });
 
