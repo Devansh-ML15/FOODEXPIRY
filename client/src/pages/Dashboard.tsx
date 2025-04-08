@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import DashboardStats from "@/components/DashboardStats";
 import ExpirationAlerts from "@/components/ExpirationAlerts";
-import { AnimatedIngredientTracker } from "@/components/AnimatedIngredientTracker";
+import AnimatedIngredientTracker from "@/components/AnimatedIngredientTracker";
 import { SectionBackground } from "@/components/ui/section-background";
 import { GlassLogoBackground } from "@/components/ui/glass-logo-background";
 import { ThemeOverlay } from "@/components/ui/theme-overlay";
@@ -86,7 +86,7 @@ export default function Dashboard() {
             <AnimatedIngredientTracker 
               foodItems={foodItems || []} 
               isLoading={!foodItems}
-              onItemClick={(item) => {
+              onItemClick={(item: any) => {
                 // Navigate to item detail or show edit dialog
                 // Could implement this in the future
                 console.log("Item clicked:", item);

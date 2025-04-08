@@ -120,7 +120,7 @@ interface AnimatedIngredientTrackerProps {
   onItemClick?: (item: FoodItem) => void;
 }
 
-export function AnimatedIngredientTracker({ 
+export default function AnimatedIngredientTracker({ 
   foodItems, 
   isLoading = false,
   onItemClick
@@ -442,3 +442,4 @@ export function AnimatedIngredientTracker({
     </Card>
   );
 }
+
