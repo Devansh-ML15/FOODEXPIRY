@@ -590,8 +590,17 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteChatMessage(id: number): Promise<boolean> {
-    const result = await db.delete(chatMessages).where(eq(chatMessages.id, id)).returning();
-    return result.length > 0;
+    try {
+      // Delete the message and return true if at least one row was affected
+      const result = await db.delete(chatMessages).where(eq(chatMessages.id, id)).returning();
+      
+      console.log(`Deleted message ID ${id}: ${result.length > 0 ? 'success' : 'not found'}`);
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Error deleting chat message ${id}:`, error);
+      return false;
+    }
   }
   
   async getSharedRecipes(): Promise<SharedRecipe[]> {
@@ -624,9 +633,20 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteSharedRecipe(id: number): Promise<boolean> {
-    // Delete the recipe
-    const result = await db.delete(sharedRecipes).where(eq(sharedRecipes.id, id)).returning();
-    return result.length > 0;
+    try {
+      // First delete associated recipe comments
+      await db.delete(recipeComments).where(eq(recipeComments.recipeId, id));
+      
+      // Then delete the recipe
+      const result = await db.delete(sharedRecipes).where(eq(sharedRecipes.id, id)).returning();
+      
+      console.log(`Deleted recipe ID ${id}: ${result.length > 0 ? 'success' : 'not found'}`);
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Error deleting shared recipe ${id}:`, error);
+      return false;
+    }
   }
   
   async getRecipeComments(recipeId: number): Promise<RecipeComment[]> {

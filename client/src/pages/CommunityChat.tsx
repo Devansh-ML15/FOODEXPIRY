@@ -186,6 +186,7 @@ export default function CommunityChat() {
   // Delete message mutation
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId: number) => {
+      console.log(`Deleting message with ID: ${messageId}`);
       const response = await fetch(`/api/chat-messages/${messageId}`, {
         method: 'DELETE',
         headers: {
@@ -205,13 +206,15 @@ export default function CommunityChat() {
         return { success: true }; // Return a default successful response
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      console.log(`Message deletion success, ID: ${variables}`);
       toast({
         title: "Message deleted",
         description: "Your message has been permanently removed",
       });
-      // Invalidate queries to ensure UI is up to date
+      // Force refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
+      refetchMessages();
     },
     onError: (error) => {
       toast({
@@ -225,6 +228,7 @@ export default function CommunityChat() {
   // Delete recipe mutation
   const deleteRecipeMutation = useMutation({
     mutationFn: async (recipeId: number) => {
+      console.log(`Deleting recipe with ID: ${recipeId}`);
       const response = await fetch(`/api/shared-recipes/${recipeId}`, {
         method: 'DELETE',
         headers: {
@@ -244,7 +248,8 @@ export default function CommunityChat() {
         return { success: true }; // Return a default successful response
       }
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
+      console.log(`Recipe deletion success, ID: ${variables}`);
       toast({
         title: "Recipe deleted",
         description: "Your shared recipe has been permanently removed",
@@ -253,6 +258,11 @@ export default function CommunityChat() {
       // Immediately invalidate queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/shared-recipes'] });
       queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
+      
+      // If we were viewing this recipe, close the detail view
+      if (selectedRecipe && selectedRecipe.id === variables) {
+        setSelectedRecipe(null);
+      }
     },
     onError: (error) => {
       toast({

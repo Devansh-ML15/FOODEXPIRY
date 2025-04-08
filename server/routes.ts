@@ -1375,7 +1375,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Delete the message
-      await storage.deleteChatMessage(messageId);
+      console.log(`Attempting to delete message ID ${messageId}`);
+      const deleted = await storage.deleteChatMessage(messageId);
+      
+      if (!deleted) {
+        console.error(`Failed to delete message with ID ${messageId}`);
+        return res.status(500).json({ message: "Failed to delete message from database" });
+      }
+      
+      console.log(`Successfully deleted message ID ${messageId}`);
+      
+      // Verify the message is gone
+      const messageStillExists = await storage.getChatMessage(messageId);
+      if (messageStillExists) {
+        console.error(`Message ${messageId} still exists after deletion attempt`);
+      } else {
+        console.log(`Confirmed message ${messageId} no longer exists in database`);
+      }
       
       // Broadcast the deletion to all clients
       broadcastToClients(JSON.stringify({
@@ -1654,12 +1670,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Find related chat message for this recipe
       const relatedMessages = await storage.getChatMessagesByAttachmentId(recipeId);
       
-      // Delete the recipe
-      await storage.deleteSharedRecipe(recipeId);
+      // Log what we're deleting for debugging
+      console.log(`Deleting recipe ID ${recipeId} with ${relatedMessages.length} related messages`);
       
-      // Delete associated messages
+      // Delete all associated messages first
       for (const message of relatedMessages) {
-        await storage.deleteChatMessage(message.id);
+        console.log(`Deleting related message ID ${message.id}`);
+        const messageDeleted = await storage.deleteChatMessage(message.id);
+        console.log(`Message ${message.id} deletion result: ${messageDeleted ? 'success' : 'failed'}`);
+      }
+      
+      // Then delete the recipe
+      const recipeDeleted = await storage.deleteSharedRecipe(recipeId);
+      console.log(`Recipe ${recipeId} deletion result: ${recipeDeleted ? 'success' : 'failed'}`);
+      
+      // Double-check recipe is gone
+      const recipeStillExists = await storage.getSharedRecipe(recipeId);
+      if (recipeStillExists) {
+        console.error(`Failed to delete recipe ${recipeId} - it still exists after deletion attempt`);
       }
       
       // Broadcast the deletion to all clients
