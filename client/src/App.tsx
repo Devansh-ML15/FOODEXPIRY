@@ -13,19 +13,35 @@ import AddFoodItemPage from "@/pages/AddFoodItemPage";
 import MealPlanning from "@/pages/MealPlanning";
 import CommunityChat from "@/pages/CommunityChat";
 import AuthPage from "@/pages/auth-page";
-import { AuthProvider } from "@/hooks/use-auth";
+import LandingPage from "@/pages/LandingPage";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { ThemeProvider } from "@/lib/theme-context";
 import { TutorialProvider, useTutorial } from "@/lib/tutorial-context";
 import { AppTutorial } from "@/components/AppTutorial";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 function Router() {
+  const { user } = useAuth();
+  const [location, setLocation] = useLocation();
+  
+  // Redirect to landing page if not authenticated and not on auth or landing page
+  useEffect(() => {
+    if (!user && location !== "/auth" && location !== "/") {
+      setLocation('/');
+    }
+  }, [user, location, setLocation]);
+
   return (
     <Switch>
-      <ProtectedRoute path="/" component={Dashboard} />
+      <Route path="/">
+        {() => !user ? <LandingPage /> : <Dashboard />}
+      </Route>
+      <ProtectedRoute path="/dashboard" component={Dashboard} />
       <ProtectedRoute path="/inventory" component={Inventory} />
       <Route path="/insights">
-        {() => <Redirect to="/" />}
+        {() => <Redirect to="/dashboard" />}
       </Route>
       <ProtectedRoute path="/meal-planning" component={MealPlanning} />
       <ProtectedRoute path="/tips" component={Tips} />
@@ -40,6 +56,18 @@ function Router() {
 
 function AppContent() {
   const { showTutorial, setShowTutorial, isTutorialSeen } = useTutorial();
+  const { user } = useAuth();
+  const [location] = useLocation();
+  
+  const isLandingPage = location === "/" && !user;
+  
+  if (isLandingPage) {
+    return (
+      <div className="min-h-screen">
+        <Router />
+      </div>
+    );
+  }
   
   return (
     <MobileLayout>
