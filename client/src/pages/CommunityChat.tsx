@@ -699,31 +699,35 @@ export default function CommunityChat() {
   
   return (
     <div className="container py-6 space-y-6">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
+      <div className="flex flex-col md:flex-row justify-between gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-3xl font-bold">Community Recipe Share</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold page-header animate-pop-in">Community Recipe Share</h1>
+          <p className="text-muted-foreground animate-fade-in" style={{animationDelay: '0.3s'}}>
             Connect with other food-conscious users to share recipes and reduce waste
           </p>
         </div>
         
-        <Button onClick={() => setRecipeDialogOpen(true)}>
-          <ChefHat className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={() => setRecipeDialogOpen(true)}
+          className="button-animated animate-pop-in hover:scale-105 transition-transform shadow-md"
+          style={{animationDelay: '0.5s'}}
+        >
+          <ChefHat className="mr-2 h-4 w-4 animate-jello" />
           Share a Recipe
         </Button>
       </div>
       
-      <Tabs defaultValue="chat" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="chat">Live Chat</TabsTrigger>
-          <TabsTrigger value="recipes">Shared Recipes</TabsTrigger>
+      <Tabs defaultValue="chat" className="w-full animate-fade-in" style={{animationDelay: '0.6s'}}>
+        <TabsList className="mb-4 animate-slide-in-left" style={{animationDelay: '0.7s'}}>
+          <TabsTrigger value="chat" className="tab-trigger animate-pop-in" style={{animationDelay: '0.8s'}}>Live Chat</TabsTrigger>
+          <TabsTrigger value="recipes" className="tab-trigger animate-pop-in" style={{animationDelay: '0.9s'}}>Shared Recipes</TabsTrigger>
         </TabsList>
         
         {/* Chat Tab */}
         <TabsContent value="chat" className="space-y-4">
-          <Card className="border shadow-md">
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] pr-4">
+          <Card className="border shadow-md animate-fade-in-up" style={{animationDelay: '1s'}}>
+            <CardContent className="p-4 animate-fade-in" style={{animationDelay: '1.2s'}}>
+              <ScrollArea className="h-[400px] pr-4 animate-fade-in" style={{animationDelay: '1.4s'}}>
                 {messagesLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <RefreshCw className="h-8 w-8 animate-spin text-primary" />
@@ -736,13 +740,14 @@ export default function CommunityChat() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {messages.map((msg: ChatMessage) => (
+                    {messages.map((msg: ChatMessage, index) => (
                       <div 
                         key={msg.id} 
-                        className={`flex ${msg.userId === user?.id ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${msg.userId === user?.id ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                        style={{animationDelay: `${0.05 * (index % 10)}s`}}
                       >
                         <div className={`flex gap-2 max-w-[80%] ${msg.userId === user?.id ? 'flex-row-reverse' : 'flex-row'}`}>
-                          <Avatar className="h-8 w-8 mt-1">
+                          <Avatar className="h-8 w-8 mt-1 animate-pop-in" style={{animationDelay: `${0.05 * (index % 10) + 0.1}s`}}>
                             <AvatarFallback className={theme === 'dark' ? 'bg-primary' : 'bg-primary-foreground'}>
                               <span className={theme === 'dark' ? 'text-white' : 'text-primary'}>
                                 {getInitials(msg.user.username)}
@@ -752,10 +757,10 @@ export default function CommunityChat() {
                           
                           <div>
                             <div 
-                              className={`rounded-lg p-3 shadow-md ${
+                              className={`rounded-lg p-3 shadow-md hover:shadow-lg transition-shadow ${
                                 msg.userId === user?.id 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-card'
+                                  ? 'bg-primary text-primary-foreground message-card-animated' 
+                                  : 'bg-card message-card-animated'
                               }`}
                             >
                               {msg.messageType === 'recipe_share' && msg.sharedRecipe ? (
@@ -820,22 +825,23 @@ export default function CommunityChat() {
                 )}
               </ScrollArea>
               
-              <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
+              <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 animate-fade-in-up" style={{animationDelay: '1.6s'}}>
                 <Textarea 
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type your message..."
-                  className="min-h-[60px]"
+                  className="min-h-[60px] transition-all hover:shadow-md focus:shadow-lg"
                 />
                 <Button 
                   type="submit" 
                   size="icon"
                   disabled={!message.trim() || sendMessageMutation.isPending}
+                  className="button-animated hover:scale-105 transition-transform"
                 >
                   {sendMessageMutation.isPending ? (
                     <RefreshCw className="h-5 w-5 animate-spin" />
                   ) : (
-                    <Send className="h-5 w-5" />
+                    <Send className="h-5 w-5 animate-pulse-subtle" />
                   )}
                 </Button>
               </form>
@@ -845,24 +851,28 @@ export default function CommunityChat() {
         
         {/* Recipes Tab */}
         <TabsContent value="recipes">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in" style={{animationDelay: '1s'}}>
             {recipesLoading ? (
-              <div className="col-span-full flex justify-center items-center h-64">
+              <div className="col-span-full flex justify-center items-center h-64 animate-fade-in">
                 <RefreshCw className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : recipes.length === 0 ? (
-              <div className="col-span-full flex flex-col justify-center items-center h-64 text-center">
-                <Utensils className="h-12 w-12 text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">No recipes shared yet</p>
-                <p className="text-sm text-muted-foreground mb-4">Be the first to share a tasty recipe!</p>
-                <Button onClick={() => setRecipeDialogOpen(true)}>
-                  <ChefHat className="mr-2 h-4 w-4" />
+              <div className="col-span-full flex flex-col justify-center items-center h-64 text-center animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+                <Utensils className="h-12 w-12 text-muted-foreground mb-2 animate-bounce" style={{animationDuration: '3s'}} />
+                <p className="text-muted-foreground animate-fade-in" style={{animationDelay: '0.5s'}}>No recipes shared yet</p>
+                <p className="text-sm text-muted-foreground mb-4 animate-fade-in" style={{animationDelay: '0.7s'}}>Be the first to share a tasty recipe!</p>
+                <Button 
+                  onClick={() => setRecipeDialogOpen(true)}
+                  className="button-animated animate-pulse-subtle"
+                  style={{animationDelay: '0.9s'}}
+                >
+                  <ChefHat className="mr-2 h-4 w-4 animate-jello" />
                   Share a Recipe
                 </Button>
               </div>
             ) : (
-              recipes.map((recipe: SharedRecipe) => (
-                <Card key={recipe.id} className="overflow-hidden shadow-md">
+              recipes.map((recipe: SharedRecipe, index) => (
+                <Card key={recipe.id} className="overflow-hidden shadow-md card-hover animate-fade-in" style={{animationDelay: `${0.1 * (index % 8)}s`}}>
                   {recipe.imageUrl && recipe.imageUrl.trim() !== '' && (
                     <div className="h-48 w-full overflow-hidden">
                       <img 
@@ -911,17 +921,18 @@ export default function CommunityChat() {
                   <CardFooter className="flex flex-col gap-2">
                     <Button 
                       variant="secondary" 
-                      className="w-full"
+                      className="w-full hover:shadow-md transition-all button-animated hover:scale-105"
                       onClick={() => handleRecipeClick(recipe)}
                     >
-                      View Recipe
+                      <Utensils className="mr-2 h-4 w-4 animate-jello" /> View Recipe
                     </Button>
                     
                     {recipe.userId === user?.id && (
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="w-full text-muted-foreground hover:text-destructive"
+                        className="w-full text-muted-foreground hover:text-destructive transition-colors animate-fade-in"
+                        style={{animationDelay: '0.2s'}}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteRecipe(recipe.id);
@@ -937,7 +948,7 @@ export default function CommunityChat() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="mr-1"
+                          className="mr-1 animate-wobble-on-hover"
                         >
                           <path d="M3 6h18"></path>
                           <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
