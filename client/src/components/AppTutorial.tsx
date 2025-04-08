@@ -23,7 +23,7 @@ type TutorialStep = {
 const tutorialSteps: TutorialStep[] = [
   {
     title: "Welcome to FoodExpiry",
-    description: "Your smart food inventory management system designed to help you reduce food waste through intelligent tracking, recipe recommendations, and interactive community features.",
+    description: "Your smart food inventory management system designed to help you reduce food waste through expiration tracking, meal planning, and interactive community features.",
     icon: <Server className="h-8 w-8 text-primary" />,
   },
   {
@@ -38,18 +38,13 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     title: "Meal Planning",
-    description: "Plan your meals for the week based on what's in your inventory. Get AI-powered recipe suggestions that prioritize ingredients that are about to expire.",
+    description: "Plan your meals for the week based on what's in your inventory. Create meal plans that prioritize ingredients that are about to expire to reduce waste.",
     icon: <Calendar className="h-8 w-8 text-primary" />,
   },
   {
-    title: "Food Insights",
-    description: "Gain valuable insights into your food consumption and waste patterns. Visualize trends and identify opportunities to reduce waste.",
+    title: "Waste Tracking",
+    description: "Track and visualize your food waste patterns over time. Identify opportunities to reduce waste through better inventory management.",
     icon: <BarChart3 className="h-8 w-8 text-primary" />,
-  },
-  {
-    title: "Recipe Suggestions",
-    description: "Get personalized recipe suggestions based on what's in your inventory. Prioritize recipes that use ingredients that are about to expire.",
-    icon: <Search className="h-8 w-8 text-primary" />,
   },
   {
     title: "Community Features",
