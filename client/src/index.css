@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom utility classes for dark mode compatibility */
+@layer utilities {
+  .text-adaptive {
+    @apply text-gray-700 dark:text-gray-200;
+  }
+  
+  .text-adaptive-secondary {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+  
+  .text-adaptive-muted {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+  
+  .bg-adaptive-card {
+    @apply bg-white dark:bg-gray-800;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }

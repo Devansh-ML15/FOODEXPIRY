@@ -235,7 +235,7 @@ export default function MealPlanning() {
                       {selectedDatePlans.map((plan) => (
                         <div 
                           key={plan.id} 
-                          className="border rounded-lg p-4 bg-white shadow-sm hover:shadow transition-shadow"
+                          className="border rounded-lg p-4 bg-adaptive-card shadow-sm hover:shadow transition-shadow"
                         >
                           <div className="flex justify-between items-start">
                             <div>
@@ -260,7 +260,7 @@ export default function MealPlanning() {
                           </div>
                           
                           <div className="mt-3">
-                            <p className="text-sm font-medium text-gray-500">Ingredients:</p>
+                            <p className="text-sm font-medium text-adaptive-secondary">Ingredients:</p>
                             <div className="flex flex-wrap gap-1 mt-1">
                               {getIngredientNamesFromIds(plan.ingredients).map((name, idx) => (
                                 <Badge key={idx} variant="secondary" className="text-xs">
@@ -272,8 +272,8 @@ export default function MealPlanning() {
                           
                           {plan.notes && (
                             <div className="mt-3">
-                              <p className="text-sm font-medium text-gray-500">Notes:</p>
-                              <p className="text-sm mt-1 text-gray-600">{plan.notes}</p>
+                              <p className="text-sm font-medium text-adaptive-secondary">Notes:</p>
+                              <p className="text-sm mt-1 text-adaptive-muted">{plan.notes}</p>
                             </div>
                           )}
                         </div>
@@ -281,8 +281,8 @@ export default function MealPlanning() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-40 text-center">
-                      <CalendarIcon className="h-10 w-10 text-gray-300 mb-2" />
-                      <p className="text-gray-500">No meals planned for this date</p>
+                      <CalendarIcon className="h-10 w-10 text-gray-300 dark:text-gray-600 mb-2" />
+                      <p className="text-adaptive-secondary">No meals planned for this date</p>
                       <Button 
                         variant="link" 
                         onClick={() => {
@@ -310,7 +310,7 @@ export default function MealPlanning() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="w-4 h-4 ml-2 text-gray-400" />
+                              <Info className="w-4 h-4 ml-2 text-adaptive-secondary" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="text-xs max-w-xs">These items are expiring soon. Consider using them in your meal planning.</p>
@@ -471,7 +471,7 @@ export default function MealPlanning() {
                                 </div>
                               ))
                           ) : (
-                            <div className="text-center py-4 text-gray-500">
+                            <div className="text-center py-4 text-adaptive-secondary">
                               No items in inventory
                             </div>
                           )}
