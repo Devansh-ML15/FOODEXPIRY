@@ -212,9 +212,16 @@ export default function CommunityChat() {
         title: "Message deleted",
         description: "Your message has been permanently removed",
       });
-      // Force refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
-      refetchMessages();
+      
+      // Force immediate refetch of data to ensure UI is up to date
+      Promise.all([
+        refetchMessages(),
+        refetchRecipes() // Also refresh recipes in case the message was a recipe share
+      ]).then(() => {
+        console.log('Successfully refreshed data after message deletion');
+      }).catch(err => {
+        console.error('Error refreshing data after message deletion:', err);
+      });
     },
     onError: (error) => {
       toast({
@@ -255,9 +262,15 @@ export default function CommunityChat() {
         description: "Your shared recipe has been permanently removed",
       });
       
-      // Immediately invalidate queries to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ['/api/shared-recipes'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
+      // Force immediate refetch of data to ensure UI is up to date
+      Promise.all([
+        refetchRecipes(),
+        refetchMessages()
+      ]).then(() => {
+        console.log('Successfully refreshed data after recipe deletion');
+      }).catch(err => {
+        console.error('Error refreshing data after recipe deletion:', err);
+      });
       
       // If we were viewing this recipe, close the detail view
       if (selectedRecipe && selectedRecipe.id === variables) {

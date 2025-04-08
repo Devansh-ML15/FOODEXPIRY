@@ -591,12 +591,26 @@ export class DatabaseStorage implements IStorage {
   
   async deleteChatMessage(id: number): Promise<boolean> {
     try {
-      // Delete the message and return true if at least one row was affected
-      const result = await db.delete(chatMessages).where(eq(chatMessages.id, id)).returning();
+      console.log(`Starting deletion process for chat message ID ${id}`);
       
-      console.log(`Deleted message ID ${id}: ${result.length > 0 ? 'success' : 'not found'}`);
+      // Get the message details first to check if it's a recipe share
+      const [message] = await db.select().from(chatMessages).where(eq(chatMessages.id, id));
       
-      return result.length > 0;
+      if (message && message.messageType === 'recipe_share' && message.attachmentId) {
+        console.log(`Message ${id} is a recipe share. Attachment ID: ${message.attachmentId}`);
+        // If it's a recipe share, we need to delete the recipe too
+        return await this.deleteSharedRecipe(message.attachmentId);
+      } else {
+        // For regular messages, just delete the message
+        console.log(`Deleting regular chat message ID ${id}`);
+        await db.execute(sql`DELETE FROM chat_messages WHERE id = ${id}`);
+        
+        // Verify message is deleted
+        const [exists] = await db.select().from(chatMessages).where(eq(chatMessages.id, id));
+        console.log(`Verification - Message ${id} exists after deletion: ${exists ? 'YES (ERROR)' : 'NO (SUCCESS)'}`);
+        
+        return !exists;
+      }
     } catch (error) {
       console.error(`Error deleting chat message ${id}:`, error);
       return false;
@@ -634,15 +648,28 @@ export class DatabaseStorage implements IStorage {
   
   async deleteSharedRecipe(id: number): Promise<boolean> {
     try {
-      // First delete associated recipe comments
-      await db.delete(recipeComments).where(eq(recipeComments.recipeId, id));
+      console.log(`Starting deletion process for recipe ID ${id}`);
       
-      // Then delete the recipe
-      const result = await db.delete(sharedRecipes).where(eq(sharedRecipes.id, id)).returning();
+      // First, directly execute SQL queries with transactions to ensure complete deletion
+      await db.transaction(async (tx) => {
+        // 1. Delete recipe comments first
+        console.log(`Deleting comments for recipe ID ${id}`);
+        await tx.execute(sql`DELETE FROM recipe_comments WHERE recipe_id = ${id}`);
+        
+        // 2. Delete chat messages referencing this recipe
+        console.log(`Deleting chat messages for recipe ID ${id}`);
+        await tx.execute(sql`DELETE FROM chat_messages WHERE attachment_id = ${id} AND message_type = 'recipe_share'`);
+        
+        // 3. Finally delete the recipe
+        console.log(`Deleting recipe ID ${id}`);
+        await tx.execute(sql`DELETE FROM shared_recipes WHERE id = ${id}`);
+      });
       
-      console.log(`Deleted recipe ID ${id}: ${result.length > 0 ? 'success' : 'not found'}`);
+      // Verify the recipe is gone
+      const recipeExists = await this.getSharedRecipe(id);
+      console.log(`Verification - Recipe ${id} exists after deletion: ${recipeExists ? 'YES (ERROR)' : 'NO (SUCCESS)'}`);
       
-      return result.length > 0;
+      return !recipeExists;
     } catch (error) {
       console.error(`Error deleting shared recipe ${id}:`, error);
       return false;
