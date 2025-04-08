@@ -16,6 +16,8 @@ import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { ThemeProvider } from "@/lib/theme-context";
+import { TutorialProvider, useTutorial } from "@/lib/tutorial-context";
+import { AppTutorial } from "@/components/AppTutorial";
 
 function Router() {
   return (
@@ -37,8 +39,17 @@ function Router() {
 }
 
 function AppContent() {
+  const { showTutorial, setShowTutorial, isTutorialSeen } = useTutorial();
+  
   return (
     <MobileLayout>
+      {/* First-time tutorial */}
+      <AppTutorial 
+        open={showTutorial && !isTutorialSeen} 
+        onOpenChange={setShowTutorial} 
+        firstTime={true} 
+      />
+      
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <Router />
       </div>
@@ -51,8 +62,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <AppContent />
-          <Toaster />
+          <TutorialProvider>
+            <AppContent />
+            <Toaster />
+          </TutorialProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

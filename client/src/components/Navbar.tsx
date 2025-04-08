@@ -17,6 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeSelector } from "@/components/ThemeSelector";
+import { HelpButton } from "@/components/HelpButton";
+import { AppTutorial } from "@/components/AppTutorial";
+import { useTutorial } from "@/lib/tutorial-context";
 import logoImage from "@/assets/logo.png";
 
 export default function Navbar() {
@@ -102,73 +105,85 @@ export default function Navbar() {
     { href: "/settings", label: "Settings" },
   ];
 
+  // Get tutorial dialog state
+  const { showTutorial, setShowTutorial } = useTutorial();
+
   return (
-    <header className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-md sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <div className="flex items-center group cursor-pointer">
-                  <img 
-                    src={logoImage} 
-                    alt="FoodExpiry Logo" 
-                    className="h-10 w-10 mr-2 float-animation" 
-                  />
-                  <span className="font-bold text-xl bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105">
-                    FoodExpiry
-                  </span>
-                </div>
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navLinks.map((link, index) => (
-                <Link key={link.href} href={link.href}>
-                  <div
-                    className={`${
-                      location === link.href
-                        ? "border-primary text-gray-900 dark:text-gray-50 font-semibold"
-                        : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-                    } nav-link inline-flex items-center px-3 pt-1 border-b-2 text-sm transition-all duration-300 ease-in-out cursor-pointer`}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {link.label}
+    <>
+      {/* Tutorial Dialog */}
+      <AppTutorial 
+        open={showTutorial} 
+        onOpenChange={setShowTutorial} 
+        firstTime={false} 
+      />
+    
+      <header className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <Link href="/">
+                  <div className="flex items-center group cursor-pointer">
+                    <img 
+                      src={logoImage} 
+                      alt="FoodExpiry Logo" 
+                      className="h-10 w-10 mr-2 float-animation" 
+                    />
+                    <span className="font-bold text-xl bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105">
+                      FoodExpiry
+                    </span>
                   </div>
                 </Link>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center">
-            <ThemeSelector className="mr-3" />
-            <Button
-              onClick={handleNotificationClick}
-              variant={notificationCount > 0 ? "destructive" : "ghost"}
-              className={`p-2 mr-3 rounded-full transition-all duration-300 ${
-                notificationCount > 0 
-                  ? "bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white shadow-md" 
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800"
-              }`}
-            >
-              <span className="sr-only">View notifications</span>
-              <div className="relative">
-                <Bell className={`h-5 w-5 ${notificationCount > 0 ? "text-white animate-bounce" : "icon-animated"}`} />
-                {notificationCount > 0 && (
-                  <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full pulse-animation">
-                    {notificationCount}
-                  </span>
-                )}
               </div>
-            </Button>
-            <Link href="/settings">
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                {navLinks.map((link, index) => (
+                  <Link key={link.href} href={link.href}>
+                    <div
+                      className={`${
+                        location === link.href
+                          ? "border-primary text-gray-900 dark:text-gray-50 font-semibold"
+                          : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                      } nav-link inline-flex items-center px-3 pt-1 border-b-2 text-sm transition-all duration-300 ease-in-out cursor-pointer`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {link.label}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <ThemeSelector className="mr-2" />
+              <HelpButton className="mr-2" />
               <Button
-                variant="ghost"
-                className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-all duration-300"
+                onClick={handleNotificationClick}
+                variant={notificationCount > 0 ? "destructive" : "ghost"}
+                className={`p-2 mr-2 rounded-full transition-all duration-300 ${
+                  notificationCount > 0 
+                    ? "bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white shadow-md" 
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+                }`}
               >
-                <span className="sr-only">Settings</span>
-                <Cog className="h-5 w-5 icon-animated" />
+                <span className="sr-only">View notifications</span>
+                <div className="relative">
+                  <Bell className={`h-5 w-5 ${notificationCount > 0 ? "text-white animate-bounce" : "icon-animated"}`} />
+                  {notificationCount > 0 && (
+                    <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full pulse-animation">
+                      {notificationCount}
+                    </span>
+                  )}
+                </div>
               </Button>
-            </Link>
-            <div className="ml-3 relative">
+              <Link href="/settings">
+                <Button
+                  variant="ghost"
+                  className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-all duration-300"
+                >
+                  <span className="sr-only">Settings</span>
+                  <Cog className="h-5 w-5 icon-animated" />
+                </Button>
+              </Link>
+              <div className="ml-3 relative">
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -266,5 +281,6 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+    </>
   );
 }
