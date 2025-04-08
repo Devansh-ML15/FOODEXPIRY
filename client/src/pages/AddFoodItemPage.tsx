@@ -92,7 +92,7 @@ export default function AddFoodItemPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen pb-8">
       <div className="container mx-auto px-4 pt-16">
         <div className="mb-6 flex items-center">
           <Button
@@ -102,7 +102,7 @@ export default function AddFoodItemPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">Add New Item</h1>
+          <h1 className="white-header">Add New Item</h1>
         </div>
 
         <Card>
@@ -242,7 +242,7 @@ export default function AddFoodItemPage() {
                       <FormItem>
                         <FormLabel className="flex items-center">
                           Purchase Date
-                          <Calendar className="ml-1 h-4 w-4 text-gray-500" />
+                          <Calendar className="ml-1 h-4 w-4 text-muted-foreground" />
                         </FormLabel>
                         <FormControl>
                           <Input 
@@ -266,7 +266,7 @@ export default function AddFoodItemPage() {
                       <FormItem>
                         <FormLabel className="flex items-center">
                           Expiration Date
-                          <Calendar className="ml-1 h-4 w-4 text-gray-500" />
+                          <Calendar className="ml-1 h-4 w-4 text-muted-foreground" />
                         </FormLabel>
                         <FormControl>
                           <Input 
@@ -291,7 +291,7 @@ export default function AddFoodItemPage() {
                     <FormItem>
                       <FormLabel className="flex items-center">
                         Notes
-                        <Info className="ml-1 h-4 w-4 text-gray-500" />
+                        <Info className="ml-1 h-4 w-4 text-muted-foreground" />
                       </FormLabel>
                       <FormControl>
                         <Textarea 

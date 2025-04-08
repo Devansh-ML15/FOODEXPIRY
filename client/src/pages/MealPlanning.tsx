@@ -164,7 +164,7 @@ export default function MealPlanning() {
         <SectionBackground pattern="meal-planning" className="p-6">
           <GlassLogoBackground className="rounded-xl p-4">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="page-header">Meal Planning</h1>
+              <h1 className="white-header">Meal Planning</h1>
               <Button 
                 onClick={() => {
                   form.reset({

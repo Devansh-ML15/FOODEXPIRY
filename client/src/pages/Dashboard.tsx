@@ -63,7 +63,7 @@ export default function Dashboard() {
       <ThemeOverlay variant="header">
         <SectionBackground pattern="dashboard" className="p-6 mb-6">
           <GlassLogoBackground>
-            <h1 className="page-header">Dashboard</h1>
+            <h1 className="white-header">Dashboard</h1>
             <DashboardStats />
           </GlassLogoBackground>
         </SectionBackground>

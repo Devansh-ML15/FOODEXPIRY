@@ -53,7 +53,7 @@ export default function Insights() {
     <div className="mb-8">
       <SectionBackground pattern="insights" className="p-6">
         <GlassLogoBackground className="rounded-xl p-4">
-        <h1 className="page-header">Insights</h1>
+        <h1 className="white-header">Insights</h1>
         
         <Tabs defaultValue="categories" className="mb-6">
           <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">

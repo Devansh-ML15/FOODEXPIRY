@@ -138,13 +138,13 @@ export default function Recipes() {
   return (
     <div className="mb-8">
       <SectionBackground pattern="recipes" className="p-6">
-        <GlassLogoBackground opacity={0.06}>
+        <GlassLogoBackground logoOpacity={0.06}>
           {/* Header */}
           <div className="flex flex-col items-start mb-6">
             <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
               <div className="flex items-center">
                 <ChefHat className="h-6 w-6 mr-2 text-primary" />
-                <h1 className="text-2xl font-semibold text-gray-900 pt-2">AI Recipe Suggestions</h1>
+                <h1 className="white-header pt-2">AI Recipe Suggestions</h1>
               </div>
               <div className="mt-4 sm:mt-0 relative w-full sm:w-64">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -158,7 +158,7 @@ export default function Recipes() {
                 {searchTerm && (
                   <button 
                     onClick={() => setSearchTerm("")}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-adaptive-secondary"
                   >
                     <XCircle className="h-4 w-4" />
                   </button>
@@ -207,9 +207,9 @@ export default function Recipes() {
             ) : hasQuotaError ? (
               <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-lg shadow">
                 <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <p className="text-gray-800 text-lg font-medium">OpenAI API Quota Exceeded</p>
-                <p className="text-gray-500 mt-1">The API quota for AI recipe generation has been exceeded.</p>
-                <p className="text-gray-500">Please try again later or contact support for assistance.</p>
+                <p className="text-adaptive text-lg font-medium">OpenAI API Quota Exceeded</p>
+                <p className="text-adaptive-secondary mt-1">The API quota for AI recipe generation has been exceeded.</p>
+                <p className="text-adaptive-secondary">Please try again later or contact support for assistance.</p>
               </div>
             ) : filteredAiSuggestions && filteredAiSuggestions.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -234,11 +234,11 @@ export default function Recipes() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow">
-                      <p className="text-sm text-gray-600 line-clamp-3">
+                      <p className="text-sm text-adaptive-secondary line-clamp-3">
                         {recipe.description}
                       </p>
                       <div className="mt-3">
-                        <p className="text-xs text-gray-500 mb-1">Matching ingredients:</p>
+                        <p className="text-xs text-adaptive-secondary mb-1">Matching ingredients:</p>
                         <div className="flex flex-wrap gap-1">
                           {recipe.matchingItems.slice(0, 3).map((item, i) => (
                             <Badge key={i} variant="secondary" className="text-xs">{item}</Badge>
@@ -331,8 +331,8 @@ function NoRecipesFound({
       <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
       {searchTerm ? (
         <>
-          <p className="text-gray-800 text-lg font-medium">No recipes found matching your search.</p>
-          <p className="text-gray-500 mt-1">Try a different search term or clear the search.</p>
+          <p className="text-adaptive text-lg font-medium">No recipes found matching your search.</p>
+          <p className="text-adaptive-secondary mt-1">Try a different search term or clear the search.</p>
           <Button 
             variant="outline" 
             className="mt-4"
@@ -343,8 +343,8 @@ function NoRecipesFound({
         </>
       ) : (
         <>
-          <p className="text-gray-800 text-lg font-medium">No AI recipe suggestions available</p>
-          <p className="text-gray-500 mt-1">Add ingredients to your inventory to get personalized recipe suggestions!</p>
+          <p className="text-adaptive text-lg font-medium">No AI recipe suggestions available</p>
+          <p className="text-adaptive-secondary mt-1">Add ingredients to your inventory to get personalized recipe suggestions!</p>
         </>
       )}
     </div>
@@ -377,7 +377,7 @@ function DetailedRecipeDialog({
           </DialogHeader>
           <div className="flex flex-col items-center justify-center py-8">
             <RefreshCw className="h-12 w-12 text-primary animate-spin mb-4" />
-            <p className="text-gray-600">Our AI chef is preparing your recipe!</p>
+            <p className="text-adaptive-secondary">Our AI chef is preparing your recipe!</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -404,7 +404,7 @@ function DetailedRecipeDialog({
         <ScrollArea className="h-[60vh] pr-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
-              <h3 className="font-medium text-gray-900 mb-2">Ingredients</h3>
+              <h3 className="font-medium text-adaptive mb-2">Ingredients</h3>
               <ul className="space-y-2">
                 {recipe.ingredients.map((ingredient, i) => (
                   <li key={i} className="flex items-start">
@@ -414,7 +414,7 @@ function DetailedRecipeDialog({
                     >
                       {ingredient.isAvailable ? "✓" : "!"}
                     </Badge>
-                    <span className={`text-sm ${!ingredient.isAvailable ? 'text-gray-500' : ''}`}>
+                    <span className={`text-sm ${!ingredient.isAvailable ? 'text-adaptive-secondary' : ''}`}>
                       <span className="font-medium">{ingredient.quantity}</span> {ingredient.name}
                     </span>
                   </li>
@@ -423,29 +423,29 @@ function DetailedRecipeDialog({
 
               {recipe.nutritionalInfo && (
                 <div className="mt-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Nutritional Info</h3>
+                  <h3 className="font-medium text-adaptive mb-2">Nutritional Info</h3>
                   <div className="bg-gray-50 p-3 rounded-md text-sm">
                     {recipe.nutritionalInfo.calories && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Calories:</span>
+                        <span className="text-adaptive-secondary">Calories:</span>
                         <span className="font-medium">{recipe.nutritionalInfo.calories}</span>
                       </div>
                     )}
                     {recipe.nutritionalInfo.protein && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Protein:</span>
+                        <span className="text-adaptive-secondary">Protein:</span>
                         <span className="font-medium">{recipe.nutritionalInfo.protein}</span>
                       </div>
                     )}
                     {recipe.nutritionalInfo.carbs && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Carbs:</span>
+                        <span className="text-adaptive-secondary">Carbs:</span>
                         <span className="font-medium">{recipe.nutritionalInfo.carbs}</span>
                       </div>
                     )}
                     {recipe.nutritionalInfo.fat && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Fat:</span>
+                        <span className="text-adaptive-secondary">Fat:</span>
                         <span className="font-medium">{recipe.nutritionalInfo.fat}</span>
                       </div>
                     )}
@@ -455,7 +455,7 @@ function DetailedRecipeDialog({
             </div>
             
             <div className="md:col-span-2">
-              <h3 className="font-medium text-gray-900 mb-2">Instructions</h3>
+              <h3 className="font-medium text-adaptive mb-2">Instructions</h3>
               <ol className="space-y-4">
                 {recipe.instructions.map((step, i) => (
                   <li key={i} className="flex">
@@ -469,7 +469,7 @@ function DetailedRecipeDialog({
               
               {recipe.tips && recipe.tips.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Chef's Tips</h3>
+                  <h3 className="font-medium text-adaptive mb-2">Chef's Tips</h3>
                   <div className="bg-amber-50 border border-amber-100 rounded-md p-3">
                     <ul className="space-y-2">
                       {recipe.tips.map((tip, i) => (
