@@ -210,7 +210,8 @@ export default function CommunityChat() {
         title: "Message deleted",
         description: "Your message has been permanently removed",
       });
-      // No need to refetch as the WebSocket will update the UI
+      // Invalidate queries to ensure UI is up to date
+      queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
     },
     onError: (error) => {
       toast({
@@ -248,9 +249,10 @@ export default function CommunityChat() {
         title: "Recipe deleted",
         description: "Your shared recipe has been permanently removed",
       });
-      // WebSocket will update the UI, but we need to fetch recipes
-      // as they might not be updated via WebSocket
+      
+      // Immediately invalidate queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/shared-recipes'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
     },
     onError: (error) => {
       toast({
@@ -456,9 +458,33 @@ export default function CommunityChat() {
       
       socket.onmessage = (event) => {
         console.log('WebSocket message received:', event.data);
-        // Refetch data when new messages arrive
-        refetchMessages();
-        refetchRecipes();
+        
+        try {
+          const message = JSON.parse(event.data);
+          
+          // Handle different message types
+          console.log(`Received WebSocket message type: ${message.type}`);
+          
+          if (message.type === 'recipe_deleted') {
+            console.log('Recipe deleted:', message.data);
+            // Explicitly fetch fresh data after a recipe is deleted
+            queryClient.invalidateQueries({ queryKey: ['/api/shared-recipes'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
+          } else if (message.type === 'message_deleted') {
+            console.log('Message deleted:', message.data);
+            // Explicitly fetch fresh data after a message is deleted
+            queryClient.invalidateQueries({ queryKey: ['/api/chat-messages'] });
+          } else {
+            // For other message types, refresh everything
+            refetchMessages();
+            refetchRecipes();
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
+          // If there's an error parsing the message, just refresh the data
+          refetchMessages();
+          refetchRecipes();
+        }
       };
       
       socket.onclose = (event) => {
