@@ -1374,16 +1374,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You can only delete your own messages" });
       }
       
-      // Delete the message
       console.log(`Attempting to delete message ID ${messageId}`);
-      const deleted = await storage.deleteChatMessage(messageId);
       
-      if (!deleted) {
-        console.error(`Failed to delete message with ID ${messageId}`);
-        return res.status(500).json({ message: "Failed to delete message from database" });
+      // DIRECT DATABASE DELETE - more reliable than ORM
+      try {
+        const { sql } = await import("drizzle-orm");
+        const { db } = await import("./db");
+        
+        if (message.messageType === 'recipe_share' && message.attachmentId) {
+          console.log(`Message ${messageId} is a recipe share. Deleting recipe ${message.attachmentId} first.`);
+          
+          await db.transaction(async (tx) => {
+            // First delete recipe comments
+            await tx.execute(sql`DELETE FROM recipe_comments WHERE recipe_id = ${message.attachmentId}`);
+            
+            // Then delete the message
+            await tx.execute(sql`DELETE FROM chat_messages WHERE id = ${messageId}`);
+            
+            // Finally delete the shared recipe
+            await tx.execute(sql`DELETE FROM shared_recipes WHERE id = ${message.attachmentId}`);
+          });
+        } else {
+          // For regular messages, just delete the message
+          await db.execute(sql`DELETE FROM chat_messages WHERE id = ${messageId}`);
+        }
+        
+        console.log(`Successfully deleted message ID ${messageId}`);
+      } catch (error) {
+        console.error(`Error in direct SQL delete for message ${messageId}:`, error);
+        return res.status(500).json({ message: "Failed to delete message", error: (error as Error).message });
       }
-      
-      console.log(`Successfully deleted message ID ${messageId}`);
       
       // Verify the message is gone
       const messageStillExists = await storage.getChatMessage(messageId);
@@ -1673,21 +1693,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log what we're deleting for debugging
       console.log(`Deleting recipe ID ${recipeId} with ${relatedMessages.length} related messages`);
       
-      // Delete all associated messages first
-      for (const message of relatedMessages) {
-        console.log(`Deleting related message ID ${message.id}`);
-        const messageDeleted = await storage.deleteChatMessage(message.id);
-        console.log(`Message ${message.id} deletion result: ${messageDeleted ? 'success' : 'failed'}`);
-      }
-      
-      // Then delete the recipe
-      const recipeDeleted = await storage.deleteSharedRecipe(recipeId);
-      console.log(`Recipe ${recipeId} deletion result: ${recipeDeleted ? 'success' : 'failed'}`);
-      
-      // Double-check recipe is gone
-      const recipeStillExists = await storage.getSharedRecipe(recipeId);
-      if (recipeStillExists) {
-        console.error(`Failed to delete recipe ${recipeId} - it still exists after deletion attempt`);
+      // DIRECT DATABASE DELETE - more reliable than ORM
+      try {
+        const { sql } = await import("drizzle-orm");
+        const { db } = await import("./db");
+        
+        await db.transaction(async (tx) => {
+          // 1. Delete recipe comments first
+          await tx.execute(sql`DELETE FROM recipe_comments WHERE recipe_id = ${recipeId}`);
+          console.log(`Deleted comments for recipe ID ${recipeId}`);
+          
+          // 2. Delete chat messages referencing this recipe
+          await tx.execute(sql`DELETE FROM chat_messages WHERE attachment_id = ${recipeId} AND message_type = 'recipe_share'`);
+          console.log(`Deleted chat messages for recipe ID ${recipeId}`);
+          
+          // 3. Finally delete the recipe
+          await tx.execute(sql`DELETE FROM shared_recipes WHERE id = ${recipeId}`);
+          console.log(`Deleted recipe ID ${recipeId}`);
+        });
+        
+        // Verify deletion
+        const recipeStillExists = await storage.getSharedRecipe(recipeId);
+        console.log(`Verification - Recipe ${recipeId} exists after deletion: ${recipeStillExists ? 'YES (ERROR)' : 'NO (SUCCESS)'}`);
+        
+        if (recipeStillExists) {
+          throw new Error(`Failed to delete recipe ${recipeId}`);
+        }
+      } catch (txError) {
+        console.error(`Transaction error deleting recipe ${recipeId}:`, txError);
+        throw txError;
       }
       
       // Broadcast the deletion to all clients
@@ -1702,7 +1736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting shared recipe:", error);
-      res.status(500).json({ message: "Failed to delete shared recipe" });
+      res.status(500).json({ message: "Failed to delete shared recipe", error: (error as Error).message });
     }
   });
 
