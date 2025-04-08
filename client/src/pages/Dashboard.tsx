@@ -61,8 +61,8 @@ export default function Dashboard() {
       {/* Header Section with Stats */}
       <ThemeOverlay variant="header">
         <SectionBackground pattern="dashboard" className="p-6 mb-6">
-          <GlassLogoBackground className="animate-fade-in-up">
-            <h1 className="page-header animate-pop-in">Dashboard</h1>
+          <GlassLogoBackground>
+            <h1 className="page-header">Dashboard</h1>
             <DashboardStats />
           </GlassLogoBackground>
         </SectionBackground>
@@ -71,7 +71,7 @@ export default function Dashboard() {
       {/* Expiration Alerts Section */}
       <ThemeOverlay variant="card">
         <SectionBackground pattern="dashboard" className="p-6 mb-6">
-          <GlassLogoBackground logoOpacity={0.05} className="mb-6 animate-slide-in-right">
+          <GlassLogoBackground logoOpacity={0.05} className="mb-6">
             <ExpirationAlerts />
           </GlassLogoBackground>
         </SectionBackground>
@@ -80,15 +80,15 @@ export default function Dashboard() {
       {/* Insights Tabs Section */}
       <ThemeOverlay variant="card">
         <SectionBackground pattern="insights" className="p-6">
-          <GlassLogoBackground logoOpacity={0.03} className="rounded-xl p-4 animate-scale-in">
-            <h2 className="text-2xl font-bold mb-4 animate-fade-in">Food Insights</h2>
+          <GlassLogoBackground logoOpacity={0.03} className="rounded-xl p-4">
+            <h2 className="text-2xl font-bold mb-4">Food Insights</h2>
             
             <Tabs defaultValue="categories" className="mb-6">
-              <TabsList className="mb-4 bg-white/80 backdrop-blur-sm animate-fade-in">
-                <TabsTrigger value="categories" className="animate-pop-in">Category Distribution</TabsTrigger>
-                <TabsTrigger value="expiration" className="animate-pop-in">Expiration Patterns</TabsTrigger>
-                <TabsTrigger value="waste" className="animate-pop-in">Waste Trends</TabsTrigger>
-                <TabsTrigger value="consumption" className="animate-pop-in">Consumption</TabsTrigger>
+              <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">
+                <TabsTrigger value="categories">Category Distribution</TabsTrigger>
+                <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
+                <TabsTrigger value="waste">Waste Trends</TabsTrigger>
+                <TabsTrigger value="consumption">Consumption</TabsTrigger>
               </TabsList>
               
               {/* Categories Tab Content */}

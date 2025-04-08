@@ -9,13 +9,11 @@ export default function Inventory() {
     <div className="mb-8">
       <ThemeOverlay variant="full">
         <SectionBackground pattern="inventory" className="p-6">
-          <GlassLogoBackground logoOpacity={0.07} className="animate-fade-in-up">
+          <GlassLogoBackground logoOpacity={0.07}>
             <div className="flex justify-between items-center mb-6">
-              <h1 className="page-header animate-pop-in">Inventory</h1>
+              <h1 className="page-header">Inventory</h1>
             </div>
-            <div className="animate-fade-in" style={{animationDelay: '0.3s'}}>
-              <InventoryGrid />
-            </div>
+            <InventoryGrid />
           </GlassLogoBackground>
         </SectionBackground>
       </ThemeOverlay>
