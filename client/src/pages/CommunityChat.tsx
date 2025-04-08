@@ -197,7 +197,13 @@ export default function CommunityChat() {
         throw new Error('Failed to delete message');
       }
       
-      return await response.json();
+      // Try to parse JSON, but don't fail if it's not valid JSON
+      try {
+        return await response.json();
+      } catch (error) {
+        console.warn("Could not parse JSON response", error);
+        return { success: true }; // Return a default successful response
+      }
     },
     onSuccess: () => {
       toast({
@@ -229,7 +235,13 @@ export default function CommunityChat() {
         throw new Error('Failed to delete recipe');
       }
       
-      return await response.json();
+      // Try to parse JSON, but don't fail if it's not valid JSON
+      try {
+        return await response.json();
+      } catch (error) {
+        console.warn("Could not parse JSON response", error);
+        return { success: true }; // Return a default successful response
+      }
     },
     onSuccess: () => {
       toast({
