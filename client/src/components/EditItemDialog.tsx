@@ -40,8 +40,8 @@ const editFormSchema = z.object({
   category: z.enum(FOOD_CATEGORIES),
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unit: z.enum(QUANTITY_UNITS),
-  purchaseDate: z.coerce.date(),
-  expirationDate: z.coerce.date(),
+  purchaseDate: z.string(),
+  expirationDate: z.string(),
   storageLocation: z.enum(STORAGE_LOCATIONS),
   notes: z.string().optional(),
 });
@@ -66,8 +66,8 @@ export default function EditItemDialog({ open, onOpenChange, item }: EditItemDia
       category: item.category,
       quantity: item.quantity,
       unit: item.unit,
-      purchaseDate: new Date(item.purchaseDate),
-      expirationDate: new Date(item.expirationDate),
+      purchaseDate: format(new Date(item.purchaseDate), 'yyyy-MM-dd'),
+      expirationDate: format(new Date(item.expirationDate), 'yyyy-MM-dd'),
       storageLocation: item.storageLocation,
       notes: item.notes || "",
     },
@@ -216,8 +216,9 @@ export default function EditItemDialog({ open, onOpenChange, item }: EditItemDia
                       <Input
                         type="date"
                         {...field}
-                        value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                        value={field.value ? field.value : ''}
                         onChange={(e) => {
+                          // Explicitly set the exact date string without any conversion
                           field.onChange(e.target.value);
                         }}
                       />
@@ -237,8 +238,9 @@ export default function EditItemDialog({ open, onOpenChange, item }: EditItemDia
                       <Input
                         type="date"
                         {...field}
-                        value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                        value={field.value ? field.value : ''}
                         onChange={(e) => {
+                          // Explicitly set the exact date string without any conversion
                           field.onChange(e.target.value);
                         }}
                       />

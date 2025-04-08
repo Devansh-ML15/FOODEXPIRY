@@ -245,7 +245,14 @@ export default function AddFoodItemPage() {
                           <Calendar className="ml-1 h-4 w-4 text-gray-500" />
                         </FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="date" 
+                            {...field} 
+                            onChange={(e) => {
+                              // Explicitly set the exact date value without timezone adjustment
+                              field.onChange(e.target.value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -262,7 +269,14 @@ export default function AddFoodItemPage() {
                           <Calendar className="ml-1 h-4 w-4 text-gray-500" />
                         </FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="date" 
+                            {...field} 
+                            onChange={(e) => {
+                              // Explicitly set the exact date value without timezone adjustment
+                              field.onChange(e.target.value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

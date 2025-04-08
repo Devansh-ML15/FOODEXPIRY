@@ -36,8 +36,8 @@ import {
 
 // Extended schema with additional validation
 const formSchema = insertFoodItemSchema.extend({
-  purchaseDate: z.coerce.date(),
-  expirationDate: z.coerce.date(),
+  purchaseDate: z.string(),
+  expirationDate: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -63,8 +63,8 @@ export default function AddItemDialog({ open, onOpenChange }: AddItemDialogProps
       category: "produce",
       quantity: 1,
       unit: "items",
-      purchaseDate: today,
-      expirationDate: defaultExpiryDate,
+      purchaseDate: format(today, 'yyyy-MM-dd'),
+      expirationDate: format(defaultExpiryDate, 'yyyy-MM-dd'),
       storageLocation: "refrigerator",
       notes: "",
     },
@@ -214,8 +214,9 @@ export default function AddItemDialog({ open, onOpenChange }: AddItemDialogProps
                       <Input
                         type="date"
                         {...field}
-                        value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                        value={field.value ? field.value : ''}
                         onChange={(e) => {
+                          // Explicitly set the exact date string without any conversion
                           field.onChange(e.target.value);
                         }}
                       />
@@ -235,8 +236,9 @@ export default function AddItemDialog({ open, onOpenChange }: AddItemDialogProps
                       <Input
                         type="date"
                         {...field}
-                        value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                        value={field.value ? field.value : ''}
                         onChange={(e) => {
+                          // Explicitly set the exact date string without any conversion
                           field.onChange(e.target.value);
                         }}
                       />
