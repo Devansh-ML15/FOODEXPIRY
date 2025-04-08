@@ -29,7 +29,7 @@ export default function Tips() {
   return (
     <div className="mb-8">
       <SectionBackground pattern="tips" className="p-6">
-        <h1 className="white-header">Sustainability Tips</h1>
+        <h1 className="page-header">Sustainability Tips</h1>
 
       <Card className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100">
         <CardContent className="pt-6">

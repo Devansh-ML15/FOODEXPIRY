@@ -379,7 +379,7 @@ export default function Settings() {
     <div className="space-y-6 mb-8">
       <ThemeOverlay variant="header">
         <SectionBackground pattern="settings" className="p-6">
-          <h1 className="white-header">Settings</h1>
+          <h1 className="page-header">Settings</h1>
           <p className="text-gray-500 mb-4">
             Manage your account settings and notification preferences.
           </p>

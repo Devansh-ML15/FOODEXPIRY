@@ -11,7 +11,7 @@ export default function Inventory() {
         <SectionBackground pattern="inventory" className="p-6">
           <GlassLogoBackground logoOpacity={0.07}>
             <div className="flex justify-between items-center mb-6">
-              <h1 className="white-header">Inventory</h1>
+              <h1 className="page-header">Inventory</h1>
             </div>
             <InventoryGrid />
           </GlassLogoBackground>

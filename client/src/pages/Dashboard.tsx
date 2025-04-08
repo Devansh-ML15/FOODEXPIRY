@@ -26,7 +26,6 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import WasteInsights from "@/components/WasteInsights";
 import ConsumptionInsights from "@/components/ConsumptionInsights";
-import { cn } from "@/lib/utils";
 
 // Category colors for charts
 const CATEGORY_COLORS = {
@@ -63,7 +62,7 @@ export default function Dashboard() {
       <ThemeOverlay variant="header">
         <SectionBackground pattern="dashboard" className="p-6 mb-6">
           <GlassLogoBackground>
-            <h1 className="white-header">Dashboard</h1>
+            <h1 className="page-header">Dashboard</h1>
             <DashboardStats />
           </GlassLogoBackground>
         </SectionBackground>
@@ -136,7 +135,7 @@ export default function Dashboard() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="h-full flex items-center justify-center">
-                            <p className="text-adaptive-secondary">No inventory data available</p>
+                            <p className="text-gray-500">No inventory data available</p>
                           </div>
                         )}
                       </div>
@@ -149,7 +148,7 @@ export default function Dashboard() {
                                 className="w-3 h-3 rounded-full mr-2" 
                                 style={{ backgroundColor: color }}
                               ></div>
-                              <span className="text-xs text-adaptive-secondary capitalize">{category}</span>
+                              <span className="text-xs text-gray-600 capitalize">{category}</span>
                             </div>
                           ))}
                         </div>
@@ -188,14 +187,14 @@ export default function Dashboard() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="h-full flex items-center justify-center">
-                            <p className="text-adaptive-secondary">No inventory data available</p>
+                            <p className="text-gray-500">No inventory data available</p>
                           </div>
                         )}
                       </div>
                       
                       <div className="mt-4 bg-gray-50 p-3 rounded-md">
                         <h4 className="text-sm font-medium mb-1">Storage Tips</h4>
-                        <p className="text-xs text-adaptive-secondary">
+                        <p className="text-xs text-gray-600">
                           Store fruit and vegetables separately as many fruits release ethylene gas 
                           which can cause nearby vegetables to ripen and spoil faster.
                         </p>
@@ -235,7 +234,7 @@ export default function Dashboard() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="h-full flex items-center justify-center">
-                            <p className="text-adaptive-secondary">No inventory data available</p>
+                            <p className="text-gray-500">No inventory data available</p>
                           </div>
                         )}
                       </div>
@@ -269,36 +268,36 @@ export default function Dashboard() {
                         <ul className="space-y-3">
                           <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <p className="text-sm text-adaptive-secondary">
-                              <span className="font-medium text-adaptive-primary">Plan your meals:</span>{' '}
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-900">Plan your meals:</span>{' '}
                               Create a weekly meal plan and shopping list to avoid over-purchasing.
                             </p>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <p className="text-sm text-adaptive-secondary">
-                              <span className="font-medium text-adaptive-primary">Store food properly:</span>{' '}
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-900">Store food properly:</span>{' '}
                               Learn the optimal storage conditions for different foods.
                             </p>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <p className="text-sm text-adaptive-secondary">
-                              <span className="font-medium text-adaptive-primary">Use FIFO method:</span>{' '}
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-900">Use FIFO method:</span>{' '}
                               First In, First Out - place new items at the back of the fridge/pantry.
                             </p>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <p className="text-sm text-adaptive-secondary">
-                              <span className="font-medium text-adaptive-primary">Understand date labels:</span>{' '}
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-900">Understand date labels:</span>{' '}
                               "Best by" doesn't always mean "bad after" - use your senses to check food.
                             </p>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <p className="text-sm text-adaptive-secondary">
-                              <span className="font-medium text-adaptive-primary">Freeze extras:</span>{' '}
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium text-gray-900">Freeze extras:</span>{' '}
                               Freeze leftovers or extra ingredients before they spoil.
                             </p>
                           </li>
@@ -339,7 +338,7 @@ export default function Dashboard() {
                             </p>
                           </div>
                           
-                          <p className="text-sm text-adaptive-secondary mt-2">
+                          <p className="text-sm text-gray-600 mt-2">
                             By reducing food waste, you're helping conserve resources and reduce greenhouse gas emissions.
                             Keep up the good work!
                           </p>
