@@ -2,6 +2,8 @@
 
 A smart food inventory management platform designed to help users minimize food waste through intelligent tracking, sustainability insights, and interactive community engagement.
 
+Original Application link: https://fresh-stock-tracker-devanshparikh15.replit.app/
+
 ## Features
 
 - **Expiration Tracking**: Never let food go to waste again. Our smart tracking system reminds you when items are about to expire.
