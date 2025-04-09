@@ -119,25 +119,25 @@ export default function LandingPage() {
       id: "benefit-1",
       value: "Track",
       description: "Get notified before food expires",
-      icon: <Bell className="h-12 w-12 text-white" strokeWidth={1.5} />
+      icon: <Bell className="h-8 w-8 text-green-500" />
     },
     {
       id: "benefit-2",
       value: "Save",
       description: "Reduce food waste and save money",
-      icon: <ShoppingBag className="h-12 w-12 text-white" strokeWidth={1.5} />
+      icon: <ShoppingBag className="h-8 w-8 text-emerald-500" />
     },
     {
       id: "benefit-3",
       value: "Share",
       description: "Exchange recipes with other users",
-      icon: <Users className="h-12 w-12 text-white" strokeWidth={1.5} />
+      icon: <Users className="h-8 w-8 text-blue-500" />
     },
     {
       id: "benefit-4",
       value: "Learn",
       description: "Discover your consumption patterns",
-      icon: <PieChart className="h-12 w-12 text-white" strokeWidth={1.5} />
+      icon: <PieChart className="h-8 w-8 text-purple-500" />
     }
   ];
   
@@ -147,7 +147,7 @@ export default function LandingPage() {
       <div 
         ref={heroRef}
         id="hero-section"
-        className="relative snap-section px-4 sm:px-6 transition-all duration-1000"
+        className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 transition-all duration-1000"
         style={{ 
           opacity: heroOpacity,
           transform: `translateY(${-parallaxOffset * 0.2}px)`,
@@ -240,7 +240,7 @@ export default function LandingPage() {
       </div>
       
       {/* Features Section */}
-      <div id="features-section" className="snap-section py-20 px-4 sm:px-6 max-w-7xl mx-auto">
+      <div className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
           Smart Features for Smart Living
         </h2>
@@ -284,7 +284,7 @@ export default function LandingPage() {
       </div>
       
       {/* Benefits Section */}
-      <div id="benefits-section" className="snap-section py-20 px-4 sm:px-6 bg-gradient-to-br from-green-600 to-teal-600 text-white">
+      <div className="py-20 px-4 sm:px-6 bg-gradient-to-br from-green-600 to-teal-600 text-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-20">
             Key Benefits at a Glance
@@ -304,7 +304,7 @@ export default function LandingPage() {
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
                 <div className="flex justify-center mb-4">
-                  <div className={`p-4 bg-white/20 rounded-full benefit-icon benefit-icon-${index + 1}`}>
+                  <div className="p-4 bg-white/20 rounded-full">
                     {benefit.icon}
                   </div>
                 </div>
@@ -324,7 +324,7 @@ export default function LandingPage() {
       </div>
       
       {/* How It Works Section */}
-      <div id="how-it-works-section" className="snap-section py-24 px-4 sm:px-6 bg-white relative overflow-hidden">
+      <div className="py-24 px-4 sm:px-6 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-20 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
             How FoodExpiry Works
@@ -451,7 +451,7 @@ export default function LandingPage() {
       </div>
       
       {/* Call to Action */}
-      <div id="cta-section" className="snap-section py-20 px-4 sm:px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white">
+      <div className="py-20 px-4 sm:px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-8">
             Be Among the First to Make a Difference
@@ -480,7 +480,7 @@ export default function LandingPage() {
       </div>
       
       {/* Simple Footer */}
-      <footer id="footer-section" className="snap-section py-8 px-4 sm:px-6 bg-gray-900 text-white">
+      <footer className="py-8 px-4 sm:px-6 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center mb-4">
             <img src={logoImage} alt="FoodExpiry Logo" className="h-8 w-8 mr-3" />
@@ -511,51 +511,8 @@ export default function LandingPage() {
           }
         }
         
-        @keyframes float-icon {
-          0% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-          100% {
-            transform: translateY(0px);
-          }
-        }
-        
         .landing-page {
           scroll-behavior: smooth;
-          scroll-snap-type: y mandatory;
-          height: 100vh;
-          overflow-y: scroll;
-        }
-        
-        .snap-section {
-          scroll-snap-align: start;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-        
-        .benefit-icon {
-          animation: float-icon 3s ease-in-out infinite;
-        }
-        
-        .benefit-icon-1 {
-          animation-delay: 0s;
-        }
-        
-        .benefit-icon-2 {
-          animation-delay: 0.5s;
-        }
-        
-        .benefit-icon-3 {
-          animation-delay: 1s;
-        }
-        
-        .benefit-icon-4 {
-          animation-delay: 1.5s;
         }
       `}</style>
     </div>
