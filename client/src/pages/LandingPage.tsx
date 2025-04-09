@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { AnimatedLink } from "@/components/AnimatedLink";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { 
@@ -203,18 +204,18 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/auth?mode=register">
+              <AnimatedLink href="/auth?mode=register">
                 <Button size="lg" className="group rounded-full bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 transition-all duration-300 shadow-md hover:shadow-lg">
                   Get Started Free
                   <ArrowRight className="h-4 w-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                 </Button>
-              </Link>
+              </AnimatedLink>
               
-              <Link href="/auth?mode=login">
+              <AnimatedLink href="/auth?mode=login">
                 <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white text-green-700 hover:bg-white/90 transition-all duration-300 shadow-md">
                   Login
                 </Button>
-              </Link>
+              </AnimatedLink>
             </div>
             
             <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-white drop-shadow-md">
@@ -478,18 +479,18 @@ export default function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth?mode=register">
+            <AnimatedLink href="/auth?mode=register">
               <Button size="lg" className="group rounded-full bg-white text-teal-700 hover:bg-green-50 transition-all duration-300 shadow-md hover:shadow-lg">
                 Get Started Free
                 <ArrowRight className="h-4 w-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-            </Link>
+            </AnimatedLink>
             
-            <Link href="/auth?mode=login">
+            <AnimatedLink href="/auth?mode=login">
               <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white text-green-700 hover:bg-white/90 transition-all duration-300 shadow-md">
                 Login
               </Button>
-            </Link>
+            </AnimatedLink>
           </div>
         </div>
       </div>

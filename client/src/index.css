@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Page transition animations */
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .page-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 129, 74, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    animation: fadeIn 0.5s forwards;
+  }
+
+  /* Page transition containers */
+  .page-transition-enter {
+    animation: fadeIn 0.5s forwards, slideIn 0.5s forwards;
+  }
+
+  .page-transition-exit {
+    animation: fadeOut 0.5s forwards;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
