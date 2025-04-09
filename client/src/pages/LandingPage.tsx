@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -303,10 +303,25 @@ export default function LandingPage() {
                 }`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 bg-white/20 rounded-full">
-                    {benefit.icon}
+                <div className="flex justify-center mb-4 relative">
+                  <div 
+                    className="p-5 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md rounded-full shadow-lg border border-white/30"
+                    style={{
+                      animation: `float ${6 + index}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.5}s`,
+                    }}
+                  >
+                    <div className={`h-10 w-10 text-white drop-shadow-md`}>
+                      {benefit.icon}
+                    </div>
                   </div>
+                  {/* Glowing effect behind icon */}
+                  <div className="absolute inset-0 rounded-full bg-white/10 filter blur-xl -z-10" 
+                    style={{ 
+                      transform: 'scale(1.2)',
+                      opacity: 0.7,
+                    }}
+                  />
                 </div>
                 
                 <div className="text-center">
