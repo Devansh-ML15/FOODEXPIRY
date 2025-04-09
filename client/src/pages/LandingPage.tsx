@@ -354,14 +354,14 @@ export default function LandingPage() {
             <div className="space-y-24 relative">
               {/* Step 1 */}
               <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12 text-center md:text-right">
+                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Track Your Food Inventory</h3>
                   <p className="text-gray-600">
                     Add items to your digital pantry with expiration dates. Our system organizes everything for you.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10">
+                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     1
                   </div>
@@ -376,19 +376,19 @@ export default function LandingPage() {
               
               {/* Step 2 */}
               <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12 text-center md:text-right order-1 md:order-1">
+                <div className="order-2 md:order-1 md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
                   <div className="bg-teal-50 rounded-xl p-4 shadow-md">
                     <Bell className="h-12 w-12 text-teal-500 mx-auto md:ml-auto md:mr-0 mb-4" />
                   </div>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10 order-0 md:order-2">
+                <div className="order-1 md:order-2 md:w-12 flex justify-center relative z-10 my-6 md:my-0">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     2
                   </div>
                 </div>
                 
-                <div className="md:w-1/2 md:pl-12 text-center md:text-left order-2 md:order-3">
+                <div className="order-3 md:order-3 md:w-1/2 md:pl-12 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Receive Smart Notifications</h3>
                   <p className="text-gray-600">
                     Get timely alerts before your food expires, so you can use it before it goes to waste.
@@ -398,14 +398,14 @@ export default function LandingPage() {
               
               {/* Step 3 */}
               <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12 text-center md:text-right">
+                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Plan Your Meals</h3>
                   <p className="text-gray-600">
                     Create meal plans that prioritize soon-to-expire ingredients to minimize waste.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10">
+                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     3
                   </div>
@@ -420,19 +420,19 @@ export default function LandingPage() {
               
               {/* Step 4 */}
               <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12 text-center md:text-right order-1 md:order-1">
+                <div className="order-2 md:order-1 md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
                   <div className="bg-purple-50 rounded-xl p-4 shadow-md">
                     <PieChart className="h-12 w-12 text-purple-500 mx-auto md:ml-auto md:mr-0 mb-4" />
                   </div>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10 order-0 md:order-2">
+                <div className="order-1 md:order-2 md:w-12 flex justify-center relative z-10 my-6 md:my-0">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     4
                   </div>
                 </div>
                 
-                <div className="md:w-1/2 md:pl-12 text-center md:text-left order-2 md:order-3">
+                <div className="order-3 md:order-3 md:w-1/2 md:pl-12 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Track Your Progress</h3>
                   <p className="text-gray-600">
                     Visualize your waste reduction and savings over time with intuitive charts and insights.
@@ -442,14 +442,14 @@ export default function LandingPage() {
               
               {/* Step 5 */}
               <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12 text-center md:text-right">
+                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Join the Community</h3>
                   <p className="text-gray-600">
                     Share recipes, tips, and sustainability ideas with others on the same journey.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10">
+                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     5
                   </div>
