@@ -21,6 +21,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import logoImage from "@/assets/logo.png";
+import backgroundImage from "@/assets/Gemini_Generated_Image_h097xeh097xeh097.jpeg";
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -149,15 +150,22 @@ export default function LandingPage() {
         className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 transition-all duration-1000"
         style={{ 
           opacity: heroOpacity,
-          transform: `translateY(${-parallaxOffset * 0.2}px)`
+          transform: `translateY(${-parallaxOffset * 0.2}px)`,
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+        
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(10)].map((_, i) => (
             <div
               key={i}
-              className="absolute rounded-full bg-green-500/10"
+              className="absolute rounded-full bg-white/10"
               style={{
                 width: `${Math.random() * 100 + 50}px`,
                 height: `${Math.random() * 100 + 50}px`,
@@ -185,11 +193,11 @@ export default function LandingPage() {
               <img src={logoImage} alt="FoodExpiry Logo" className="h-24 w-24" />
             </div>
             
-            <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+            <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 text-white drop-shadow-lg">
               Reduce Food Waste, Save Money
             </h1>
             
-            <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-white mb-8 max-w-3xl mx-auto drop-shadow-md">
               FoodExpiry helps you track your food inventory, plan meals, and receive timely 
               notifications about expiring items - all to help you reduce waste and save money.
             </p>
@@ -203,23 +211,23 @@ export default function LandingPage() {
               </Link>
               
               <Link href="/auth?mode=login">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-teal-500 text-teal-700 hover:bg-teal-50 transition-all duration-300">
+                <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white text-green-700 hover:bg-white/90 transition-all duration-300 shadow-md">
                   Login
                 </Button>
               </Link>
             </div>
             
-            <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+            <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-white drop-shadow-md">
               <div className="flex items-center">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                <CheckCircle2 className="h-5 w-5 text-white mr-2" />
                 No credit card required
               </div>
               <div className="flex items-center">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                <CheckCircle2 className="h-5 w-5 text-white mr-2" />
                 Free personal account
               </div>
               <div className="flex items-center">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                <CheckCircle2 className="h-5 w-5 text-white mr-2" />
                 Cancel anytime
               </div>
             </div>
@@ -227,7 +235,7 @@ export default function LandingPage() {
         </div>
         
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronRight className="h-10 w-10 text-green-500 rotate-90" />
+          <ChevronRight className="h-10 w-10 text-white rotate-90 drop-shadow-md" />
         </div>
       </div>
       
@@ -463,7 +471,7 @@ export default function LandingPage() {
             </Link>
             
             <Link href="/auth?mode=login">
-              <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white/90 text-green-800 hover:bg-white transition-all duration-300">
+              <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white text-green-700 hover:bg-white/90 transition-all duration-300 shadow-md">
                 Login
               </Button>
             </Link>
