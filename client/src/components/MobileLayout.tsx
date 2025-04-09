@@ -21,7 +21,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       {/* Show the mobile top bar with hamburger menu only on mobile */}
       {(user && isMobile) && <MobileTopBar />}
       
-      <main className={`flex-1 ${isMobile ? 'pb-22 pt-16' : ''}`}>
+      <main className={`flex-1 ${isMobile ? 'pb-20 pt-16' : ''}`}>
         {children}
       </main>
       
