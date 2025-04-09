@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMobileDetector } from "@/hooks/use-mobile-detector";
 import MobileNavBar from "./MobileNavBar";
+import MobileTopBar from "./MobileTopBar";
 import Navbar from "./Navbar";
 
 interface MobileLayoutProps {
@@ -17,11 +18,14 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       {/* Show traditional navbar on desktop, hide on mobile */}
       {(user && !isMobile) && <Navbar />}
       
-      <main className={`flex-1 ${isMobile ? 'pb-22' : ''}`}>
+      {/* Show the mobile top bar with hamburger menu only on mobile */}
+      {(user && isMobile) && <MobileTopBar />}
+      
+      <main className={`flex-1 ${isMobile ? 'pb-22 pt-16' : ''}`}>
         {children}
       </main>
       
-      {/* Show the mobile navigation bar only on mobile */}
+      {/* Show the mobile bottom navigation bar only on mobile */}
       {(user && isMobile) && <MobileNavBar />}
     </div>
   );
