@@ -68,7 +68,8 @@ Original Application link: https://fresh-stock-tracker-devanshparikh15.replit.ap
 
 ## Screenshots
 
-Coming soon...
+<img width="1695" alt="Screenshot 2025-04-09 at 12 27 01 PM" src="https://github.com/user-attachments/assets/d2177fdc-6a99-4101-9a3f-89e575dd5516" />
+
 
 ## Contributing
 
