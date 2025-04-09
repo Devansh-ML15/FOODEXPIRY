@@ -112,52 +112,52 @@ export default function LandingPage() {
     }
   ];
   
-  // Stats data
-  const stats = [
+  // Benefits data
+  const benefits = [
     {
-      id: "stat-1",
-      value: "30%",
-      description: "Average reduction in food waste for our users",
-      icon: <Leaf className="h-8 w-8 text-green-500" />
+      id: "benefit-1",
+      value: "Track",
+      description: "Get notified before food expires",
+      icon: <Bell className="h-8 w-8 text-green-500" />
     },
     {
-      id: "stat-2",
-      value: "$720",
-      description: "Average yearly savings per household",
+      id: "benefit-2",
+      value: "Save",
+      description: "Reduce food waste and save money",
       icon: <ShoppingBag className="h-8 w-8 text-emerald-500" />
     },
     {
-      id: "stat-3",
-      value: "8,000+",
-      description: "Active community members sharing recipes",
+      id: "benefit-3",
+      value: "Share",
+      description: "Exchange recipes with other users",
       icon: <Users className="h-8 w-8 text-blue-500" />
     },
     {
-      id: "stat-4",
-      value: "12M",
-      description: "Pounds of food waste prevented",
-      icon: <Trash2 className="h-8 w-8 text-red-500" />
+      id: "benefit-4",
+      value: "Learn",
+      description: "Discover your consumption patterns",
+      icon: <PieChart className="h-8 w-8 text-purple-500" />
     }
   ];
   
-  // Testimonials data
-  const testimonials = [
+  // Expected feedback from beta testers
+  const feedbackPreview = [
     {
-      id: "testimonial-1",
-      content: "FoodExpiry has completely changed how I manage my kitchen. I've reduced my food waste by over 50% and saved hundreds on my grocery bills!",
-      name: "Sarah M.",
-      title: "Busy Parent"
+      id: "feedback-1",
+      content: "I'm excited to see a solution focused on reducing food waste! Looking forward to tracking my expiration dates and getting notifications.",
+      name: "Beta Tester",
+      title: "Future User"
     },
     {
-      id: "testimonial-2",
-      content: "As someone who cares deeply about sustainability, this app has been a game-changer. I love seeing the impact metrics of how much waste I've prevented.",
-      name: "David K.",
-      title: "Environmental Advocate"
+      id: "feedback-2",
+      content: "The idea of seeing analytics on my food waste patterns sounds very helpful. I'm interested in learning how to become more environmentally conscious.",
+      name: "Early Adopter",
+      title: "Sustainability Enthusiast"
     },
     {
-      id: "testimonial-3",
-      content: "The meal planning feature helps me use ingredients efficiently, and the community recipes are always inspiring. Highly recommend!",
-      name: "Priya J.",
+      id: "feedback-3",
+      content: "I'm most excited about the meal planning feature that will help me use ingredients I already have. Can't wait to try it!",
+      name: "Waitlist Member",
       title: "Home Cook"
     }
   ];
@@ -297,21 +297,21 @@ export default function LandingPage() {
         </div>
       </div>
       
-      {/* Stats Section */}
+      {/* Benefits Section */}
       <div className="py-20 px-4 sm:px-6 bg-gradient-to-br from-green-600 to-teal-600 text-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-20">
-            Making a Real Difference
+            Key Benefits at a Glance
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            {stats.map((stat, index) => (
+            {benefits.map((benefit, index) => (
               <div
-                key={stat.id}
-                id={stat.id}
+                key={benefit.id}
+                id={benefit.id}
                 ref={el => statRefs.current[index] = el}
                 className={`bg-white/10 backdrop-blur-sm rounded-xl p-6 transition-all duration-1000 border border-white/20 ${
-                  isAnimated(stat.id)
+                  isAnimated(benefit.id)
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-10"
                 }`}
@@ -319,16 +319,16 @@ export default function LandingPage() {
               >
                 <div className="flex justify-center mb-4">
                   <div className="p-4 bg-white/20 rounded-full">
-                    {stat.icon}
+                    {benefit.icon}
                   </div>
                 </div>
                 
                 <div className="text-center">
                   <div className="text-4xl font-bold mb-2">
-                    {stat.value}
+                    {benefit.value}
                   </div>
                   <div className="text-white/80">
-                    {stat.description}
+                    {benefit.description}
                   </div>
                 </div>
               </div>
@@ -464,21 +464,21 @@ export default function LandingPage() {
         </div>
       </div>
       
-      {/* Testimonials Section */}
+      {/* Beta Tester Feedback Preview */}
       <div className="py-20 px-4 sm:px-6 bg-gradient-to-br from-teal-50 to-green-50">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
-            What Our Users Say
+            Coming Soon Feedback
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {testimonials.map((testimonial, index) => (
+            {feedbackPreview.map((feedback, index) => (
               <div
-                key={testimonial.id}
-                id={testimonial.id}
+                key={feedback.id}
+                id={feedback.id}
                 ref={el => testimonialRefs.current[index] = el}
                 className={`bg-white rounded-xl p-8 shadow-xl relative transition-all duration-1000 ${
-                  isAnimated(testimonial.id)
+                  isAnimated(feedback.id)
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-10"
                 }`}
@@ -497,16 +497,16 @@ export default function LandingPage() {
                 </div>
                 
                 <p className="text-gray-700 mb-6 italic">
-                  "{testimonial.content}"
+                  "{feedback.content}"
                 </p>
                 
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-400 to-teal-400 flex items-center justify-center text-white font-bold text-xl">
-                    {testimonial.name.charAt(0)}
+                    {feedback.name.charAt(0)}
                   </div>
                   <div className="ml-4">
-                    <div className="font-semibold text-gray-800">{testimonial.name}</div>
-                    <div className="text-gray-500 text-sm">{testimonial.title}</div>
+                    <div className="font-semibold text-gray-800">{feedback.name}</div>
+                    <div className="text-gray-500 text-sm">{feedback.title}</div>
                   </div>
                 </div>
               </div>
@@ -519,12 +519,12 @@ export default function LandingPage() {
       <div className="py-20 px-4 sm:px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-8">
-            Ready to Reduce Waste and Save Money?
+            Be Among the First to Make a Difference
           </h2>
           
           <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-            Join thousands of users who are making a difference in their kitchens,
-            wallets, and the environment.
+            Join our growing community of early adopters who are passionate about 
+            reducing food waste and creating a more sustainable future.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -575,23 +575,23 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <h3 className="text-lg font-semibold mb-6">Resources</h3>
               <ul className="space-y-3 text-gray-400">
-                <li>About Us</li>
-                <li>Blog</li>
-                <li>Careers</li>
-                <li>Press</li>
-                <li>Contact</li>
+                <li>Getting Started</li>
+                <li>Food Storage Tips</li>
+                <li>Cooking Guides</li>
+                <li>FAQ</li>
+                <li>Help Center</li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-6">Legal</h3>
+              <h3 className="text-lg font-semibold mb-6">Contact</h3>
               <ul className="space-y-3 text-gray-400">
-                <li>Terms of Service</li>
-                <li>Privacy Policy</li>
-                <li>Cookie Policy</li>
-                <li>Data Processing</li>
+                <li>Support</li>
+                <li>Feedback</li>
+                <li>Join Beta</li>
+                <li>Partnerships</li>
               </ul>
             </div>
           </div>
