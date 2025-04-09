@@ -140,28 +140,6 @@ export default function LandingPage() {
     }
   ];
   
-  // Expected feedback from beta testers
-  const feedbackPreview = [
-    {
-      id: "feedback-1",
-      content: "I'm excited to see a solution focused on reducing food waste! Looking forward to tracking my expiration dates and getting notifications.",
-      name: "Beta Tester",
-      title: "Future User"
-    },
-    {
-      id: "feedback-2",
-      content: "The idea of seeing analytics on my food waste patterns sounds very helpful. I'm interested in learning how to become more environmentally conscious.",
-      name: "Early Adopter",
-      title: "Sustainability Enthusiast"
-    },
-    {
-      id: "feedback-3",
-      content: "I'm most excited about the meal planning feature that will help me use ingredients I already have. Can't wait to try it!",
-      name: "Waitlist Member",
-      title: "Home Cook"
-    }
-  ];
-  
   return (
     <div className="landing-page min-h-screen bg-gradient-to-b from-white via-green-50 to-white overflow-hidden">
       {/* Hero Section */}
@@ -464,57 +442,6 @@ export default function LandingPage() {
         </div>
       </div>
       
-      {/* Beta Tester Feedback Preview */}
-      <div className="py-20 px-4 sm:px-6 bg-gradient-to-br from-teal-50 to-green-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
-            Coming Soon Feedback
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {feedbackPreview.map((feedback, index) => (
-              <div
-                key={feedback.id}
-                id={feedback.id}
-                ref={el => testimonialRefs.current[index] = el}
-                className={`bg-white rounded-xl p-8 shadow-xl relative transition-all duration-1000 ${
-                  isAnimated(feedback.id)
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
-                }`}
-                style={{ transitionDelay: `${index * 200}ms` }}
-              >
-                <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4">
-                  <div className="p-3 bg-green-100 rounded-full shadow-md">
-                    <Heart className="h-5 w-5 text-red-500" />
-                  </div>
-                </div>
-                
-                <div className="mb-6">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 inline-block" />
-                  ))}
-                </div>
-                
-                <p className="text-gray-700 mb-6 italic">
-                  "{feedback.content}"
-                </p>
-                
-                <div className="flex items-center">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-400 to-teal-400 flex items-center justify-center text-white font-bold text-xl">
-                    {feedback.name.charAt(0)}
-                  </div>
-                  <div className="ml-4">
-                    <div className="font-semibold text-gray-800">{feedback.name}</div>
-                    <div className="text-gray-500 text-sm">{feedback.title}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
       {/* Call to Action */}
       <div className="py-20 px-4 sm:px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
@@ -536,7 +463,7 @@ export default function LandingPage() {
             </Link>
             
             <Link href="/auth?mode=login">
-              <Button size="lg" variant="outline" className="rounded-full border-2 border-white text-white hover:bg-white/10 transition-all duration-300">
+              <Button size="lg" variant="outline" className="rounded-full border-2 border-white bg-white/90 text-green-800 hover:bg-white transition-all duration-300">
                 Login
               </Button>
             </Link>
@@ -544,59 +471,19 @@ export default function LandingPage() {
         </div>
       </div>
       
-      {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div>
-              <div className="flex items-center mb-6">
-                <img src={logoImage} alt="FoodExpiry Logo" className="h-8 w-8 mr-3" />
-                <span className="text-xl font-bold">FoodExpiry</span>
-              </div>
-              
-              <p className="text-gray-400 mb-6">
-                Making food management smarter and more sustainable.
-              </p>
-              
-              <div className="flex space-x-4">
-                {/* Social icons would go here */}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Features</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li>Inventory Tracking</li>
-                <li>Expiration Alerts</li>
-                <li>Meal Planning</li>
-                <li>Waste Analytics</li>
-                <li>Community Sharing</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Resources</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li>Getting Started</li>
-                <li>Food Storage Tips</li>
-                <li>Cooking Guides</li>
-                <li>FAQ</li>
-                <li>Help Center</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Contact</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li>Support</li>
-                <li>Feedback</li>
-                <li>Join Beta</li>
-                <li>Partnerships</li>
-              </ul>
-            </div>
+      {/* Simple Footer */}
+      <footer className="py-8 px-4 sm:px-6 bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="flex items-center justify-center mb-4">
+            <img src={logoImage} alt="FoodExpiry Logo" className="h-8 w-8 mr-3" />
+            <span className="text-xl font-bold">FoodExpiry</span>
           </div>
           
-          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-500">
+          <p className="text-gray-400 mb-6">
+            Making food management smarter and more sustainable.
+          </p>
+          
+          <div className="pt-4 border-t border-gray-800 text-center text-gray-500">
             <p>© {new Date().getFullYear()} FoodExpiry. All rights reserved.</p>
           </div>
         </div>
