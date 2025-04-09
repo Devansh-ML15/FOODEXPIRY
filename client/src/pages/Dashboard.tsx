@@ -383,13 +383,16 @@ function getStorageDistribution(items: any[]) {
   const locationCounts: Record<string, number> = {};
   
   items.forEach(item => {
-    const location = item.location || 'Other';
+    const location = item.storageLocation || 'Other';
     locationCounts[location] = (locationCounts[location] || 0) + 1;
   });
   
   // Convert to chart data format and sort by count (descending)
   return Object.entries(locationCounts)
-    .map(([name, value]) => ({ name, value }))
+    .map(([name, value]) => ({ 
+      name: name.charAt(0).toUpperCase() + name.slice(1), 
+      value 
+    }))
     .sort((a, b) => b.value - a.value);
 }
 
