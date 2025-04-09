@@ -342,53 +342,54 @@ export default function LandingPage() {
       {/* How It Works Section */}
       <div className="py-24 px-4 sm:px-6 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-20 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
             How FoodExpiry Works
           </h2>
           
-          <div className="relative">
+          {/* Desktop version - hidden on mobile */}
+          <div className="relative hidden md:block">
             {/* Connected Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 to-teal-500 hidden md:block" />
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 to-teal-500" />
             
             {/* Steps */}
             <div className="space-y-24 relative">
               {/* Step 1 */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
+              <div className="flex flex-row items-center">
+                <div className="w-1/2 pr-12 text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Track Your Food Inventory</h3>
                   <p className="text-gray-600">
                     Add items to your digital pantry with expiration dates. Our system organizes everything for you.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
+                <div className="w-12 flex justify-center relative z-10">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     1
                   </div>
                 </div>
                 
-                <div className="md:w-1/2 md:pl-12 text-center md:text-left">
-                  <div className="bg-green-50 rounded-xl p-4 shadow-md">
-                    <ShoppingBag className="h-12 w-12 text-green-500 mx-auto md:mx-0 mb-4" />
+                <div className="w-1/2 pl-12 text-left">
+                  <div className="bg-green-50 rounded-xl p-4 shadow-md inline-flex">
+                    <ShoppingBag className="h-12 w-12 text-green-500" />
                   </div>
                 </div>
               </div>
               
               {/* Step 2 */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="order-2 md:order-1 md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
-                  <div className="bg-teal-50 rounded-xl p-4 shadow-md">
-                    <Bell className="h-12 w-12 text-teal-500 mx-auto md:ml-auto md:mr-0 mb-4" />
+              <div className="flex flex-row items-center">
+                <div className="w-1/2 pr-12 text-right">
+                  <div className="bg-teal-50 rounded-xl p-4 shadow-md inline-flex float-right">
+                    <Bell className="h-12 w-12 text-teal-500" />
                   </div>
                 </div>
                 
-                <div className="order-1 md:order-2 md:w-12 flex justify-center relative z-10 my-6 md:my-0">
+                <div className="w-12 flex justify-center relative z-10">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     2
                   </div>
                 </div>
                 
-                <div className="order-3 md:order-3 md:w-1/2 md:pl-12 text-center md:text-left">
+                <div className="w-1/2 pl-12 text-left">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Receive Smart Notifications</h3>
                   <p className="text-gray-600">
                     Get timely alerts before your food expires, so you can use it before it goes to waste.
@@ -397,42 +398,42 @@ export default function LandingPage() {
               </div>
               
               {/* Step 3 */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
+              <div className="flex flex-row items-center">
+                <div className="w-1/2 pr-12 text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Plan Your Meals</h3>
                   <p className="text-gray-600">
                     Create meal plans that prioritize soon-to-expire ingredients to minimize waste.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
+                <div className="w-12 flex justify-center relative z-10">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     3
                   </div>
                 </div>
                 
-                <div className="md:w-1/2 md:pl-12 text-center md:text-left">
-                  <div className="bg-blue-50 rounded-xl p-4 shadow-md">
-                    <Calendar className="h-12 w-12 text-blue-500 mx-auto md:mx-0 mb-4" />
+                <div className="w-1/2 pl-12 text-left">
+                  <div className="bg-blue-50 rounded-xl p-4 shadow-md inline-flex">
+                    <Calendar className="h-12 w-12 text-blue-500" />
                   </div>
                 </div>
               </div>
               
               {/* Step 4 */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="order-2 md:order-1 md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
-                  <div className="bg-purple-50 rounded-xl p-4 shadow-md">
-                    <PieChart className="h-12 w-12 text-purple-500 mx-auto md:ml-auto md:mr-0 mb-4" />
+              <div className="flex flex-row items-center">
+                <div className="w-1/2 pr-12 text-right">
+                  <div className="bg-purple-50 rounded-xl p-4 shadow-md inline-flex float-right">
+                    <PieChart className="h-12 w-12 text-purple-500" />
                   </div>
                 </div>
                 
-                <div className="order-1 md:order-2 md:w-12 flex justify-center relative z-10 my-6 md:my-0">
+                <div className="w-12 flex justify-center relative z-10">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     4
                   </div>
                 </div>
                 
-                <div className="order-3 md:order-3 md:w-1/2 md:pl-12 text-center md:text-left">
+                <div className="w-1/2 pl-12 text-left">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Track Your Progress</h3>
                   <p className="text-gray-600">
                     Visualize your waste reduction and savings over time with intuitive charts and insights.
@@ -441,24 +442,119 @@ export default function LandingPage() {
               </div>
               
               {/* Step 5 */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 text-center md:text-right">
+              <div className="flex flex-row items-center">
+                <div className="w-1/2 pr-12 text-right">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Join the Community</h3>
                   <p className="text-gray-600">
                     Share recipes, tips, and sustainability ideas with others on the same journey.
                   </p>
                 </div>
                 
-                <div className="md:w-12 flex justify-center relative z-10 my-6 md:my-0">
+                <div className="w-12 flex justify-center relative z-10">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                     5
                   </div>
                 </div>
                 
-                <div className="md:w-1/2 md:pl-12 text-center md:text-left">
-                  <div className="bg-pink-50 rounded-xl p-4 shadow-md">
-                    <MessageCircle className="h-12 w-12 text-pink-500 mx-auto md:mx-0 mb-4" />
+                <div className="w-1/2 pl-12 text-left">
+                  <div className="bg-pink-50 rounded-xl p-4 shadow-md inline-flex">
+                    <MessageCircle className="h-12 w-12 text-pink-500" />
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Mobile version - only shown on mobile */}
+          <div className="md:hidden">
+            <div className="space-y-16">
+              {/* Step 1 */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-bold text-lg shadow-md mr-4">
+                    1
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Track Your Food Inventory</h3>
+                </div>
+                <div className="flex items-start">
+                  <div className="bg-green-50 rounded-lg p-3 shadow mr-4">
+                    <ShoppingBag className="h-8 w-8 text-green-500" />
+                  </div>
+                  <p className="text-gray-600 flex-1">
+                    Add items to your digital pantry with expiration dates. Our system organizes everything for you.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 2 */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-md mr-4">
+                    2
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Receive Smart Notifications</h3>
+                </div>
+                <div className="flex items-start">
+                  <div className="bg-teal-50 rounded-lg p-3 shadow mr-4">
+                    <Bell className="h-8 w-8 text-teal-500" />
+                  </div>
+                  <p className="text-gray-600 flex-1">
+                    Get timely alerts before your food expires, so you can use it before it goes to waste.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 3 */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-lg shadow-md mr-4">
+                    3
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Plan Your Meals</h3>
+                </div>
+                <div className="flex items-start">
+                  <div className="bg-blue-50 rounded-lg p-3 shadow mr-4">
+                    <Calendar className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <p className="text-gray-600 flex-1">
+                    Create meal plans that prioritize soon-to-expire ingredients to minimize waste.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 4 */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md mr-4">
+                    4
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Track Your Progress</h3>
+                </div>
+                <div className="flex items-start">
+                  <div className="bg-purple-50 rounded-lg p-3 shadow mr-4">
+                    <PieChart className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <p className="text-gray-600 flex-1">
+                    Visualize your waste reduction and savings over time with intuitive charts and insights.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 5 */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-md mr-4">
+                    5
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Join the Community</h3>
+                </div>
+                <div className="flex items-start">
+                  <div className="bg-pink-50 rounded-lg p-3 shadow mr-4">
+                    <MessageCircle className="h-8 w-8 text-pink-500" />
+                  </div>
+                  <p className="text-gray-600 flex-1">
+                    Share recipes, tips, and sustainability ideas with others on the same journey.
+                  </p>
                 </div>
               </div>
             </div>
