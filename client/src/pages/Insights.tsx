@@ -56,12 +56,14 @@ export default function Insights() {
         <h1 className="page-header">Insights</h1>
         
         <Tabs defaultValue="categories" className="mb-6">
-          <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="categories">Category Distribution</TabsTrigger>
-            <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
-            <TabsTrigger value="waste">Waste Trends</TabsTrigger>
-            <TabsTrigger value="consumption">Consumption</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-3 mb-1">
+            <TabsList className="mb-4 bg-white/80 backdrop-blur-sm min-w-[500px] md:min-w-0">
+              <TabsTrigger value="categories">Category Distribution</TabsTrigger>
+              <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
+              <TabsTrigger value="waste">Waste Trends</TabsTrigger>
+              <TabsTrigger value="consumption">Consumption</TabsTrigger>
+            </TabsList>
+          </div>
           
         <TabsContent value="waste">
           <div className="grid grid-cols-1 gap-6">

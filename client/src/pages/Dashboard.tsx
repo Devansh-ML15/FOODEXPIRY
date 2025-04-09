@@ -84,12 +84,14 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold mb-4">Food Insights</h2>
             
             <Tabs defaultValue="categories" className="mb-6">
-              <TabsList className="mb-4 bg-white/80 backdrop-blur-sm">
-                <TabsTrigger value="categories">Category Distribution</TabsTrigger>
-                <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
-                <TabsTrigger value="waste">Waste Trends</TabsTrigger>
-                <TabsTrigger value="consumption">Consumption</TabsTrigger>
-              </TabsList>
+              <div className="overflow-x-auto pb-3 mb-1">
+                <TabsList className="mb-4 bg-white/80 backdrop-blur-sm min-w-[500px] md:min-w-0">
+                  <TabsTrigger value="categories">Category Distribution</TabsTrigger>
+                  <TabsTrigger value="expiration">Expiration Patterns</TabsTrigger>
+                  <TabsTrigger value="waste">Waste Trends</TabsTrigger>
+                  <TabsTrigger value="consumption">Consumption</TabsTrigger>
+                </TabsList>
+              </div>
               
               {/* Categories Tab Content */}
               <TabsContent value="categories" className="animate-in fade-in-50">
