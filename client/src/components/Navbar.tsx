@@ -135,7 +135,8 @@ export default function Navbar() {
                   </div>
                 </Link>
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {/* Desktop Navigation - hidden on mobile */}
+              <div className="hidden md:ml-6 md:flex md:space-x-8">
                 {navLinks.map((link, index) => (
                   <Link key={link.href} href={link.href}>
                     <div
@@ -152,135 +153,182 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
+            
+            {/* Right side nav icons - hide notifications and settings on mobile */}
             <div className="flex items-center">
+              {/* These elements remain visible on both mobile and desktop */}
               <ThemeSelector className="mr-2" />
               <HelpButton className="mr-2" />
-              <Button
-                onClick={handleNotificationClick}
-                variant={notificationCount > 0 ? "destructive" : "ghost"}
-                className={`p-2 mr-2 rounded-full transition-all duration-300 ${
-                  notificationCount > 0 
-                    ? "bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white shadow-md" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800"
-                }`}
-              >
-                <span className="sr-only">View notifications</span>
-                <div className="relative">
-                  <Bell className={`h-5 w-5 ${notificationCount > 0 ? "text-white animate-bounce" : "icon-animated"}`} />
-                  {notificationCount > 0 && (
-                    <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full pulse-animation">
-                      {notificationCount}
-                    </span>
-                  )}
-                </div>
-              </Button>
-              <Link href="/settings">
+              
+              {/* Hide these on smaller mobile screens */}
+              <div className="hidden sm:flex sm:items-center">
                 <Button
-                  variant="ghost"
-                  className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-all duration-300"
+                  onClick={handleNotificationClick}
+                  variant={notificationCount > 0 ? "destructive" : "ghost"}
+                  className={`p-2 mr-2 rounded-full transition-all duration-300 ${
+                    notificationCount > 0 
+                      ? "bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white shadow-md" 
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+                  }`}
                 >
-                  <span className="sr-only">Settings</span>
-                  <Cog className="h-5 w-5 icon-animated" />
+                  <span className="sr-only">View notifications</span>
+                  <div className="relative">
+                    <Bell className={`h-5 w-5 ${notificationCount > 0 ? "text-white animate-bounce" : "icon-animated"}`} />
+                    {notificationCount > 0 && (
+                      <span className="badge-animated absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full pulse-animation">
+                        {notificationCount}
+                      </span>
+                    )}
+                  </div>
                 </Button>
-              </Link>
-              <div className="ml-3 relative">
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
-                      <span className="sr-only">Open user menu</span>
-                      <Avatar 
-                        className={`h-8 w-8 transform transition-all duration-300 hover:scale-110 ring-2 ${getRingColor()} ${getAvatarColor()}`}
-                        style={{
-                          boxShadow: getAvatarShadow()
-                        }}
-                      >
-                        <AvatarFallback className={`${resolvedTheme === 'dark' ? 'text-white' : 'text-green-900'} font-bold`}>
-                          {user.username.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.username}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => logoutMutation.mutate()}
-                      disabled={logoutMutation.isPending}
-                      className="cursor-pointer"
-                    >
-                      {logoutMutation.isPending ? (
-                        <>
-                          <span className="mr-2 h-4 w-4 animate-spin">⏳</span>
-                          <span>Logging out...</span>
-                        </>
-                      ) : (
-                        <>
-                          <LogOut className="mr-2 h-4 w-4" />
-                          <span>Log out</span>
-                        </>
-                      )}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Link href="/auth">
-                  <Button variant="default" size="sm" className="font-semibold">
-                    Log in
+                <Link href="/settings">
+                  <Button
+                    variant="ghost"
+                    className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-all duration-300"
+                  >
+                    <span className="sr-only">Settings</span>
+                    <Cog className="h-5 w-5 icon-animated" />
                   </Button>
                 </Link>
-              )}
+              </div>
+              
+              {/* User avatar/login button - keep this visible on all screens */}
+              <div className="ml-3 relative">
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
+                        <span className="sr-only">Open user menu</span>
+                        <Avatar 
+                          className={`h-8 w-8 transform transition-all duration-300 hover:scale-110 ring-2 ${getRingColor()} ${getAvatarColor()}`}
+                          style={{
+                            boxShadow: getAvatarShadow()
+                          }}
+                        >
+                          <AvatarFallback className={`${resolvedTheme === 'dark' ? 'text-white' : 'text-green-900'} font-bold`}>
+                            {user.username.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">{user.username}</p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => logoutMutation.mutate()}
+                        disabled={logoutMutation.isPending}
+                        className="cursor-pointer"
+                      >
+                        {logoutMutation.isPending ? (
+                          <>
+                            <span className="mr-2 h-4 w-4 animate-spin">⏳</span>
+                            <span>Logging out...</span>
+                          </>
+                        ) : (
+                          <>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Log out</span>
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link href="/auth">
+                    <Button variant="default" size="sm" className="font-semibold">
+                      Log in
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+            
+            {/* Mobile menu button - only visible on small screens */}
+            <div className="md:hidden flex items-center">
+              <Button
+                variant="ghost"
+                onClick={toggleMobileMenu}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-all duration-300"
+                aria-expanded={isMobileMenuOpen}
+              >
+                <span className="sr-only">Open main menu</span>
+                <Menu className={`h-6 w-6 ${isMobileMenuOpen ? 'text-primary' : ''} transform transition-all duration-300`} />
+              </Button>
             </div>
           </div>
-          <div className="-mr-2 flex items-center sm:hidden">
-            <Button
-              variant="ghost"
-              onClick={toggleMobileMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-all duration-300"
-            >
-              <span className="sr-only">Open main menu</span>
-              <Menu className="h-6 w-6 icon-animated" />
-            </Button>
-          </div>
         </div>
-      </div>
 
-      {/* Mobile menu with animation */}
-      <div 
-        className={`sm:hidden overflow-hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="pt-2 pb-3 space-y-1">
-          {navLinks.map((link, index) => (
-            <Link key={link.href} href={link.href}>
-              <div
-                className={`${
-                  location === link.href
-                    ? "bg-green-50 dark:bg-green-900/20 border-primary text-primary"
-                    : "border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 hover:border-green-300 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                } block pl-3 pr-4 py-3 border-l-4 text-base font-medium transition-all duration-300 hover:translate-x-1 animated-section cursor-pointer`}
-                onClick={() => setIsMobileMenuOpen(false)}
+        {/* Mobile menu dropdown - enhanced animation and styling */}
+        <div 
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen ? 'max-h-[500px] opacity-100 border-t border-gray-200 dark:border-gray-800' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="pt-2 pb-3 space-y-1 px-2">
+            {/* Navigation links */}
+            {navLinks.map((link, index) => (
+              <Link key={link.href} href={link.href}>
+                <div
+                  className={`${
+                    location === link.href
+                      ? "bg-green-50 dark:bg-green-900/20 border-l-4 border-primary text-primary"
+                      : "border-l-4 border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 hover:border-green-300 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                  } block pl-3 pr-4 py-3 text-base font-medium transition-all duration-300 rounded-md hover:translate-x-1 cursor-pointer`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{ 
+                    animationDelay: `${index * 50}ms`,
+                    opacity: 0,
+                    animation: isMobileMenuOpen ? `fadeIn 0.3s ease-out ${index * 0.05}s forwards` : 'none' 
+                  }}
+                >
+                  {link.label}
+                </div>
+              </Link>
+            ))}
+            
+            {/* Mobile-only notification and settings links */}
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 grid grid-cols-2 gap-2">
+              <div 
+                className="flex items-center justify-center p-3 text-sm font-medium rounded-md bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                onClick={() => {
+                  handleNotificationClick();
+                  setIsMobileMenuOpen(false);
+                }}
                 style={{ 
-                  animationDelay: `${index * 75}ms`,
+                  animationDelay: `${navLinks.length * 50}ms`,
                   opacity: 0,
-                  animation: isMobileMenuOpen ? `fadeIn 0.3s ease-out ${index * 0.075}s forwards` : 'none' 
+                  animation: isMobileMenuOpen ? `fadeIn 0.3s ease-out ${navLinks.length * 0.05}s forwards` : 'none' 
                 }}
               >
-                {link.label}
+                <Bell className="mr-2 h-5 w-5" />
+                <span>Notifications {notificationCount > 0 && `(${notificationCount})`}</span>
               </div>
-            </Link>
-          ))}
+              
+              <Link href="/settings">
+                <div 
+                  className="flex items-center justify-center p-3 text-sm font-medium rounded-md bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{ 
+                    animationDelay: `${(navLinks.length + 1) * 50}ms`,
+                    opacity: 0,
+                    animation: isMobileMenuOpen ? `fadeIn 0.3s ease-out ${(navLinks.length + 1) * 0.05}s forwards` : 'none' 
+                  }}
+                >
+                  <Cog className="mr-2 h-5 w-5" />
+                  <span>Settings</span>
+                </div>
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
     </>
   );
 }
