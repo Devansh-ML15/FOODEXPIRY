@@ -21,9 +21,6 @@ import {
   MessageCircle
 } from "lucide-react";
 import logoImage from "@/assets/logo.png";
-import foodImage1 from "@/assets/images/Gemini_Generated_Image_2fbbxg2fbbxg2fbb.jpeg";
-import foodImage2 from "@/assets/images/Gemini_Generated_Image_fbmy7lfbmy7lfbmy.jpeg";
-import foodImage3 from "@/assets/images/Gemini_Generated_Image_fkm10cfkm10cfkm1.jpeg";
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -32,7 +29,7 @@ export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
   const statRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const testimonialRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -43,7 +40,7 @@ export default function LandingPage() {
         heroRef.current,
         ...featureRefs.current,
         ...statRefs.current,
-        ...imageRefs.current
+        ...testimonialRefs.current
       ].filter(Boolean);
       
       elements.forEach((element) => {
@@ -143,7 +140,27 @@ export default function LandingPage() {
     }
   ];
   
-
+  // Expected feedback from beta testers
+  const feedbackPreview = [
+    {
+      id: "feedback-1",
+      content: "I'm excited to see a solution focused on reducing food waste! Looking forward to tracking my expiration dates and getting notifications.",
+      name: "Beta Tester",
+      title: "Future User"
+    },
+    {
+      id: "feedback-2",
+      content: "The idea of seeing analytics on my food waste patterns sounds very helpful. I'm interested in learning how to become more environmentally conscious.",
+      name: "Early Adopter",
+      title: "Sustainability Enthusiast"
+    },
+    {
+      id: "feedback-3",
+      content: "I'm most excited about the meal planning feature that will help me use ingredients I already have. Can't wait to try it!",
+      name: "Waitlist Member",
+      title: "Home Cook"
+    }
+  ];
   
   return (
     <div className="landing-page min-h-screen bg-gradient-to-b from-white via-green-50 to-white overflow-hidden">
@@ -447,79 +464,53 @@ export default function LandingPage() {
         </div>
       </div>
       
-      {/* Food Imagery Showcase */}
+      {/* Beta Tester Feedback Preview */}
       <div className="py-20 px-4 sm:px-6 bg-gradient-to-br from-teal-50 to-green-50">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">
-            Save Food, Save Money
+            Coming Soon Feedback
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div 
-              id="food-image-1"
-              ref={el => imageRefs.current[0] = el}
-              className={`relative rounded-xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl group ${
-                isAnimated("food-image-1")
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              }`}
-              style={{ transitionDelay: '100ms' }}
-            >
-              <img 
-                src={foodImage1} 
-                alt="Fresh vegetables" 
-                className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-70"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Track Fresh Ingredients</h3>
-                <p className="text-white/80">Keep your produce fresh and utilize it before expiration</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {feedbackPreview.map((feedback, index) => (
+              <div
+                key={feedback.id}
+                id={feedback.id}
+                ref={el => testimonialRefs.current[index] = el}
+                className={`bg-white rounded-xl p-8 shadow-xl relative transition-all duration-1000 ${
+                  isAnimated(feedback.id)
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                }`}
+                style={{ transitionDelay: `${index * 200}ms` }}
+              >
+                <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4">
+                  <div className="p-3 bg-green-100 rounded-full shadow-md">
+                    <Heart className="h-5 w-5 text-red-500" />
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 inline-block" />
+                  ))}
+                </div>
+                
+                <p className="text-gray-700 mb-6 italic">
+                  "{feedback.content}"
+                </p>
+                
+                <div className="flex items-center">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-400 to-teal-400 flex items-center justify-center text-white font-bold text-xl">
+                    {feedback.name.charAt(0)}
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold text-gray-800">{feedback.name}</div>
+                    <div className="text-gray-500 text-sm">{feedback.title}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div 
-              id="food-image-2"
-              ref={el => imageRefs.current[1] = el}
-              className={`relative rounded-xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl group ${
-                isAnimated("food-image-2")
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              }`}
-              style={{ transitionDelay: '200ms' }}
-            >
-              <img 
-                src={foodImage2} 
-                alt="Meal preparation" 
-                className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-70"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Plan Delicious Meals</h3>
-                <p className="text-white/80">Create recipes with what you already have on hand</p>
-              </div>
-            </div>
-            
-            <div 
-              id="food-image-3"
-              ref={el => imageRefs.current[2] = el}
-              className={`relative rounded-xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl group ${
-                isAnimated("food-image-3")
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              }`}
-              style={{ transitionDelay: '300ms' }}
-            >
-              <img 
-                src={foodImage3} 
-                alt="Sustainable cooking" 
-                className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-70"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Reduce Environmental Impact</h3>
-                <p className="text-white/80">Join the movement to create a more sustainable future</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
